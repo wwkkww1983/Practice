@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Caist.Framework.WebApi</name>
+    </assembly>
+    <members>
+        <member name="M:Caist.Framework.WebApi.Controllers.FiberController.GetFiberInfoList(Caist.Framework.Model.FiberManage.FiberParam)">
+            <summary>
+            获取区域光纤温度
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.PersonnelList(Caist.Framework.Model.PeopleManage.RegionParam)">
+            <summary>
+            根据点位获取实时人员列表
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.PeopleCounting(Caist.Framework.Model.PeopleManage.RegionParam)">
+            <summary>
+            相应点位的人数统计
+            </summary>
+            <param name="param"></param>
+            <param name="pagination"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.GetPeopleInfo(Caist.Framework.Model.PeopleManage.RegionParam)">
+            <summary>
+            人员信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Caist.Framework.WebApi.Handle.AuthorizeFilterAttribute">
+            <summary>
+            验证token和记录日志
+            </summary>
+        </member>
+        <member name="F:Caist.Framework.WebApi.Handle.AuthorizeFilterAttribute.IgnoreToken">
+            <summary>
+            忽略token的方法
+            </summary>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Handle.AuthorizeFilterAttribute.OnActionExecutionAsync(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext,Microsoft.AspNetCore.Mvc.Filters.ActionExecutionDelegate)">
+            <summary>
+            异步接口日志
+            </summary>
+            <param name="context"></param>
+            <param name="next"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

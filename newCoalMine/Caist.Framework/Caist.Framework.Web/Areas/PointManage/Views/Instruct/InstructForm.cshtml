@@ -1,0 +1,106 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormWhite.cshtml";
+}
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment HostingEnvironment
+@section header{
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/summernote/0.8.8/summernote.min.css"))
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/summernote/0.8.8/summernote.min.js"))
+
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/imageupload/1.0/css/imgup.min.css"))
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/imageupload/1.0/js/imgup.min.js"))
+}
+
+<div class="wrapper animated fadeInRight">
+    <form id="form" class="form-horizontal m">
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">节点名称 <font class="red"> *</font> </label>
+            <div class="col-sm-10">
+                <input id="name" col="Name" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">寄存器<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="instructGroupId" col="InstructGroupId"></div>
+            </div>
+            <label class="col-sm-2 control-label ">标签地址<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="address" col="Address" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">描述</label>
+            <div class="col-sm-10">
+                <input id="remark" col="Remark" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">输入输出</label>
+            <div class="col-sm-10" id="output" col="Output"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">数据类型</label>
+            <div class="col-sm-10" id="dataType" col="DataType"></div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    var id = ys.request("id");
+    var instructGroupId = ys.request("instructGroupId");
+    $(function () {
+        $("#dataType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructEnum).EnumToDictionaryString())) });
+        $("#output").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructParamEnum).EnumToDictionaryString())) });
+        getForm();
+        $("#instructGroupId").ysComboBox({
+            url: '@Url.Content("~/PointManage/InstructGroup/GetListJson")',
+            key: "Id",
+            value: "ModularType",
+            class: "form-control",
+        });
+        $("#form").validate({
+            rules: {
+                name: { required: true },
+                instructGroupId: { required: true },
+                address: { required: true },
+                dataType: { required: true }
+            }
+        });
+    });
+
+    function getForm() {
+        if (id > 0) {
+            ys.ajax({
+                url: '@Url.Content("~/PointManage/Instruct/GetFormJson")' + '?id=' + id,
+                type: "get",
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        $("#form").setWebControls(obj.Result);
+                        $("#systemImage").imageUpload("setImageUrl", obj.Result.SystemImage);
+                    }
+                }
+            });
+        }
+    }
+
+    function saveForm(index) {
+        if ($("#form").validate().form()) {
+            var postData = $("#form").getWebControls({ Id: id });
+            ys.ajax({
+                url: '@Url.Content("~/PointManage/Instruct/SaveFormJson")',
+                type: "post",
+                data: postData,
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        ys.msgSuccess(obj.Message);
+                        parent.searchGrid();
+                        parent.layer.close(index);
+                    }
+                    else {
+                        ys.msgError(obj.Message);
+                    }
+                }
+            });
+        }
+    }
+</script>

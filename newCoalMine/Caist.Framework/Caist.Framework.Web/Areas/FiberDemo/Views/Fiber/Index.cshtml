@@ -1,0 +1,163 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormGray.cshtml";
+}
+
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment HostingEnvironment
+@section header{
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/report/echarts/echarts.min.js"))
+}
+
+@*<script src="~/lib/report/echarts/echarts.min.js" charset="utf-8"></script>*@
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <h2>光纤测温</h2>
+                    <p>
+                        展示光纤的近期温度变化
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>温度记录</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="graph_flot.html#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li>
+                                <a href="graph_flot.html#">选项1</a>
+                            </li>
+                            <li>
+                                <a href="graph_flot.html#">选项2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-line-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var low_global;
+    var high_global;
+    $(function () {
+
+        $.ajax({
+            url: '/FiberDemo/Fiber/GetFiberTempLists',
+            type: 'post',
+            data: {
+                AreaName: ""
+            },
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function (res) {
+                filterData(res);
+                initChart();
+            }
+        });
+
+    });
+
+    function initChart() {
+
+        var lineChart = echarts.init(document.getElementById("echarts-line-chart"));
+        var lineoption = {
+            title: {
+                text: '一周温度变化'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['最高温度', '最低温度']
+            },
+            grid: {
+                x: 40,
+                x2: 40,
+                y2: 24
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} °C'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '最高温度',
+                    type: 'line',
+                    data: high_global,
+                    markPoint: {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+                {
+                    name: '最低温度',
+                    type: 'line',
+                    data: low_global,
+                    markPoint: {
+                        data: [
+                            { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                }
+            ]
+        };
+        lineChart.setOption(lineoption);
+        $(window).resize(lineChart.resize);
+    }
+
+    function filterData(result) {
+        low_global = new Array();
+        high_global = new Array();
+        var res = eval(result);
+        var datas = res.Result;
+        if (datas != null && datas.length > 0) {
+            for (var i = 0; i < datas.length; i++) {
+                low_global.push(datas[i].MinValuePos);
+                high_global.push(datas[i].MaxValuePos);
+            }
+        }
+    }
+</script>

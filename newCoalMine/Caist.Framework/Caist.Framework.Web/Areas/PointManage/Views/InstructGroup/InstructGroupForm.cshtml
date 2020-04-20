@@ -1,0 +1,94 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormWhite.cshtml";
+}
+
+<div class="wrapper animated fadeInRight">
+    <form id="form" class="form-horizontal m">
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">节点名称</label>
+            <div class="col-sm-10">
+                <input id="name" col="Name" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">PLC模块<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="deviceID" col="DeviceID"></div>
+            </div>
+            
+            <label class="col-sm-2 control-label">寄存器名称</label>
+            <div class="col-sm-4">
+                <input id="modularType" col="ModularType" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">字节数</label>
+            <div class="col-sm-4">
+                <input id="readCount" col="ReadCount" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label">存器起始地址</label>
+            <div class="col-sm-4">
+                <input id="beginAddress" col="BeginAddress" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">DB块地址</label>
+            <div class="col-sm-10">
+                <input id="beginBlock" col="BeginBlock" type="text" class="form-control" />
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    var id = ys.request("id");
+    var deviceID = ys.request("deviceID");
+    $(function () {
+        getForm();
+        $("#deviceID").ysComboBox({
+            url: '@Url.Content("~/PointManage/Device/GetListJson")',
+            key: "Id",
+            value: "DeviceName",
+            class: "form-control",
+        });
+        $("#form").validate({
+            rules: {
+                deviceID: { required: true },
+                manipulateModelName: { required: true }
+            }
+        });
+    });
+    function getForm() {
+        if (id > 0) {
+            ys.ajax({
+                url: '@Url.Content("~/PointManage/InstructGroup/GetFormJson")' + '?id=' + id,
+                type: "get",
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        $("#form").setWebControls(obj.Result);
+                    }
+                }
+            });
+        }
+    }
+
+    function saveForm(index) {
+        if ($("#form").validate().form()) {
+            var postData = $("#form").getWebControls({ Id: id });
+            ys.ajax({
+                url: '@Url.Content("~/PointManage/InstructGroup/SaveFormJson")',
+                type: "post",
+                data: postData,
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        ys.msgSuccess(obj.Message);
+                        parent.searchGrid();
+                        parent.layer.close(index);
+                    }
+                    else {
+                        ys.msgError(obj.Message);
+                    }
+                }
+            });
+        }
+    }
+</script>

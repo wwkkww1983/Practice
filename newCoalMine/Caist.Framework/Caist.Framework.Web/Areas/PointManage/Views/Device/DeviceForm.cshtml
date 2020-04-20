@@ -1,0 +1,115 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormWhite.cshtml";
+}
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment HostingEnvironment
+@section header{
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/summernote/0.8.8/summernote.min.css"))
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/summernote/0.8.8/summernote.min.js"))
+
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/imageupload/1.0/css/imgup.min.css"))
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/imageupload/1.0/js/imgup.min.js"))
+}
+
+<div class="wrapper animated fadeInRight">
+    <form id="form" class="form-horizontal m">
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">名称 <font class="red"> *</font> </label>
+            <div class="col-sm-10">
+                <input id="deviceName" col="DeviceName" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">IP地址 <font class="red"> *</font> </label>
+            <div class="col-sm-4">
+                <input id="deviceHost" col="DeviceHost" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label ">端口<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="devicePort" col="DevicePort" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">PLC系列<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="pLCType" col="PLCType" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label ">CPU槽号<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="slotNo" col="SlotNo" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">Local<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="local" col="Local" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label ">Remote<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="remote" col="Remote" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label "></label>
+            <div class="col-sm-4">
+                <label class="label">例：S7-200："10 11"，Smart："02 01"</label>
+            </div>
+            <label class="col-sm-2 control-label "></label>
+            <div class="col-sm-4">
+                <label class="label">例：S7-200："10 01"，Smart："02 00"</label>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    var id = ys.request("id");
+    $(function () {
+        getForm();
+        $("#form").validate({
+            rules: {
+                deviceName: { required: true },
+                deviceHost: { required: true },
+                devicePort: { required: true },
+                pLCType: { required: true },
+                cPUSlotNo: { required: true },
+                localTASP: { required: true },
+                remoteTASP: { required: true }
+            }
+        });
+    });
+
+    function getForm() {
+        if (id > 0) {
+            ys.ajax({
+                url: '@Url.Content("~/PointManage/Device/GetFormJson")' + '?id=' + id,
+                type: "get",
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        $("#form").setWebControls(obj.Result);
+                    }
+                }
+            });
+        }
+    }
+
+    function saveForm(index) {
+        if ($("#form").validate().form()) {
+            var postData = $("#form").getWebControls({ Id: id });
+            ys.ajax({
+                url: '@Url.Content("~/PointManage/Device/SaveFormJson")',
+                type: "post",
+                data: postData,
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        ys.msgSuccess(obj.Message);
+                        parent.searchGrid();
+                        parent.layer.close(index);
+                    }
+                    else {
+                        ys.msgError(obj.Message);
+                    }
+                }
+            });
+        }
+    }
+</script>
