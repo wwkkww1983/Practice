@@ -1,0 +1,12 @@
+E:\king\Practice\IOCDemo\BLL\bin\Debug\netcoreapp3.1\BLL.deps.json
+E:\king\Practice\IOCDemo\BLL\bin\Debug\netcoreapp3.1\BLL.dll
+E:\king\Practice\IOCDemo\BLL\obj\Debug\netcoreapp3.1\BLL.csprojAssemblyReference.cache
+E:\king\Practice\IOCDemo\BLL\obj\Debug\netcoreapp3.1\BLL.AssemblyInfoInputs.cache
+E:\king\Practice\IOCDemo\BLL\obj\Debug\netcoreapp3.1\BLL.AssemblyInfo.cs
+E:\king\Practice\IOCDemo\BLL\bin\Debug\netcoreapp3.1\BLL.pdb
+E:\king\Practice\IOCDemo\BLL\obj\Debug\netcoreapp3.1\BLL.csproj.CoreCompileInputs.cache
+E:\king\Practice\IOCDemo\BLL\obj\Debug\netcoreapp3.1\BLL.dll
+E:\king\Practice\IOCDemo\BLL\obj\Debug\netcoreapp3.1\BLL.pdb
+E:\king\Practice\IOCDemo\BLL\bin\Debug\netcoreapp3.1\Service.dll
+E:\king\Practice\IOCDemo\BLL\bin\Debug\netcoreapp3.1\Service.pdb
+E:\king\Practice\IOCDemo\BLL\obj\Debug\netcoreapp3.1\BLL.csproj.CopyComplete

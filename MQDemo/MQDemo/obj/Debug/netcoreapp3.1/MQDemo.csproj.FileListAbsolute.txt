@@ -1,0 +1,3 @@
+E:\king\Practice\MQDemo\MQDemo\bin\Debug\netcoreapp3.1\MQDemo.exe
+E:\king\Practice\MQDemo\MQDemo\obj\Debug\netcoreapp3.1\MQDemo.AssemblyInfoInputs.cache
+E:\king\Practice\MQDemo\MQDemo\obj\Debug\netcoreapp3.1\MQDemo.AssemblyInfo.cs
