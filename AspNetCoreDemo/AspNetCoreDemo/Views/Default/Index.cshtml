@@ -1,0 +1,21 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    @{
+        var p = ViewBag.Pepole;
+        <p>姓名：@p.name_e</p>
+        <p>性别：@p.gender_e</p>
+        <p>年龄：@p.age_e</p>
+    }
+</body>
+</html>
