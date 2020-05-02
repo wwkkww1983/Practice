@@ -100,5 +100,15 @@ namespace SyncDataBase
                 this.Dispose();
             }
         }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (lblHint.Visible)
+            {
+                lblwarn.Visible = true;
+                lblWaring.Text = "当前程序正在同步中，中途终止可能会导致同步数据出问题；\r\n如果不想再次进行同步，可以点击【定时停止】！";
+                e.Cancel = true;
+            }
+        }
     }
 }

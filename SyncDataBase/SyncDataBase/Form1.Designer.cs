@@ -38,6 +38,8 @@
             this.btnStop = new System.Windows.Forms.Button();
             this.lblHint = new System.Windows.Forms.Label();
             this.btnExit = new System.Windows.Forms.Button();
+            this.lblWaring = new System.Windows.Forms.Label();
+            this.lblwarn = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnStart
@@ -118,13 +120,38 @@
             this.btnExit.TabIndex = 0;
             this.btnExit.Text = "终止同步";
             this.btnExit.UseVisualStyleBackColor = true;
+            this.btnExit.Visible = false;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
+            // 
+            // lblWaring
+            // 
+            this.lblWaring.AutoSize = true;
+            this.lblWaring.Font = new System.Drawing.Font("SimSun", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblWaring.ForeColor = System.Drawing.Color.Black;
+            this.lblWaring.Location = new System.Drawing.Point(51, 68);
+            this.lblWaring.Name = "lblWaring";
+            this.lblWaring.Size = new System.Drawing.Size(0, 12);
+            this.lblWaring.TabIndex = 2;
+            // 
+            // lblwarn
+            // 
+            this.lblwarn.AutoSize = true;
+            this.lblwarn.Font = new System.Drawing.Font("SimSun", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblwarn.ForeColor = System.Drawing.Color.Red;
+            this.lblwarn.Location = new System.Drawing.Point(12, 68);
+            this.lblwarn.Name = "lblwarn";
+            this.lblwarn.Size = new System.Drawing.Size(38, 12);
+            this.lblwarn.TabIndex = 2;
+            this.lblwarn.Text = "警告:";
+            this.lblwarn.Visible = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(444, 379);
+            this.Controls.Add(this.lblwarn);
+            this.Controls.Add(this.lblWaring);
             this.Controls.Add(this.lblHint);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -138,6 +165,7 @@
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -154,6 +182,8 @@
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Label lblHint;
         private System.Windows.Forms.Button btnExit;
+        private System.Windows.Forms.Label lblWaring;
+        private System.Windows.Forms.Label lblwarn;
     }
 }
 
