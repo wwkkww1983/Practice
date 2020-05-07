@@ -25,8 +25,7 @@ namespace SyncDataAccess
             }
             catch (System.Exception ex)
             {
-
-                throw;
+                throw ex;
             }
             return dt;
         }
@@ -46,9 +45,8 @@ namespace SyncDataAccess
             }
             catch (System.Exception ex)
             {
-                throw;
+                throw ex;
             }
-            return flag;
         }
     }
 }

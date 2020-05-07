@@ -15,43 +15,57 @@ namespace SyncLogic
     public class Sync
     {
         readonly int _count = Convert.ToInt32(Common.GetConfigValue("MaxOnceData"));
-        public async Task<bool> SyncData()
+        public bool SyncData(ref string res)
         {
-            string txt = FileOperation.ReadText(Common.GetConfigValue("ConfigPath"));
-            if (txt.HasValue())
+            try
             {
-                var models = JsonConvert.DeserializeObject<List<DataBaseModel>>(txt);
-                return await Excute(models);
+                string txt = FileOperation.ReadText(Common.GetConfigValue("ConfigPath"));
+                if (txt.HasValue())
+                {
+                    var models = JsonConvert.DeserializeObject<List<DataBaseModel>>(txt);
+                    return Excute(models);
+                }
+            }
+            catch (Exception ex)
+            {
+                res = ex.Message;
             }
             return false;
         }
 
-        private async Task<bool> Excute(List<DataBaseModel> models)
+        private bool Excute(List<DataBaseModel> models)
         {
             bool flag = false;
             string sql = string.Empty;
-            foreach (var item in models)
+            try
             {
-                //生成查询SQL
-                sql = item.ToSelectSql();
-                //增量插入查询
-                if (item.syncType)
+                foreach (var item in models)
                 {
-                    string point = GetPoint(item);
-                    if (point.HasValue())
+                    //生成查询SQL
+                    sql = item.ToSelectSql();
+                    //增量插入查询
+                    if (item.syncPartial)
                     {
-                        sql += $" where {item.flagField} > '{point.Replace("\r\n",string.Empty)}'";
+                        string point = GetPoint(item);
+                        if (point.HasValue())
+                        {
+                            sql += $" where {item.flagField} > '{point.Replace("\r\n", string.Empty)}'";
+                        }
                     }
+                    else
+                    {
+                        DeleteSourceTableData(item);
+                    }
+                    //TODO:替换动态查询连接
+                    var dt = Query(sql, item);
+                    sql = item.ToInsertSql();
+                    flag = ExcuteInsertSql(sql, dt, item);
+                    SavePoint(item, dt);
                 }
-                else
-                {
-                    DeleteSourceTableData(item);
-                }
-                //TODO:替换动态查询连接
-                var dt = Query(sql, item);
-                sql = item.ToInsertSql();
-                flag = ExcuteInsertSql(sql, dt, item);
-                SavePoint(item, dt);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
             return flag;
         }

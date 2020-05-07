@@ -17,7 +17,7 @@ namespace SyncModel
         /// <summary>
         /// 增量同步，还是全量同步(true:增量；false:全量)
         /// </summary>
-        public bool syncType { get; set; }
+        public bool syncPartial { get; set; }
         /// <summary>
         /// 记录最后同步的关键字段
         /// </summary>

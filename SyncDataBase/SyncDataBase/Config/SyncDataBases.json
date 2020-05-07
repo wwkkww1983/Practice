@@ -2,47 +2,23 @@
   {
     "sourceDBType": "mysql",
     "sourceDB": "mk_collert",
-    "sourceTable": "realdata",
+    "sourceTable": "securitymonitoringrealtimedata",
     "sourceDBConnStr": "Server=192.168.1.235;Port=3306;Database=mk_collert;Uid=root;Pwd=root;",
     "targetDBType": "sqlserver",
     "targetDB": "caist_mk_db",
-    "targetTable": "mk_real_data",
+    "targetTable": "security_monitor_ingreal_time_data",
     "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
-    "syncType": true,
-    "flagField": "id",
-    "tableFields": [
-      "ID,id",
-      "PepoleNumber,pepole_number",
-      "CurrentStation,current_station",
-      "OriginStation,origin_station",
-      "DownWellTime,down_well_time",
-      "OriginTime,origin_time",
-      "CurrentTime,[current_time]",
-      "RemarkFirst,remark_first",
-      "RemarkSecond,remark_second",
-      "TR_LastUpdateTime,tr_last_update_time"
-    ],
-    "sourceTableFields": [
-      "id,int"
-    ],
-    "targetTableFields": [
-      "id,int"
-    ]
-  },
-  {
-    "sourceDBType": "mysql",
-    "sourceDB": "mk_collert",
-    "sourceTable": "jobposition",
-    "sourceDBConnStr": "Server=192.168.1.235;Port=3306;Database=mk_collert;Uid=root;Pwd=root;",
-    "targetDBType": "sqlserver",
-    "targetDB": "caist_mk_db",
-    "targetTable": "mk_job_position",
-    "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
-    "syncType": false,
+    "syncPartial": false,
     "flagField": "",
     "tableFields": [
-      "PositionName,postion_name",
-      "PositionNumber,postion_number"
+      "point,point",
+      "Address,Address",
+      "lc,lc",
+      "lx,lx",
+      "dw,dw",
+      "ssz,ssz",
+      "StatName,Stat_Name",
+      "UpdatDateTime,Updat_Date_Time"
     ],
     "sourceTableFields": [
       "id,int"
@@ -50,5 +26,28 @@
     "targetTableFields": [
       "id,int"
     ]
-  }
+   }
+      //,
+    //{
+    //  "sourceDBType": "mysql",
+    //  "sourceDB": "mk_collert",
+    //  "sourceTable": "jobposition",
+    //  "sourceDBConnStr": "Server=192.168.1.235;Port=3306;Database=mk_collert;Uid=root;Pwd=root;",
+    //  "targetDBType": "sqlserver",
+    //  "targetDB": "mk_cable_thermometry",
+    //  "targetTable": "mk_job_position",
+    //  "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
+    //  "syncPartial": false,
+    //  "flagField": "",
+    //  "tableFields": [
+    //    "PositionName,postion_name",
+    //    "PositionNumber,postion_number"
+    //  ],
+    //  "sourceTableFields": [
+    //    "id,int"
+    //  ],
+    //  "targetTableFields": [
+    //    "id,int"
+    //  ]
+    //}
 ]
