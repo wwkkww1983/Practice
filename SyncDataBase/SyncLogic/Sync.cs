@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SyncLogic
 {
@@ -60,7 +59,10 @@ namespace SyncLogic
                     var dt = Query(sql, item);
                     sql = item.ToInsertSql();
                     flag = ExcuteInsertSql(sql, dt, item);
-                    SavePoint(item, dt);
+                    if (item.syncPartial && item.flagField.HasValue())
+                    {
+                        SavePoint(item, dt);
+                    }
                 }
             }
             catch (Exception ex)

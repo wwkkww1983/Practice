@@ -1,6 +1,4 @@
-﻿using Autofac;
-using SyncDataAccess;
-using SyncLogic;
+﻿using SyncLogic;
 using SyncUtil;
 using System;
 using System.Threading.Tasks;
