@@ -21,15 +21,15 @@ namespace SyncUtil
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"select ");
-            sb.Append(string.Join(",", model.tableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Keys));
-            switch (model.sourceDBType)
+            sb.Append(string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Keys));
+            switch (model.SourceDBType)
             {
                 case DataBaseType.SQLSERVER:
-                    sb.Append($" from {model.sourceDB}.dbo.{model.sourceTable} ");
+                    sb.Append($" from {model.SourceDB}.dbo.{model.SourceTable} ");
                     break;
                 case DataBaseType.ORACLE://TODO:oracle 可能还得测试下
                 case DataBaseType.MYSQL:
-                    sb.Append($" from {model.sourceDB}.{model.sourceTable} ");
+                    sb.Append($" from {model.SourceDB}.{model.SourceTable} ");
                     break;
                 default:
                     break;
@@ -40,19 +40,19 @@ namespace SyncUtil
         public static string ToInsertSql(this DataBaseModel model)
         {
             StringBuilder sb = new StringBuilder();
-            switch (model.targetDBType)
+            switch (model.TargetDBType)
             {
                 case DataBaseType.SQLSERVER:
-                    sb.Append($"insert into {model.targetDB}.dbo.{model.targetTable}(");
+                    sb.Append($"insert into {model.TargetDB}.dbo.{model.TargetTable}(");
                     break;
                 case DataBaseType.ORACLE://TODO:oracle 可能还得测试下
                 case DataBaseType.MYSQL:
-                    sb.Append($"insert into {model.targetDB}.{model.targetTable}(");
+                    sb.Append($"insert into {model.TargetDB}.{model.TargetTable}(");
                     break;
                 default:
                     break;
             }
-            sb.Append(string.Join(",", model.tableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Values));
+            sb.Append(string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Values));
             sb.Append(@") values({0})");
             return sb.ToString();
         }

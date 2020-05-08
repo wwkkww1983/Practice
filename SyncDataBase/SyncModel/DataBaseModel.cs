@@ -4,26 +4,32 @@ namespace SyncModel
 {
     public class DataBaseModel
     {
-        public DataBaseType sourceDBType { get; set; }
-        public string sourceDB { get; set; }
-        public string sourceTable { get; set; }
-        public string sourceDBConnStr { get; set; }
+        public DataBaseType SourceDBType { get; set; }
+        public string SourceDB { get; set; }
+        public string SourceTable { get; set; }
+        public string SourceDBConnStr { get; set; }
 
-        public DataBaseType targetDBType { get; set; }
-        public string targetDB { get; set; }
-        public string targetTable { get; set; }
-        public string targetDBConnStr { get; set; }
+        public DataBaseType TargetDBType { get; set; }
+        public string TargetDB { get; set; }
+        public string TargetTable { get; set; }
+        public string TargetDBConnStr { get; set; }
 
         /// <summary>
         /// 增量同步，还是全量同步(true:增量；false:全量)
         /// </summary>
-        public bool syncPartial { get; set; }
+        public bool SyncPartial { get; set; }
         /// <summary>
         /// 记录最后同步的关键字段
         /// </summary>
-        public string flagField { get; set; }
-        public string[] tableFields { get; set; }
-        public string[] sourceTableFields { get; set; }
-        public string[] targetTableFields { get; set; }
+        public string FlagField { get; set; }
+        public string[] TableFields { get; set; }
+        /// <summary>
+        /// 备用属性
+        /// </summary>
+        public string[] SourceTableFields { get; set; }
+        /// <summary>
+        /// 备用属性
+        /// </summary>
+        public string[] TargetTableFields { get; set; }
     }
 }
