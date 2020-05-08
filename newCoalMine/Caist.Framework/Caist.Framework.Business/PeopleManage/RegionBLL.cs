@@ -21,6 +21,7 @@ namespace Caist.Framework.Business.PeopleManage
             var obj = new TData<List<RegionPeopleNumEntity>>();
             var list = await regionService.PersonnelList(param);
             obj.Result = list;
+            obj.TotalCount = list.Count;
             obj.Tag = 1;
             return obj;
         }
@@ -30,7 +31,8 @@ namespace Caist.Framework.Business.PeopleManage
         {
             var obj = new TData<List<RegionPeopleNumEntity>>();
             var list = await regionService.PeopleCounting(param);
-            obj.Result = list; 
+            obj.Result = list;
+            obj.TotalCount = list.Count;
             obj.Tag = 1;
             return obj;
         }
@@ -41,6 +43,7 @@ namespace Caist.Framework.Business.PeopleManage
             TData<List<RegionPeopleNumEntity>> obj = new TData<List<RegionPeopleNumEntity>>();
             var list = await regionService.GetPeopleInfo(param);
             obj.Result = list;
+            obj.TotalCount = list.Count;
             obj.Tag = 1;
             return obj;
         }

@@ -59,15 +59,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Caist.Framework.Test", "Cai
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Caist.Framework.Plc", "Caist.Framework.Plc\Caist.Framework.Plc.csproj", "{D0045D24-AAD0-4875-822C-DAF243AD06A8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Caist.Framework.WebSocket", "Caist.Framework.WebSocket\Caist.Framework.WebSocket.csproj", "{94F41743-04FA-4549-B5FC-034801666D7C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "07-Service(服务端)", "07-Service(服务端)", "{11A6BDEE-D619-4F12-A171-17BB5B5978FE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Caist.Framework.WebService", "Caist.Framework.WebService\Caist.Framework.WebService.csproj", "{952388FF-E27E-465C-BA4F-FD2405FC60D5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "08-WebApi(Api层)", "08-WebApi(Api层)", "{C8D4D68F-226E-4E5C-8EB6-3A0EDC6DFF02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caist.Framework.WebApi", "Caist.Framework.WebApi\Caist.Framework.WebApi.csproj", "{AD7DC48F-BFBC-4BB4-822C-38EC0F275667}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Caist.Framework.WebApi", "Caist.Framework.WebApi\Caist.Framework.WebApi.csproj", "{AD7DC48F-BFBC-4BB4-822C-38EC0F275667}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -159,10 +157,6 @@ Global
 		{D0045D24-AAD0-4875-822C-DAF243AD06A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0045D24-AAD0-4875-822C-DAF243AD06A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0045D24-AAD0-4875-822C-DAF243AD06A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{94F41743-04FA-4549-B5FC-034801666D7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{94F41743-04FA-4549-B5FC-034801666D7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{94F41743-04FA-4549-B5FC-034801666D7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{94F41743-04FA-4549-B5FC-034801666D7C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{952388FF-E27E-465C-BA4F-FD2405FC60D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{952388FF-E27E-465C-BA4F-FD2405FC60D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{952388FF-E27E-465C-BA4F-FD2405FC60D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -198,11 +192,14 @@ Global
 		{2A744916-709D-4D3A-BE2A-D39DB5E67D1E} = {475824EA-82DB-4F8E-BFAE-F8DBD539C919}
 		{AD749540-DD47-4A36-96E8-790C1A838D3D} = {70E7A50A-9980-409B-943B-27A5E1274390}
 		{D0045D24-AAD0-4875-822C-DAF243AD06A8} = {475824EA-82DB-4F8E-BFAE-F8DBD539C919}
-		{94F41743-04FA-4549-B5FC-034801666D7C} = {475824EA-82DB-4F8E-BFAE-F8DBD539C919}
 		{952388FF-E27E-465C-BA4F-FD2405FC60D5} = {11A6BDEE-D619-4F12-A171-17BB5B5978FE}
 		{AD7DC48F-BFBC-4BB4-822C-38EC0F275667} = {C8D4D68F-226E-4E5C-8EB6-3A0EDC6DFF02}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {824C5F4F-41C5-4117-83EB-C44E99B1AFC7}
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN2019 - Subversion Support for Visual Studio
 	EndGlobalSection
 EndGlobal

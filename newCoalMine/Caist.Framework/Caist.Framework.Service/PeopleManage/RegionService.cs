@@ -65,9 +65,11 @@ namespace Caist.Framework.Service.PeopleManage
         #region 私有方法
         private List<DbParameter> ListFilter(RegionParam param, StringBuilder strSql)
         {
-            strSql.Append(@"SELECT pepole_Number as PepoleNumber,Current_Station as CurrentStation,Pepole_Name as PepoleName,Down_Well_Time as DownWellTime,Station_Address as StationAddress FROM caist_mk_db.dbo.mk_device_information c
+            strSql.Append(@"SELECT pepole_Number as PepoleNumber,Current_Station as CurrentStation,Pepole_Name as PepoleName,t.[type_of_work_name],
+                            Down_Well_Time as DownWellTime,Station_Address as StationAddress FROM caist_mk_db.dbo.mk_device_information c
                             INNER JOIN(SELECT a.pepole_Number, Current_Station, Down_Well_Time, b.Pepole_Name from  caist_mk_db.dbo.mk_real_data a
-                            INNER JOIN caist_mk_db.dbo.mk_staff_information b on a.Pepole_Number = b.Pepole_Number)d on d.Current_Station = c.Station_Number");
+                            INNER JOIN caist_mk_db.dbo.mk_staff_information b on a.Pepole_Number = b.Pepole_Number)d on d.Current_Station = c.Station_Number
+                            left join caist_mk_db.[dbo].[mk_type_of_work] t on d.pepole_number=t.type_of_work_number");
 
             strSql.Append(@" WHERE 1 = 1");
             var parameter = new List<DbParameter>();

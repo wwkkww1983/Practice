@@ -29,5 +29,9 @@
         /// 人员数
         /// </summary>
         public string Nums { get; set; }
+        /// <summary>
+        /// 工种
+        /// </summary>
+        public string TypeOfWorkName { get; set; }
     }
 }

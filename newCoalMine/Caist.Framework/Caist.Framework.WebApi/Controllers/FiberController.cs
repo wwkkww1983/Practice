@@ -27,53 +27,5 @@ namespace Caist.Framework.WebApi.Controllers
             var obj = await fiberBLL.GetFiberInfoList(param);
             return obj.RemoveNullValue();
         }
-
-        ///// <summary>
-        ///// 各分区信息 及 分区报警
-        ///// </summary>
-        ///// <returns></returns>
-        //[HttpGet]
-        //public async Task<TData<List<string>>> SectionInfo([FromQuery] FiberParam param)
-        //{
-        //    var obj = await regionBLL.GetPeopleTrackList(param);
-        //    return obj;
-        //}
-
-        ///// <summary>
-        ///// 人员位置信息
-        ///// </summary>
-        ///// <param name="param"></param>
-        ///// <returns></returns>
-        //[HttpPost]
-        //public async Task<TData<List<SimplePositionEntity>>> SimelPeoplePoition([FromBody] RegionParam param)
-        //{
-        //    var obj = await regionBLL.SimelPeoplePoition(param);
-        //    return obj;
-        //}
-
-
-        ///// <summary>
-        ///// 人员信息
-        ///// </summary>
-        ///// <param name="param"></param>
-        ///// <returns></returns>
-        //[HttpPost]
-        //public async Task<TData<List<PeopleInfoEntity>>> GetPeopleInfo([FromBody] RegionParam param)
-        //{
-        //    var obj = await regionBLL.GetPeopleInfo(param);
-        //    return obj;
-        //}
-        ///// <summary>
-        ///// 区域人员汇总信息
-        ///// </summary>
-        ///// <param name="param"></param>
-        ///// <returns></returns>
-        //[HttpPost]
-        //public async Task<TData<List<PeopleInfoEntity>>> PeopleInfo([FromBody] RegionParam param)
-        //{
-        //    var obj = await regionBLL.PeopleInfo(param);
-        //    return obj;
-        //}
-        //#endregion
     }
 }
