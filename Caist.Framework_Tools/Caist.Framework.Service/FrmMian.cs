@@ -8,6 +8,7 @@ using Caist.Framework.PLC.Siemens.Model;
 using Caist.Framework.Service.Control;
 using Caist.Framework.ThreadPool;
 using Caist.Framework.WebSocket;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,7 +16,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Caist.Framework.PLC.Siemens.Enum.ModularType;
 
@@ -69,19 +70,22 @@ namespace Caist.Framework.Service
         {
             StartInfo info = new StartInfo { Timeout = 1, MinWorkerThreads = PublicEntity.DeviceEntities.Count() };
             IThreadPool pool = ThreadPoolFactory.Create(info, "PLC线程池");
-            PublicEntity.DeviceEntities.ForEach(v => {
+            PublicEntity.DeviceEntities.ForEach(v =>
+            {
                 siemens.IP = v.Host;
                 siemens.Port = v.Port;
                 var result = siemens.Start();
                 if (!result)
                 {
-                    txtMessage.Invoke(new Action(() => {
+                    txtMessage.Invoke(new Action(() =>
+                    {
                         txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.Name, v.Host, v.Port));
                     }));
                 }
                 else
                 {
-                    PlcTool.Invoke(new Action(() => {
+                    PlcTool.Invoke(new Action(() =>
+                    {
                         btnPLCStrats.Enabled = false;
                         btnPLCStop.Enabled = true;
                         txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.Name, v.Host, v.Port));
@@ -147,9 +151,11 @@ namespace Caist.Framework.Service
                             case DataTypeEnum.TYPE_BYTE:
                             case DataTypeEnum.TYPE_SHORT:
                             case DataTypeEnum.TYPE_BOOL:
+                                SendData(Convert.ToInt32(siemens.GetValue(Name)), key);
                                 item.SubItems[4].Text = Convert.ToInt32(siemens.GetValue(Name)).ToString();
                                 break;
                             case DataTypeEnum.TYPE_FLOAT:
+                                SendData(Convert.ToInt64(siemens.GetValue(Name)), key);
                                 item.SubItems[4].Text = siemens.GetValue(Name).ToString();
                                 break;
                             default:
@@ -160,7 +166,48 @@ namespace Caist.Framework.Service
             }));
         }
 
+        private async void SendData(float v, string key)
+        {
+            var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < v || p.MinValue > v) && p.ManipulateModelMark == key);
+            if (item != null)
+            {
+                var alarmModel = new AlarmModel()
+                {
+                    Alarm = new AlarmContent()
+                    {
+                        Name = item.SystemName,
+                        Message = item.BroadCastContent,
+                        Type = true
+                    }
+                };
+                var str = JsonConvert.SerializeObject(alarmModel);
+                SendMessage(str);
+                //保存异常数据到数据库
+                await SaveAlarmData(item, v);
+            }
+            else
+            {
+                var s = string.Format("{\"{0}\":\"{1}\"}", key, v.ToString());
+                SendMessage(s);
+                //保存数据到历史记录表
+
+            }
+        }
+
+        private async Task<bool> SaveAlarmData(AlarmEntity item, float v)
+        {
+            var alarm = new AlarmRecordEntity()
+            {
+                alarm_id = item.Id,
+                alarm_time = DateTime.Now,
+                alarm_time_length = v.ToString(),
+                alarm_reason = item.BroadCastContent
+            };
+            return await DataServices.SaveAlarmData(alarm);
+        }
+
         //TODO:1、整合推送到plc采集； 2、判断报警信息（存入报警表，发送特定消息给前端）；3、整合数据同步进来；
+        //TODO: 1、光纤测温websocket推送；2、供电站webscoket推送；3、建历史表；4、svn 外网映射；
         public object Print(Object obj)
         {
             while (true)
@@ -180,7 +227,8 @@ namespace Caist.Framework.Service
                 DataTable dataTable = conn.GetDataTable(builder.ToString());
                 PublicEntity.DeviceEntities = DataConvert.DataTableToList<DeviceEntity>(dataTable).ToList();
             }
-            PublicEntity.DeviceEntities.ForEach(d => {
+            PublicEntity.DeviceEntities.ForEach(d =>
+            {
                 TreeNode tree = treeNode.Add(string.Format("{0}-[{1}:{2}]", d.Name, d.Host, d.Port.ToString()));
                 tree.ImageIndex = 0;
             });
@@ -225,7 +273,7 @@ namespace Caist.Framework.Service
         public void LoadAlarmData(string id = null)
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(@"select s.system_name,a.min_value,a.max_value,a.broadcast_content,m.manipulate_model_mark,m.manipulate_model_name
+            builder.Append(@"select s.id,s.system_name,a.min_value,a.max_value,a.broadcast_content,m.manipulate_model_mark,m.manipulate_model_name
                 from [dbo].[mk_system_setting] s inner join [dbo].[mk_alarm_settings] a  on s.id=a.system_models
                 inner join [dbo].[mk_view_manipulate_model] m on a.view_manipulate_id=m.id where a.base_is_delete = 0 ");
             if (!string.IsNullOrEmpty(id))
@@ -328,6 +376,9 @@ namespace Caist.Framework.Service
                         {
                             string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
                             WebSocketMessage("|服务器:【收到】来客户端网页:" + clientUrl + "的信息：\n" + message);
+
+                            //其它表的推送
+                            PushMsgToClient();
                         };
                     });
                 }
@@ -342,6 +393,17 @@ namespace Caist.Framework.Service
                 webStop.Enabled = false;
                 webSend.Enabled = false;
             }
+        }
+
+        private async Task PushMsgToClient()
+        {
+            await SendFiberData();
+        }
+
+        private async Task SendFiberData()
+        {
+            var fibers = DataServices.GetFiberData();
+
         }
 
         /// <summary>
@@ -397,7 +459,7 @@ namespace Caist.Framework.Service
             {
                 WebSocketMessage("请输入发送内容！");
             }
-            
+
         }
 
         public void SendMessage(string val)
@@ -415,11 +477,12 @@ namespace Caist.Framework.Service
         /// 消息内容
         /// </summary>
         /// <param name="str"></param>
-        public void WebSocketMessage(string str,string client = "")
+        public void WebSocketMessage(string str, string client = "")
         {
             if (!string.IsNullOrEmpty(client) && !string.IsNullOrEmpty(str))
             {
-                webMessage.Invoke(new Action(() => {
+                webMessage.Invoke(new Action(() =>
+                {
                     string value = string.Format("-{0} - 时间：{1}  内容：{2}\r", client, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
                     webMessage.SelectionFont = new Font("宋体", 12, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
                     webMessage.SelectionColor = System.Drawing.Color.Red;    //设置SelectionColor属性实现控件中的文本颜色为红色
@@ -430,7 +493,8 @@ namespace Caist.Framework.Service
             {
                 if (!string.IsNullOrEmpty(str) && string.IsNullOrEmpty(client))
                 {
-                    webMessage.Invoke(new Action(() => {
+                    webMessage.Invoke(new Action(() =>
+                    {
                         string value = string.Format("-时间：{0}  内容：{1}\r", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
                         webMessage.SelectionFont = new Font("宋体", 12, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
                         webMessage.SelectionColor = System.Drawing.Color.Blue;    //设置SelectionColor属性实现控件中的文本颜色为红色
@@ -450,7 +514,7 @@ namespace Caist.Framework.Service
         #endregion
 
 
-        public void LimitLine(int maxLength,RichTextBox richTextBox)
+        public void LimitLine(int maxLength, RichTextBox richTextBox)
         {
             if (richTextBox.Lines.Length > maxLength)
             {
@@ -463,4 +527,55 @@ namespace Caist.Framework.Service
         }
 
     }
+
+    #region 返回数据模型
+    #region 报警
+    public class AlarmModel
+    {
+        public AlarmContent Alarm { get; set; }
+    }
+
+    public class AlarmContent
+    {
+        public string Name { get; set; }
+        public string Message { get; set; }
+        public bool Type { get; set; }
+    }
+    #endregion
+
+    #region 光纤测温
+    public class FiberModel
+    {
+        public FiberContent Fiber { get; set; }
+    }
+
+    public class FiberContent
+    {
+        public string AreaName { get; set; }
+        public float MaxValue { get; set; }
+        public float MaxValuePos { get; set; }
+        public float MinValue { get; set; }
+        public float MinValuePos { get; set; }
+        public float AverageValue { get; set; }
+    }
+    #endregion
+
+    #region 配电站
+    public class SubStationModel
+    {
+        public SubStationContent SubStation { get; set; }
+    }
+
+    public class SubStationContent
+    {
+        public string Sys_Id { get; set; }
+        public float F { get; set; }
+        public float IA { get; set; }
+        public float P { get; set; }
+        public float Q { get; set; }
+        public float COS { get; set; }
+    }
+    #endregion
+
+    #endregion
 }

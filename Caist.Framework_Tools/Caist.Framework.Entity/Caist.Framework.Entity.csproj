@@ -41,6 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entity\AlarmRecordEntity.cs" />
+    <Compile Include="Entity\PLCEntity.cs" />
+    <Compile Include="Entity\SubStationEntity.cs" />
+    <Compile Include="Entity\FiberEntity.cs" />
     <Compile Include="Entity\DeviceEntity.cs" />
     <Compile Include="Entity\AlarmEntity.cs" />
     <Compile Include="Entity\TagEntity.cs" />

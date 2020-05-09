@@ -39,6 +39,9 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -68,6 +71,7 @@
     <Compile Include="Control\ListViewLoad.Designer.cs">
       <DependentUpon>ListViewLoad.cs</DependentUpon>
     </Compile>
+    <Compile Include="DataServices.cs" />
     <Compile Include="FrmMian.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -110,6 +114,10 @@
     <ProjectReference Include="..\Caist.Framework.Entity\Caist.Framework.Entity.csproj">
       <Project>{6BC0FCEB-56F5-404F-BE7C-5E1A374B5ACC}</Project>
       <Name>Caist.Framework.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Caist.Framework.IdGenerator\Caist.Framework.IdGenerator.csproj">
+      <Project>{9253DAA6-0DA1-40CC-820F-85479F2DE8A3}</Project>
+      <Name>Caist.Framework.IdGenerator</Name>
     </ProjectReference>
     <ProjectReference Include="..\Caist.Framework.PLC\Caist.Framework.PLC.csproj">
       <Project>{CEF12833-7919-4A18-9285-7E9E00EA509A}</Project>
