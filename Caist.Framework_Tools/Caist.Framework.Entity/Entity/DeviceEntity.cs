@@ -23,5 +23,7 @@ namespace Caist.Framework.Entity
         public string RemoteTASP { get; set; }
         [DBColumn(ColName = "ParentId")]
         public string ParentId { get; set; }
+        [DBColumn(ColName = "tab_name")]
+        public string TabName { get; set; }
     }
 }

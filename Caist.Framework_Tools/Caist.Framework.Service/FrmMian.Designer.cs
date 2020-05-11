@@ -48,13 +48,6 @@ namespace Caist.Framework.Service
             this.TreeDevice = new System.Windows.Forms.TreeView();
             this.ImageDevice = new System.Windows.Forms.ImageList(this.components);
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.lvPoint = new Caist.Framework.Service.Control.ListViewLoad();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.txtMessage = new System.Windows.Forms.RichTextBox();
             this.PlcTool = new System.Windows.Forms.ToolStrip();
             this.btnPLCStrats = new System.Windows.Forms.ToolStripButton();
@@ -78,6 +71,14 @@ namespace Caist.Framework.Service
             this.webSend = new System.Windows.Forms.ToolStripButton();
             this.SystemImage = new System.Windows.Forms.ImageList(this.components);
             this.timing = new System.Windows.Forms.Timer(this.components);
+            this.timerWebSocket = new System.Windows.Forms.Timer(this.components);
+            this.lvPoint = new Caist.Framework.Service.Control.ListViewLoad();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SystemMenu.SuspendLayout();
             this.SystemStatus.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -274,59 +275,6 @@ namespace Caist.Framework.Service
             this.splitContainer2.SplitterWidth = 5;
             this.splitContainer2.TabIndex = 1;
             // 
-            // lvPoint
-            // 
-            this.lvPoint.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lvPoint.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3,
-            this.columnHeader4,
-            this.columnHeader5,
-            this.columnHeader6});
-            this.lvPoint.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lvPoint.FullRowSelect = true;
-            this.lvPoint.GridLines = true;
-            this.lvPoint.HideSelection = false;
-            this.lvPoint.Location = new System.Drawing.Point(0, 0);
-            this.lvPoint.MultiSelect = false;
-            this.lvPoint.Name = "lvPoint";
-            this.lvPoint.Size = new System.Drawing.Size(702, 258);
-            this.lvPoint.TabIndex = 0;
-            this.lvPoint.UseCompatibleStateImageBehavior = false;
-            this.lvPoint.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "指令名称";
-            this.columnHeader1.Width = 120;
-            // 
-            // columnHeader2
-            // 
-            this.columnHeader2.Text = "描述";
-            this.columnHeader2.Width = 160;
-            // 
-            // columnHeader3
-            // 
-            this.columnHeader3.Text = "类型";
-            this.columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.columnHeader3.Width = 80;
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "地址";
-            this.columnHeader4.Width = 120;
-            // 
-            // columnHeader5
-            // 
-            this.columnHeader5.Text = "值";
-            this.columnHeader5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // columnHeader6
-            // 
-            this.columnHeader6.Text = "读/写";
-            this.columnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // txtMessage
             // 
             this.txtMessage.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -412,7 +360,7 @@ namespace Caist.Framework.Service
             // 
             this.splitContainer3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer3.Location = new System.Drawing.Point(3, 29);
+            this.splitContainer3.Location = new System.Drawing.Point(3, 4);
             this.splitContainer3.Name = "splitContainer3";
             this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -425,8 +373,8 @@ namespace Caist.Framework.Service
             // 
             this.splitContainer3.Panel2.Controls.Add(this.webContent);
             this.splitContainer3.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.splitContainer3.Size = new System.Drawing.Size(990, 458);
-            this.splitContainer3.SplitterDistance = 300;
+            this.splitContainer3.Size = new System.Drawing.Size(990, 486);
+            this.splitContainer3.SplitterDistance = 318;
             this.splitContainer3.TabIndex = 1;
             // 
             // webMessage
@@ -436,7 +384,7 @@ namespace Caist.Framework.Service
             this.webMessage.Location = new System.Drawing.Point(0, 0);
             this.webMessage.Name = "webMessage";
             this.webMessage.ReadOnly = true;
-            this.webMessage.Size = new System.Drawing.Size(988, 298);
+            this.webMessage.Size = new System.Drawing.Size(988, 316);
             this.webMessage.TabIndex = 1;
             this.webMessage.Text = "";
             // 
@@ -447,7 +395,7 @@ namespace Caist.Framework.Service
             this.webContent.Location = new System.Drawing.Point(0, 0);
             this.webContent.Name = "webContent";
             this.webContent.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.webContent.Size = new System.Drawing.Size(988, 152);
+            this.webContent.Size = new System.Drawing.Size(988, 162);
             this.webContent.TabIndex = 0;
             this.webContent.Text = "";
             this.webContent.TextChanged += new System.EventHandler(this.webContent_TextChanged);
@@ -553,6 +501,63 @@ namespace Caist.Framework.Service
             this.timing.Interval = 1;
             this.timing.Tick += new System.EventHandler(this.timing_Tick);
             // 
+            // timerWebSocket
+            // 
+            this.timerWebSocket.Tick += new System.EventHandler(this.timerWebSocket_Tick);
+            // 
+            // lvPoint
+            // 
+            this.lvPoint.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lvPoint.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2,
+            this.columnHeader3,
+            this.columnHeader4,
+            this.columnHeader5,
+            this.columnHeader6});
+            this.lvPoint.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvPoint.FullRowSelect = true;
+            this.lvPoint.GridLines = true;
+            this.lvPoint.HideSelection = false;
+            this.lvPoint.Location = new System.Drawing.Point(0, 0);
+            this.lvPoint.MultiSelect = false;
+            this.lvPoint.Name = "lvPoint";
+            this.lvPoint.Size = new System.Drawing.Size(702, 258);
+            this.lvPoint.TabIndex = 0;
+            this.lvPoint.UseCompatibleStateImageBehavior = false;
+            this.lvPoint.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "指令名称";
+            this.columnHeader1.Width = 120;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "描述";
+            this.columnHeader2.Width = 160;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "类型";
+            this.columnHeader3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.columnHeader3.Width = 80;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "地址";
+            this.columnHeader4.Width = 120;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "值";
+            this.columnHeader5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // columnHeader6
+            // 
+            this.columnHeader6.Text = "读/写";
+            this.columnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // FrmMian
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -648,6 +653,7 @@ namespace Caist.Framework.Service
         private System.Windows.Forms.RichTextBox webContent;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripButton webSend;
+        private System.Windows.Forms.Timer timerWebSocket;
     }
 }
 

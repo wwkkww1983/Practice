@@ -1,4 +1,5 @@
-﻿using Caist.Framework.DataAccess;
+﻿using AutoMapper;
+using Caist.Framework.DataAccess;
 using Caist.Framework.Entity;
 using Caist.Framework.Entity.Entity;
 using Caist.Framework.Entity.Enum;
@@ -11,6 +12,7 @@ using Caist.Framework.WebSocket;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -25,11 +27,13 @@ namespace Caist.Framework.Service
     public partial class FrmMian : Form
     {
         /**{"key": "value"}**/
-        #region PLC实例
+        #region 变量定义
         private CaistTimer TimerMessage = new CaistTimer() { Interval = 250 };
         private SiemensHelper siemens = new SiemensHelper();
         private Stopwatch sw = new Stopwatch();
         private TimeSpan ts = new TimeSpan();
+        private List<SubStationEntity> _stationEntities = new List<SubStationEntity>();
+        private List<FiberEntity> _fiberEntities = new List<FiberEntity>();
         #endregion
 
         #region 消息推送实例
@@ -38,6 +42,8 @@ namespace Caist.Framework.Service
         //创建
         WebSocketServer server = null;
         #endregion
+
+        #region 初始化
         public FrmMian()
         {
             InitializeComponent();
@@ -58,7 +64,58 @@ namespace Caist.Framework.Service
             this.siemens.Init();
             this.GetInit();
             Device device = this.siemens.GetDevice();
+
+            var s = GetConfigrationStr("WebSocketTimer");
+            if (s.HasValue())
+            {
+                timerWebSocket.Interval = 1000;// Convert.ToInt32(s);
+            }
+            MappingModel();
         }
+
+        /// <summary>
+        /// 加载指令
+        /// </summary>
+        public void GetInit()
+        {
+            try
+            {
+                Device device = siemens.GetDevice();
+                foreach (KeyValuePair<string, InstructGroupEntity> item in device.ValuePairs)
+                {
+                    InstructGroupEntity groupEntity = item.Value;
+                    foreach (KeyValuePair<string, InstructEntity> list in groupEntity.InstructPairs)
+                    {
+                        InstructEntity instructEntity = list.Value;
+                        string Name = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
+                        string Key = string.Format("{0}.{1}", groupEntity.Id, instructEntity.Id);
+                        ListViewItem lvitem = new ListViewItem(Name);
+                        lvitem.ToolTipText = Key;
+                        lvitem.SubItems.Add(instructEntity.Desc);
+                        lvitem.SubItems.Add(instructEntity.DataType);
+                        lvitem.SubItems.Add(instructEntity.GetAddressName());
+                        lvitem.SubItems.Add("");
+                        lvitem.SubItems.Add(Extensions.ConvertOutPutEnum(int.Parse(instructEntity.Output)));
+                        lvitem.Tag = instructEntity;
+                        lvPoint.Items.Add(lvitem);
+                        lvPoint.Columns[0].Width = -1;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private void MappingModel()
+        {
+            Mapper.Initialize(cfg =>
+            {
+                cfg.CreateMap<FiberEntity, FiberContent>();
+                cfg.CreateMap<SubStationEntity, SubStationContent>();
+            });
+        }
+        #endregion
 
         #region PLC读取
         /// <summary>
@@ -68,35 +125,37 @@ namespace Caist.Framework.Service
         /// <param name="e"></param>
         private void btnPLCStrats_Click(object sender, EventArgs e)
         {
-            StartInfo info = new StartInfo { Timeout = 1, MinWorkerThreads = PublicEntity.DeviceEntities.Count() };
-            IThreadPool pool = ThreadPoolFactory.Create(info, "PLC线程池");
-            PublicEntity.DeviceEntities.ForEach(v =>
-            {
-                siemens.IP = v.Host;
-                siemens.Port = v.Port;
-                var result = siemens.Start();
-                if (!result)
-                {
-                    txtMessage.Invoke(new Action(() =>
-                    {
-                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.Name, v.Host, v.Port));
-                    }));
-                }
-                else
-                {
-                    PlcTool.Invoke(new Action(() =>
-                    {
-                        btnPLCStrats.Enabled = false;
-                        btnPLCStop.Enabled = true;
-                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.Name, v.Host, v.Port));
-                    }));
-                    TimerMessage.Elapsed += TimerMessage_Elapsed;
-                    TimerMessage.obj = v;
-                    TimerMessage.Start();
-                    IWorkItem item = pool.QueueUserWorkItem(Print, v);
-                }
-            });
-            pool.WaitAll();
+            //StartInfo info = new StartInfo { Timeout = 1, MinWorkerThreads = PublicEntity.DeviceEntities.Count() };
+            //IThreadPool pool = ThreadPoolFactory.Create(info, "PLC线程池");
+            //PublicEntity.DeviceEntities.ForEach(v =>
+            //{
+            //    siemens.IP = v.Host;
+            //    siemens.Port = v.Port;
+            //    var result = siemens.Start();
+            //    if (!result)
+            //    {
+            //        txtMessage.Invoke(new Action(() =>
+            //        {
+            //            txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.Name, v.Host, v.Port));
+            //        }));
+            //    }
+            //    else
+            //    {
+            //        PlcTool.Invoke(new Action(() =>
+            //        {
+            //            btnPLCStrats.Enabled = false;
+            //            btnPLCStop.Enabled = true;
+            //            txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.Name, v.Host, v.Port));
+            //        }));
+            //        TimerMessage.Elapsed += TimerMessage_Elapsed;
+            //        TimerMessage.obj = v;
+            //        TimerMessage.Start();
+            //        IWorkItem item = pool.QueueUserWorkItem(Print, v);
+
+            webStart_Click(null, null);
+            //    }
+            //});
+            //pool.WaitAll();
         }
 
         /// <summary>
@@ -151,11 +210,11 @@ namespace Caist.Framework.Service
                             case DataTypeEnum.TYPE_BYTE:
                             case DataTypeEnum.TYPE_SHORT:
                             case DataTypeEnum.TYPE_BOOL:
-                                SendData(Convert.ToInt32(siemens.GetValue(Name)), key);
+                                SendData(Convert.ToInt32(siemens.GetValue(Name)), key, entity);
                                 item.SubItems[4].Text = Convert.ToInt32(siemens.GetValue(Name)).ToString();
                                 break;
                             case DataTypeEnum.TYPE_FLOAT:
-                                SendData(Convert.ToInt64(siemens.GetValue(Name)), key);
+                                SendData(Convert.ToInt64(siemens.GetValue(Name)), key, entity);
                                 item.SubItems[4].Text = siemens.GetValue(Name).ToString();
                                 break;
                             default:
@@ -166,7 +225,7 @@ namespace Caist.Framework.Service
             }));
         }
 
-        private async void SendData(float v, string key)
+        private async void SendData(float v, string key, DeviceEntity entity)
         {
             var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < v || p.MinValue > v) && p.ManipulateModelMark == key);
             if (item != null)
@@ -190,8 +249,19 @@ namespace Caist.Framework.Service
                 var s = string.Format("{\"{0}\":\"{1}\"}", key, v.ToString());
                 SendMessage(s);
                 //保存数据到历史记录表
-
+                bool flag = await SaveDataToHistoryTab(key, v, entity);
             }
+        }
+
+        private async Task<bool> SaveDataToHistoryTab(string key, float v, DeviceEntity device)
+        {
+            var history = new HistoryEntity()
+            {
+                DictId = key,
+                DictValue = v.ToString(),
+                TabName = device.TabName
+            };
+            return await DataServices.SaveHistoryData(history);
         }
 
         private async Task<bool> SaveAlarmData(AlarmEntity item, float v)
@@ -216,112 +286,6 @@ namespace Caist.Framework.Service
             }
         }
 
-        #region 数据加载
-        private void LoadDataDevice(TreeNodeCollection treeNode)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(@"SELECT  a.id as Id, a.Device_Name as Name, a.Device_Host as Host, a.Device_Port as Port, a.Slot_No as CPU_SlotNO, a.PLCType as PLCType,
-                            a.Local as LocalTASP,  a.Remote as RemoteTASP, a.parent_id as ParentId  FROM mk_device a WHERE a.base_is_delete = 0 ");
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                DataTable dataTable = conn.GetDataTable(builder.ToString());
-                PublicEntity.DeviceEntities = DataConvert.DataTableToList<DeviceEntity>(dataTable).ToList();
-            }
-            PublicEntity.DeviceEntities.ForEach(d =>
-            {
-                TreeNode tree = treeNode.Add(string.Format("{0}-[{1}:{2}]", d.Name, d.Host, d.Port.ToString()));
-                tree.ImageIndex = 0;
-            });
-        }
-
-        public void LoadDataTagGroup(string id = null)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(@"select a.id as Id,a.device_id as DeviceId,a.name as Name,a.modular_type as MMType,a.read_count as ReadCount,a.begin_address as BeginAddress,
-                             a.begin_block as Block from mk_instruct_group a where a.base_is_delete = 0 ");
-            if (!string.IsNullOrEmpty(id))
-            {
-                builder.Append(" and a.device_id = '" + id + "' ");
-            }
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                DataTable dataTable = conn.GetDataTable(builder.ToString());
-                PublicEntity.TagGroupsEntities = DataConvert.DataTableToList<TagGroupsEntity>(dataTable).ToList();
-            }
-        }
-
-        public void LoadDataTag(string id = null)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(@"select a.id as Id,a.Name as Name,a.instruct_group_id as TagGroup,a.address as Address,a.data_type as DataType,a.output as Output,a.remark as [Desc] 
-                             from mk_instruct a where a.base_is_delete = 0 ");
-            if (!string.IsNullOrEmpty(id))
-            {
-                builder.Append(" and a.device_id = '" + id + "' ");
-            }
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                DataTable dataTable = conn.GetDataTable(builder.ToString());
-                PublicEntity.TagEntities = DataConvert.DataTableToList<TagEntity>(dataTable).ToList();
-            }
-        }
-
-        /// <summary>
-        /// 获取报警标准数据
-        /// </summary>
-        /// <param name="id"></param>
-        public void LoadAlarmData(string id = null)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(@"select s.id,s.system_name,a.min_value,a.max_value,a.broadcast_content,m.manipulate_model_mark,m.manipulate_model_name
-                from [dbo].[mk_system_setting] s inner join [dbo].[mk_alarm_settings] a  on s.id=a.system_models
-                inner join [dbo].[mk_view_manipulate_model] m on a.view_manipulate_id=m.id where a.base_is_delete = 0 ");
-            if (!string.IsNullOrEmpty(id))
-            {
-                builder.Append(" and a.device_id = '" + id + "' ");
-            }
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                DataTable dataTable = conn.GetDataTable(builder.ToString());
-                PublicEntity.AlarmEntities = DataConvert.DataTableToList<AlarmEntity>(dataTable).ToList();
-            }
-        }
-        #endregion
-
-        /// <summary>
-        /// 加载指令
-        /// </summary>
-        public void GetInit()
-        {
-            try
-            {
-                Device device = siemens.GetDevice();
-                foreach (KeyValuePair<string, InstructGroupEntity> item in device.ValuePairs)
-                {
-                    InstructGroupEntity groupEntity = item.Value;
-                    foreach (KeyValuePair<string, InstructEntity> list in groupEntity.InstructPairs)
-                    {
-                        InstructEntity instructEntity = list.Value;
-                        string Name = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
-                        string Key = string.Format("{0}.{1}", groupEntity.Id, instructEntity.Id);
-                        ListViewItem lvitem = new ListViewItem(Name);
-                        lvitem.ToolTipText = Key;
-                        lvitem.SubItems.Add(instructEntity.Desc);
-                        lvitem.SubItems.Add(instructEntity.DataType);
-                        lvitem.SubItems.Add(instructEntity.GetAddressName());
-                        lvitem.SubItems.Add("");
-                        lvitem.SubItems.Add(Extensions.ConvertOutPutEnum(int.Parse(instructEntity.Output)));
-                        lvitem.Tag = instructEntity;
-                        lvPoint.Items.Add(lvitem);
-                        lvPoint.Columns[0].Width = -1;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-            }
-        }
-
         /// <summary>
         /// 计时器
         /// </summary>
@@ -334,7 +298,7 @@ namespace Caist.Framework.Service
         }
         #endregion
 
-        #region 消息推送
+        #region WebSocket消息推送
         /// <summary>
         /// 启动服务
         /// </summary>
@@ -344,7 +308,9 @@ namespace Caist.Framework.Service
         {
             try
             {
-                string loaction = string.Format("ws://{0}:{1}", webAddress.Text.Trim(), webPort.Text.Trim());
+                var url = GetConfigrationStr("WebSocketAddress");
+                string loaction = string.Format("ws://{0}", url);
+                //string loaction = string.Format("ws://{0}:{1}", webAddress.Text.Trim(), webPort.Text.Trim());
                 server = new WebSocketServer(loaction);//监听所有的的地址
                 server.RestartAfterListenError = true;//出错后进行重启
                 if (!string.IsNullOrEmpty(webAddress.Text.ToString()) && !string.IsNullOrEmpty(webPort.Text.ToString()))
@@ -361,6 +327,9 @@ namespace Caist.Framework.Service
                             string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
                             dic_Sockets.Add(clientUrl, socket);
                             WebSocketMessage("|服务器:和客户端网页:" + clientUrl + " 建立WebSock连接！");
+
+                            //Task.Run(() => { timerWebSocket.Start(); });
+                            //PushMsgToClient();
                         };
                         socket.OnClose = () =>  //连接关闭事件
                         {
@@ -377,8 +346,6 @@ namespace Caist.Framework.Service
                             string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
                             WebSocketMessage("|服务器:【收到】来客户端网页:" + clientUrl + "的信息：\n" + message);
 
-                            //其它表的推送
-                            PushMsgToClient();
                         };
                     });
                 }
@@ -386,8 +353,10 @@ namespace Caist.Framework.Service
                 {
                     WebSocketMessage("请输入IP地址或者端口");
                 }
+                //其它表的推送
+                this.timerWebSocket.Start();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 webStart.Enabled = true;
                 webStop.Enabled = false;
@@ -395,15 +364,68 @@ namespace Caist.Framework.Service
             }
         }
 
+        /// <summary>
+        /// 向前端推送数据库表数据
+        /// </summary>
+        /// <returns></returns>
         private async Task PushMsgToClient()
         {
             await SendFiberData();
+            await SendSubStationData();
+        }
+
+        private async Task SendSubStationData()
+        {
+            List<SubStationEntity> stationEntities = await DataServices.GetSubStationData();
+            var list = new List<SubStationContent>();
+            foreach (var item in stationEntities)
+            {
+                list.Add(Mapper.Map<SubStationEntity, SubStationContent>(item));
+            }
+            var ssm = new SubStationModel()
+            {
+                SubStation = list
+            };
+            if ((!_stationEntities.HasValue() || !ListNotEqual(stationEntities, _stationEntities)) &&
+                dic_Sockets.Values.Count > 0)
+            {
+                var str = ssm.ToJson();
+                SendMessage(str);
+                _stationEntities = stationEntities;
+            }
         }
 
         private async Task SendFiberData()
         {
-            var fibers = DataServices.GetFiberData();
+            List<FiberEntity> fibers = await DataServices.GetFiberData();
+            var list = new List<FiberContent>();
+            foreach (var item in fibers)
+            {
+                list.Add(Mapper.Map<FiberEntity, FiberContent>(item));
+            }
+            var fm = new FiberModel()
+            {
+                Fiber = list
+            };
+            if ((!_fiberEntities.HasValue() || !ListNotEqual(fibers, _fiberEntities)) &&
+                    dic_Sockets.Values.Count > 0)
+            {
+                var str = fm.ToJson();
+                SendMessage(str);
+                _fiberEntities = fibers;
+            }
+        }
 
+        private bool ListNotEqual<T>(List<T> entityies1, List<T> entityies2)
+        {
+            bool flag = false;
+            if (entityies1.HasValue())
+            {
+                var str = JsonConvert.SerializeObject(entityies1);
+                var str1 = JsonConvert.SerializeObject(entityies2);
+                flag = str == str1;
+            }
+            return flag;
         }
 
         /// <summary>
@@ -510,10 +532,6 @@ namespace Caist.Framework.Service
             this.webMessage.SelectionStart = this.webMessage.Text.Length;
             this.webMessage.SelectionLength = 0;
         }
-
-        #endregion
-
-
         public void LimitLine(int maxLength, RichTextBox richTextBox)
         {
             if (richTextBox.Lines.Length > maxLength)
@@ -526,6 +544,99 @@ namespace Caist.Framework.Service
             }
         }
 
+        #endregion
+
+        #region 数据加载
+        private void LoadDataDevice(TreeNodeCollection treeNode)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(@"SELECT  a.tab_name,a.id as Id, a.Device_Name as Name, a.Device_Host as Host, a.Device_Port as Port, a.Slot_No as CPU_SlotNO, a.PLCType as PLCType,
+                            a.Local as LocalTASP,  a.Remote as RemoteTASP, a.parent_id as ParentId  FROM mk_device a WHERE a.base_is_delete = 0 ");
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                DataTable dataTable = conn.GetDataTable(builder.ToString());
+                PublicEntity.DeviceEntities = DataConvert.DataTableToList<DeviceEntity>(dataTable).ToList();
+            }
+            PublicEntity.DeviceEntities.ForEach(d =>
+            {
+                TreeNode tree = treeNode.Add(string.Format("{0}-[{1}:{2}]", d.Name, d.Host, d.Port.ToString()));
+                tree.ImageIndex = 0;
+            });
+        }
+
+        public void LoadDataTagGroup(string id = null)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(@"select a.id as Id,a.device_id as DeviceId,a.name as Name,a.modular_type as MMType,a.read_count as ReadCount,a.begin_address as BeginAddress,
+                             a.begin_block as Block from mk_instruct_group a where a.base_is_delete = 0 ");
+            if (!string.IsNullOrEmpty(id))
+            {
+                builder.Append(" and a.device_id = '" + id + "' ");
+            }
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                DataTable dataTable = conn.GetDataTable(builder.ToString());
+                PublicEntity.TagGroupsEntities = DataConvert.DataTableToList<TagGroupsEntity>(dataTable).ToList();
+            }
+        }
+
+        public void LoadDataTag(string id = null)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(@"select a.id as Id,a.Name as Name,a.instruct_group_id as TagGroup,a.address as Address,a.data_type as DataType,a.output as Output,a.remark as [Desc] 
+                             from mk_instruct a where a.base_is_delete = 0 ");
+            if (!string.IsNullOrEmpty(id))
+            {
+                builder.Append(" and a.device_id = '" + id + "' ");
+            }
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                DataTable dataTable = conn.GetDataTable(builder.ToString());
+                PublicEntity.TagEntities = DataConvert.DataTableToList<TagEntity>(dataTable).ToList();
+            }
+        }
+
+        /// <summary>
+        /// 获取报警标准数据
+        /// </summary>
+        /// <param name="id"></param>
+        public void LoadAlarmData(string id = null)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(@"select s.id,s.system_name,a.min_value,a.max_value,a.broadcast_content,m.manipulate_model_mark,m.manipulate_model_name
+                from [dbo].[mk_system_setting] s inner join [dbo].[mk_alarm_settings] a  on s.id=a.system_models
+                inner join [dbo].[mk_view_manipulate_model] m on a.view_manipulate_id=m.id where a.base_is_delete = 0 ");
+            if (!string.IsNullOrEmpty(id))
+            {
+                builder.Append(" and a.device_id = '" + id + "' ");
+            }
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                DataTable dataTable = conn.GetDataTable(builder.ToString());
+                PublicEntity.AlarmEntities = DataConvert.DataTableToList<AlarmEntity>(dataTable).ToList();
+            }
+        }
+        #endregion
+
+        public string GetConfigrationStr(string key)
+        {
+            string str = string.Empty;
+            if (key.HasValue())
+            {
+                str = ConfigurationManager.AppSettings[key];
+            }
+            else
+            {
+                MessageBox.Show($"请在config中配置 {key} 的值！");
+            }
+            return str;
+        }
+
+        private void timerWebSocket_Tick(object sender, EventArgs e)
+        {
+            //启动websocket
+            PushMsgToClient();
+        }
     }
 
     #region 返回数据模型
@@ -546,36 +657,36 @@ namespace Caist.Framework.Service
     #region 光纤测温
     public class FiberModel
     {
-        public FiberContent Fiber { get; set; }
+        public List<FiberContent> Fiber { get; set; }
     }
 
     public class FiberContent
     {
         public string AreaName { get; set; }
-        public float MaxValue { get; set; }
-        public float MaxValuePos { get; set; }
-        public float MinValue { get; set; }
-        public float MinValuePos { get; set; }
-        public float AverageValue { get; set; }
+        public string MaxValue { get; set; }
+        public string MaxValuePos { get; set; }
+        public string MinValue { get; set; }
+        public string MinValuePos { get; set; }
+        public string AverageValue { get; set; }
     }
     #endregion
 
     #region 配电站
     public class SubStationModel
     {
-        public SubStationContent SubStation { get; set; }
+        public List<SubStationContent> SubStation { get; set; }
     }
 
     public class SubStationContent
     {
         public string Sys_Id { get; set; }
-        public float F { get; set; }
-        public float IA { get; set; }
-        public float P { get; set; }
-        public float Q { get; set; }
-        public float COS { get; set; }
+        public string F { get; set; }
+        public string IA { get; set; }
+        public string P { get; set; }
+        public string Q { get; set; }
+        public string COS { get; set; }
     }
     #endregion
 
-    #endregion
+    #endregion 
 }

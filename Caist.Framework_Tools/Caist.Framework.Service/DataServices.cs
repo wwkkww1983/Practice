@@ -69,5 +69,21 @@ namespace Caist.Framework.Service
                 return DataConvert.DataTableToList<SubStationEntity>(dataTable).ToList();
             }
         }
+
+
+        /// <summary>
+        /// 获取供电站的数据
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<bool> SaveHistoryData(HistoryEntity history)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append($"INSERT INTO [dbo].{history.TabName} ([dict_Id],[dict_value])VALUES('{history.DictId}','{history.DictValue}')");
+
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                return await conn.InsertAsync(builder.ToString()) > 0;
+            }
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Caist.Framework.ThreadPool
@@ -17,6 +19,22 @@ namespace Caist.Framework.ThreadPool
                 sb.AppendLine(Format(ex.InnerException));
             }
             return sb.ToString();
+        }
+    }
+
+    public static class CommonExtends
+    {
+        public static string ToJson<T>(this T t)
+        {
+            return JsonConvert.SerializeObject(t);
+        }
+        public static bool HasValue<T>(this List<T> t)
+        {
+            return t != null && t.Count > 0;
+        }
+        public static bool HasValue(this string str)
+        {
+            return !string.IsNullOrWhiteSpace(str);
         }
     }
 }
