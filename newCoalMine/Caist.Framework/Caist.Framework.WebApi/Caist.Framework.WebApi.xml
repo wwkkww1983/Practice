@@ -33,6 +33,27 @@
             <param name="param"></param>
             <returns></returns>
         </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.SecurityMonitorController.GetSecurityInfoList(Caist.Framework.Model.Security.SecurityMonitorParam)">
+            <summary>
+            获取安全检测列表
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.SubstationController.SubStationInfo(Caist.Framework.Model.SubStation.SubStationParam)">
+            <summary>
+            获取供电站信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.VideoController.GetVideoInfoList(Caist.Framework.Model.Param.ApplicationManage.VideoListParam)">
+            <summary>
+            获取所有摄像头地址
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
         <member name="T:Caist.Framework.WebApi.Handle.AuthorizeFilterAttribute">
             <summary>
             验证token和记录日志

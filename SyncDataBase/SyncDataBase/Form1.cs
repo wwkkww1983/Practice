@@ -1,6 +1,4 @@
-﻿using Autofac;
-using SyncDataAccess;
-using SyncLogic;
+﻿using SyncLogic;
 using SyncUtil;
 using System;
 using System.Threading.Tasks;
@@ -50,18 +48,47 @@ namespace SyncDataBase
 
         private void Timer1_Tick(object sender, System.EventArgs e)
         {
-            sc.SyncData();
+            try
+            {
+                sc.SyncData(ref _res);
+                if (_res.HasValue())
+                {
+                    timer1.Stop();
+                    MessageBox.Show(_res);
+                }
+            }
+            catch (Exception ex)
+            {
+                timer1.Stop();
+                MessageBox.Show(ex.Message);
+            }
         }
-
+        string _res = string.Empty;
         private void btnStart_Click(object sender, System.EventArgs e)
         {
             if (_interval.HasValue())
             {
-                timer1.Interval = GetInterval();
-                btnStart.Enabled = false;
-                lblHint.Visible = true;
-                timer1.Start();
-                Task.Run(() => { sc.SyncData(); });
+                try
+                {
+                    timer1.Interval = GetInterval();
+                    btnStart.Enabled = false;
+                    lblHint.Visible = true;
+                    timer1.Start();
+                    Task.Run(() =>
+                    {
+                        sc.SyncData(ref _res);
+                        if (_res.HasValue())
+                        {
+                            this.btnStop_Click(null, null);
+                            MessageBox.Show(_res);
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    timer1.Stop();
+                    MessageBox.Show(ex.Message);
+                }
             }
             else
             {
@@ -87,9 +114,19 @@ namespace SyncDataBase
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            timer1.Stop();
-            btnStart.Enabled = true;
-            lblHint.Visible = false;
+            try
+            {
+                timer1.Stop();
+                btnStart.Enabled = true;
+                lblHint.Visible = false;
+            }
+            catch (Exception)
+            {
+                Task.Run(()=> {
+                    btnStart.Enabled = true;
+                    lblHint.Visible = false;
+                });
+            }
         }
 
         private void btnExit_Click(object sender, EventArgs e)

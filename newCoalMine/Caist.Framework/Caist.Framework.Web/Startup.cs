@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+锘縰sing Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -70,7 +70,7 @@ namespace Caist.Framework.Web
             GlobalContext.SystemConfig = Configuration.GetSection("SystemConfig").Get<SystemConfig>();
             if (!string.IsNullOrEmpty(GlobalContext.SystemConfig.VirtualDirectory))
             {
-                app.UsePathBase(new PathString(GlobalContext.SystemConfig.VirtualDirectory)); // 让 Pathbase 中间件成为第一个处理请求的中间件， 才能正确的模拟虚拟路径
+                app.UsePathBase(new PathString(GlobalContext.SystemConfig.VirtualDirectory)); // 脠脙 Pathbase 脰脨录盲录镁鲁脡脦陋碌脷脪禄赂枚麓娄脌铆脟毛脟贸碌脛脰脨录盲录镁拢卢 虏脜脛脺脮媒脠路碌脛脛拢脛芒脨茅脛芒脗路戮露
             }
             if (env.IsDevelopment())
             {

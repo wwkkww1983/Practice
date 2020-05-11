@@ -8,50 +8,65 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SyncLogic
 {
     public class Sync
     {
         readonly int _count = Convert.ToInt32(Common.GetConfigValue("MaxOnceData"));
-        public async Task<bool> SyncData()
+        public bool SyncData(ref string res)
         {
-            string txt = FileOperation.ReadText(Common.GetConfigValue("ConfigPath"));
-            if (txt.HasValue())
+            try
             {
-                var models = JsonConvert.DeserializeObject<List<DataBaseModel>>(txt);
-                return await Excute(models);
+                string txt = FileOperation.ReadText(Common.GetConfigValue("ConfigPath"));
+                if (txt.HasValue())
+                {
+                    var models = JsonConvert.DeserializeObject<List<DataBaseModel>>(txt);
+                    return Excute(models);
+                }
+            }
+            catch (Exception ex)
+            {
+                res = ex.Message;
             }
             return false;
         }
 
-        private async Task<bool> Excute(List<DataBaseModel> models)
+        private bool Excute(List<DataBaseModel> models)
         {
             bool flag = false;
             string sql = string.Empty;
-            foreach (var item in models)
+            try
             {
-                //生成查询SQL
-                sql = item.ToSelectSql();
-                //增量插入查询
-                if (item.syncType)
+                foreach (var item in models)
                 {
-                    string point = GetPoint(item);
-                    if (point.HasValue())
+                    //生成查询SQL
+                    sql = item.ToSelectSql();
+                    //增量插入查询
+                    if (item.SyncPartial)
                     {
-                        sql += $" where {item.flagField} > '{point.Replace("\r\n",string.Empty)}'";
+                        string point = GetPoint(item);
+                        if (point.HasValue())
+                        {
+                            sql += $" where {item.FlagField} > '{point.Replace("\r\n", string.Empty)}'";
+                        }
+                    }
+                    else
+                    {
+                        DeleteSourceTableData(item);
+                    }
+                    var dt = Query(sql, item);
+                    sql = item.ToInsertSql();
+                    flag = ExcuteInsertSql(sql, dt, item);
+                    if (item.SyncPartial && item.FlagField.HasValue())
+                    {
+                        SavePoint(item, dt);
                     }
                 }
-                else
-                {
-                    DeleteSourceTableData(item);
-                }
-                //TODO:替换动态查询连接
-                var dt = Query(sql, item);
-                sql = item.ToInsertSql();
-                flag = ExcuteInsertSql(sql, dt, item);
-                SavePoint(item, dt);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
             return flag;
         }
@@ -66,7 +81,7 @@ namespace SyncLogic
         {
             var dicty = Common.GetConfigValue("SyncPointsFolder");
             //数据库名+表名
-            string path = Path.Combine(dicty, model.sourceDB + "_" + model.sourceTable + ".txt");
+            string path = Path.Combine(dicty, model.SourceDB + "_" + model.SourceTable + ".txt");
             return path;
         }
 
@@ -75,9 +90,9 @@ namespace SyncLogic
             if (dt.HasData())
             {
                 var dv = new DataView(dt);
-                dv.Sort = $"{item.flagField} desc";
+                dv.Sort = $"{item.FlagField} desc";
                 dt = dv.ToTable();
-                var point = dt.Rows[0][item.flagField].ToString();
+                var point = dt.Rows[0][item.FlagField].ToString();
                 string path = GetPointPath(item);
                 FileOperation.WriteText(path, point);
             }
@@ -86,14 +101,14 @@ namespace SyncLogic
         private bool DeleteSourceTableData(DataBaseModel item)
         {
             string sql = string.Empty;
-            switch (item.targetDBType)
+            switch (item.TargetDBType)
             {
                 case DataBaseType.SQLSERVER:
-                    sql = $"delete from {item.targetDB}.dbo.{item.targetTable};";
+                    sql = $"delete from {item.TargetDB}.dbo.{item.TargetTable};";
                     break;
                 case DataBaseType.ORACLE:
                 case DataBaseType.MYSQL:
-                    sql = $"delete from {item.targetDB}.{item.targetTable};";
+                    sql = $"delete from {item.TargetDB}.{item.TargetTable};";
                     break;
                 default:
                     break;
@@ -138,15 +153,15 @@ namespace SyncLogic
         private bool ExcuteSQL(string sql, DataBaseModel item)
         {
             bool flag = false;
-            switch (item.targetDBType)
+            switch (item.TargetDBType)
             {
                 case DataBaseType.MYSQL:
                     MySqlHelper mysqlhelper = new MySqlHelper();
-                    flag = mysqlhelper.InsertData(sql, item.targetDBConnStr);
+                    flag = mysqlhelper.InsertData(sql, item.TargetDBConnStr);
                     break;
                 case DataBaseType.SQLSERVER:
                     SqlHelper helper = new SqlHelper();
-                    flag = helper.InsertData(sql, item.targetDBConnStr);
+                    flag = helper.InsertData(sql, item.TargetDBConnStr);
                     break;
                 case DataBaseType.ORACLE:
                     break;
@@ -159,15 +174,15 @@ namespace SyncLogic
         private DataTable Query(string sql, DataBaseModel item)
         {
             var dt = new DataTable();
-            switch (item.sourceDBType)
+            switch (item.SourceDBType)
             {
                 case DataBaseType.MYSQL:
                     MySqlHelper mysqlhelper = new MySqlHelper();
-                    dt = mysqlhelper.GetDataTable(sql, item.sourceDBConnStr);
+                    dt = mysqlhelper.GetDataTable(sql, item.SourceDBConnStr);
                     break;
                 case DataBaseType.SQLSERVER:
                     SqlHelper helper = new SqlHelper();
-                    dt = helper.GetDataTable(sql, item.sourceDBConnStr);
+                    dt = helper.GetDataTable(sql, item.SourceDBConnStr);
                     break;
                 case DataBaseType.ORACLE:
                     break;

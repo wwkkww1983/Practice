@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- plcType 1:200系列，2：300/400/1200/1500系列；-->
+<Device name ="S7-TCP" ip="127.0.0.1" PLCType="2" cpuSlotNO="01" localTASP ="02 01" remoteTASP="02 00"  >
+<!-- readCount 不易过大，200之内,单位是字节数-->
+  <TagGroup name="DB16" mmtype="DB" block="16" beginAddress="4" readCount="20" >
+    <Tag name="DBD2" address="0" dataType="float" desc="皮带速度"/>
+    <Tag name="DBD6" address="4" dataType="float" desc="皮带张力"/>
+  </TagGroup>
+  <TagGroup name="DB17" mmtype="DB" block="17" beginAddress="4" readCount="20" >
+    <Tag name="DBX0.0" address="0.0" dataType="float" desc="皮带速度"/>
+  </TagGroup>
+
+  <!--<TagGroup name="Group_Q01" mmtype="Q" block="" beginAddress="0" readCount="1" >
+    <Tag name="a01" address="0.0" dataType="bool" desc=""/>
+    <Tag name="a02" address="0.1" dataType="bool" desc=""/>
+  </TagGroup>-->
+
+
+<!-- 以下可以根据实际情况进行测试，取消注释即可，前提是在PLC里面要新建DB100，长度大于20个byte-->
+
+<!--<TagGroup name="Group_DB01" mmtype="DB" block="100" beginAddress="0" readCount="20" >
+    <Tag name="a01" address="4" dataType="int" desc=""/>
+    <Tag name="a02" address="8" dataType="float" desc=""/>
+  </TagGroup>
+
+  <TagGroup name="Group_DB100" mmtype="DB" block="100" beginAddress="4" readCount="20" >
+    <Tag name="a01" address="4" dataType="short" desc=""/>
+    <Tag name="a02" address="6" dataType="short" desc=""/>
+    <Tag name="a03" address="6.1" dataType="bool" desc=""/>
+    <Tag name="a04" address="6" dataType="int" desc=""/>
+  </TagGroup>-->
+
+
+</Device>

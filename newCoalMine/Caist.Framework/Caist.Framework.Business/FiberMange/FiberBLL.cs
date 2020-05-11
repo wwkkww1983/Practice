@@ -22,6 +22,7 @@ namespace Caist.Framework.Business.FiberManage
             var obj = new TData<List<CableEntity>>();
             var list = await fiberService.GetFiberInfoList(param);
             obj.Result = list;
+            obj.TotalCount = list.Count;
             obj.Tag = 1;
             return obj;
         }

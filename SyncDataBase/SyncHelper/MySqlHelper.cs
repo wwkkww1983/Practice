@@ -23,10 +23,9 @@ namespace SyncDataAccess
                     adapter.Fill(dt);
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-
-                throw;
+                throw ex;
             }
             return dt;
         }
@@ -44,9 +43,9 @@ namespace SyncDataAccess
                     return command.ExecuteNonQuery() > 0;
                 }
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                throw;
+                throw ex;
             }
             return flag;
         }

@@ -3,11 +3,10 @@
 }
 
 @inject Microsoft.AspNetCore.Hosting.IHostingEnvironment HostingEnvironment
-@*@section header{
+@section header{
     @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/report/echarts/echarts.min.js"))
-}*@
+}
 
-<script src="~/lib/report/echarts/echarts.min.js" charset="utf-8" ></script>
 <div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-sm-12">
@@ -27,25 +26,6 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>定位记录</h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="graph_flot.html#">
-                            <i class="fa fa-wrench"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-user">
-                            <li>
-                                <a href="graph_flot.html#">选项1</a>
-                            </li>
-                            <li>
-                                <a href="graph_flot.html#">选项2</a>
-                            </li>
-                        </ul>
-                        <a class="close-link">
-                            <i class="fa fa-times"></i>
-                        </a>
-                    </div>
                 </div>
                 <div class="ibox-content">
                     <div class="echarts" id="echarts-line-chart"></div>
@@ -56,17 +36,37 @@
 </div>
 
 <script type="text/javascript">
-$(function () {
+    var position_global;
+    $(function () {
+
+        $.ajax({
+            url: '/PepolePosition/Pepole/PersonnelList',
+            type: 'post',
+            data: {
+                AreaName: ""
+            },
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function (res) {
+                filterData(res);
+                initChart();
+            }
+        });
+
+    });
+
+    function initChart() {
+
         var lineChart = echarts.init(document.getElementById("echarts-line-chart"));
         var lineoption = {
             title: {
-                text: '未来一周气温变化'
+                text: '人员位置变化'
             },
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['最高气温', '最低气温']
+                data: ['位置']
             },
             grid: {
                 x: 40,
@@ -85,39 +85,18 @@ $(function () {
                 {
                     type: 'value',
                     axisLabel: {
-                        formatter: '{value} °C'
+                        formatter: '{value}'
                     }
                 }
             ],
             series: [
                 {
-                    name: '最高气温',
+                    name: '位置',
                     type: 'line',
-                    data: [11, 11, 16, 13, 12, 13, 10],
+                    data: position_global,
                     markPoint: {
                         data: [
                             { type: 'max', name: '最大值' },
-                            { type: 'min', name: '最小值' }
-                        ]
-                    },
-                    markLine: {
-                        data: [
-                            { type: 'average', name: '平均值' }
-                        ]
-                    }
-                },
-                {
-                    name: '最低气温',
-                    type: 'line',
-                    data: [1, -2, 2, 5, 3, 2, 0],
-                    markPoint: {
-                        data: [
-                            { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
-                        ]
-                    },
-                    markLine: {
-                        data: [
-                            { type: 'average', name: '平均值' }
                         ]
                     }
                 }
@@ -125,5 +104,16 @@ $(function () {
         };
         lineChart.setOption(lineoption);
         $(window).resize(lineChart.resize);
+    }
 
-    });</script>
+    function filterData(result) {
+        position_global = new Array();
+        var res = eval(result);
+        var datas = res.Result;
+        if (datas != null && datas.length > 0) {
+            for (var i = 0; i < datas.length; i++) {
+                position_global.push(datas[i].CurrentStation);
+            }
+        }
+    }
+</script>
