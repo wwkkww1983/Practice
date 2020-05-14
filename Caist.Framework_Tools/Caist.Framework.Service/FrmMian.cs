@@ -278,13 +278,6 @@ namespace Caist.Framework.Service
 
         //TODO:1、整合推送到plc采集； 2、判断报警信息（存入报警表，发送特定消息给前端）；3、整合数据同步进来；
         //TODO: 1、光纤测温websocket推送；2、供电站webscoket推送；3、建历史表；4、svn 外网映射；
-        public object Print(Object obj)
-        {
-            while (true)
-            {
-                return null;
-            }
-        }
 
         /// <summary>
         /// 计时器
@@ -310,7 +303,6 @@ namespace Caist.Framework.Service
             {
                 var url = GetConfigrationStr("WebSocketAddress");
                 string loaction = string.Format("ws://{0}", url);
-                //string loaction = string.Format("ws://{0}:{1}", webAddress.Text.Trim(), webPort.Text.Trim());
                 server = new WebSocketServer(loaction);//监听所有的的地址
                 server.RestartAfterListenError = true;//出错后进行重启
                 if (!string.IsNullOrEmpty(webAddress.Text.ToString()) && !string.IsNullOrEmpty(webPort.Text.ToString()))
@@ -327,9 +319,6 @@ namespace Caist.Framework.Service
                             string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
                             dic_Sockets.Add(clientUrl, socket);
                             WebSocketMessage("|服务器:和客户端网页:" + clientUrl + " 建立WebSock连接！");
-
-                            //Task.Run(() => { timerWebSocket.Start(); });
-                            //PushMsgToClient();
                         };
                         socket.OnClose = () =>  //连接关闭事件
                         {
