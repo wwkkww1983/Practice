@@ -171,10 +171,13 @@ namespace Caist.Framework.Service
                         btnPLCStop.Enabled = true;
                         txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
                     }));
-                    CaistTimer TimerMessage = new CaistTimer() { Interval = 1000 };
-                    TimerMessage.Elapsed += TimerMessage_Elapsed;
-                    TimerMessage.obj = v;
-                    TimerMessage.Start();
+                    Task.Run(()=>{ 
+                        CaistTimer TimerMessage = new CaistTimer() { Interval = 1000 };
+                        TimerMessage.Elapsed += TimerMessage_Elapsed;
+                        TimerMessage.obj = v;
+                        TimerMessage.Start();
+                        
+                    });
                     //IWorkItem item = pool.QueueUserWorkItem(Print, v);
 
                 }
@@ -191,6 +194,7 @@ namespace Caist.Framework.Service
         bool _deviceStatusflag = true;
         private void TimerMessage_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
+            _deviceStatusflag = true;
             SiemensHelper entity = (SiemensHelper)((CaistTimer)sender).obj;
             SystemStatus.Invoke(new Action(() =>
             {
