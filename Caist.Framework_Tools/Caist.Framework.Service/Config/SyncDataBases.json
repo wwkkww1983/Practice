@@ -1,0 +1,53 @@
+[
+  {
+    "sourceDBType": "mysql",
+    "sourceDB": "mk_collert",
+    "sourceTable": "securitymonitoringrealtimedata",
+    "sourceDBConnStr": "Server=192.168.1.235;Port=3306;Database=mk_collert;Uid=root;Pwd=root;",
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "security_monitor_ingreal_time_data",
+    "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+      "point,point",
+      "Address,Address",
+      "lc,lc",
+      "lx,lx",
+      "dw,dw",
+      "ssz,ssz",
+      "StatName,Stat_Name",
+      "UpdatDateTime,Updat_Date_Time"
+    ],
+    "sourceTableFields": [
+      "id,int"
+    ],
+    "targetTableFields": [
+      "id,int"
+    ]
+   }
+      //,
+    //{
+    //  "sourceDBType": "mysql",
+    //  "sourceDB": "mk_collert",
+    //  "sourceTable": "jobposition",
+    //  "sourceDBConnStr": "Server=192.168.1.235;Port=3306;Database=mk_collert;Uid=root;Pwd=root;",
+    //  "targetDBType": "sqlserver",
+    //  "targetDB": "mk_cable_thermometry",
+    //  "targetTable": "mk_job_position",
+    //  "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
+    //  "syncPartial": false,
+    //  "flagField": "",
+    //  "tableFields": [
+    //    "PositionName,postion_name",
+    //    "PositionNumber,postion_number"
+    //  ],
+    //  "sourceTableFields": [
+    //    "id,int"
+    //  ],
+    //  "targetTableFields": [
+    //    "id,int"
+    //  ]
+    //}
+]

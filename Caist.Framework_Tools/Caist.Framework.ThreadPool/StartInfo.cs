@@ -35,7 +35,7 @@ namespace Caist.Framework.ThreadPool
         public StartInfo()
         {
             MinWorkerThreads = 2;
-            MaxWorkerThreads = 10;
+            MaxWorkerThreads = 100;
             DropEnum = DropEnum.Never;
             Timeout = 60;
             AdjustInterval = 1;
