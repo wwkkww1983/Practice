@@ -11,12 +11,6 @@
     "syncPartial": false,
     "flagField": "",
     "tableFields": [
-      "point,point",
-      "Address,Address",
-      "lc,lc",
-      "lx,lx",
-      "dw,dw",
-      "ssz,ssz",
       "StatName,Stat_Name",
       "UpdatDateTime,Updat_Date_Time"
     ],

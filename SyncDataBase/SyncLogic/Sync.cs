@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace SyncLogic
@@ -38,10 +39,14 @@ namespace SyncLogic
             string sql = string.Empty;
             try
             {
+                string sameFields = string.Empty;
                 foreach (var item in models)
                 {
                     //生成查询SQL
                     sql = item.ToSelectSql();
+                    //找到相同的字段
+                    sameFields = FindSameFields(item);
+                    sql = sql.Replace("(placeholder)", sameFields);
                     //增量插入查询
                     if (item.SyncPartial)
                     {
@@ -57,6 +62,7 @@ namespace SyncLogic
                     }
                     var dt = Query(sql, item);
                     sql = item.ToInsertSql();
+                    sql = sql.Replace("(placeholder)", sameFields);
                     flag = ExcuteInsertSql(sql, dt, item);
                     if (item.SyncPartial && item.FlagField.HasValue())
                     {
@@ -69,6 +75,46 @@ namespace SyncLogic
                 throw ex;
             }
             return flag;
+        }
+
+        private string FindSameFields(DataBaseModel baseModel)
+        {
+            string strSqlSource = string.Empty;
+            string strSqlTarget = string.Empty;
+            switch (baseModel.SourceDBType)
+            {
+                case DataBaseType.SQLSERVER:
+                case DataBaseType.MYSQL:
+                    strSqlSource = $"select LOWER(column_name)as column_name from information_schema.columns where table_name='{baseModel.SourceTable}';";
+                    strSqlTarget = $"select LOWER(column_name)as column_name from information_schema.columns where table_name='{baseModel.TargetTable}';";
+                    break;
+                case DataBaseType.ORACLE:
+                    break;
+                default:
+                    break;
+            }
+            var dtSource = Query(strSqlSource, baseModel);
+            var dtTarget = Query(strSqlTarget, baseModel);
+            return CompareDataTable(dtSource, dtTarget);
+        }
+
+        private string CompareDataTable(DataTable dtSource, DataTable dtTarget)
+        {
+            string str = string.Empty;
+            StringBuilder res = new StringBuilder();
+            foreach (DataRow dataRow in dtSource.Rows)
+            {
+                var drs = dtTarget.Select($"LOWER(column_name) = '{dataRow["column_name"].ToString().ToLower()}'");
+                if (drs.Length > 0)
+                {
+                    res.Append($"{dataRow["column_name"]},");
+                }
+            }
+            if (res.Length > 0)
+            {
+                str = res.ToString().TrimEnd(',');
+            }
+            return str;
         }
 
         private static string GetPoint(DataBaseModel model)

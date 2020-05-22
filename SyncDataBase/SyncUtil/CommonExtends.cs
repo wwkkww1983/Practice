@@ -20,7 +20,7 @@ namespace SyncUtil
         public static string ToSelectSql(this DataBaseModel model)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append($"select ");
+            sb.Append($"select (placeholder)");
             sb.Append(string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Keys));
             switch (model.SourceDBType)
             {
@@ -43,11 +43,11 @@ namespace SyncUtil
             switch (model.TargetDBType)
             {
                 case DataBaseType.SQLSERVER:
-                    sb.Append($"insert into {model.TargetDB}.dbo.{model.TargetTable}(");
+                    sb.Append($"insert into {model.TargetDB}.dbo.{model.TargetTable}( (placeholder)");
                     break;
                 case DataBaseType.ORACLE://TODO:oracle 可能还得测试下
                 case DataBaseType.MYSQL:
-                    sb.Append($"insert into {model.TargetDB}.{model.TargetTable}(");
+                    sb.Append($"insert into {model.TargetDB}.{model.TargetTable}((placeholder)");
                     break;
                 default:
                     break;

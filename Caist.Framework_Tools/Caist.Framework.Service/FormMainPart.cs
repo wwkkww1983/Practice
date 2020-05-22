@@ -8,7 +8,6 @@ namespace Caist.Framework.Service
 {
     public partial class FrmMian
     {
-
         readonly int _millSeconds = 60000;
         string _interval;
         Sync sc;
