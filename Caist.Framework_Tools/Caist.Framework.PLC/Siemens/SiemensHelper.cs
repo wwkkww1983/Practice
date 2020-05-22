@@ -13,9 +13,12 @@ namespace Caist.Framework.PLC.Siemens
 	public class SiemensHelper
     {
 		private readonly int Fuck_int;
-		private PLCLink Link;
+		private readonly PLCLink Link;
 		private bool ProtectFlg = true;
-		public Dictionary<string, Device> device = new Dictionary<string, Device>();
+		//public Dictionary<string, Device> device = new Dictionary<string, Device>();
+
+		public DeviceEntity DeviceEntity { get; set; }
+
 		/// <summary>
 		/// 连接状态
 		/// </summary>
@@ -60,9 +63,11 @@ namespace Caist.Framework.PLC.Siemens
 		{
 			int num = 0;
 			this.Link.GetDevice().Clear();
-			PublicEntity.DeviceEntities.ForEach(d => {
-				device.Add(d.Id, new Device(d.PLCType, d.CPU_SlotNO, d.LocalTASP, d.RemoteTASP));
-			});
+			this.Link.GetDevice().CPUSlotNO = this.DeviceEntity.CPU_SlotNO;
+			this.Link.GetDevice().LocalTASP = this.DeviceEntity.LocalTASP;
+			this.Link.GetDevice().PLCtype = this.DeviceEntity.PLCType;
+			this.Link.GetDevice().RemoteTASP = this.DeviceEntity.RemoteTASP;
+
 			PublicEntity.TagGroupsEntities.ForEach(v => {
 				this.Link.GetDevice().ValuePairs.Add(v.Id, new InstructGroupEntity(v.Id,v.Name, v.MMType, int.Parse(v.Block), int.Parse(v.BeginAddress), int.Parse(v.ReadCount)));
 				PublicEntity.TagEntities.Where(s => s.TagGroup == v.Id).ToList().ForEach(x =>

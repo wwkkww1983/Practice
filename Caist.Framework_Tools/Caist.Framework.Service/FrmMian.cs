@@ -27,11 +27,11 @@ namespace Caist.Framework.Service
     {
         /**{"key": "value"}**/
         #region 变量定义
-        private SiemensHelper siemens = new SiemensHelper();
         private Stopwatch sw = new Stopwatch();
         private TimeSpan ts = new TimeSpan();
         private List<SubStationEntity> _stationEntities = new List<SubStationEntity>();
         private List<FiberEntity> _fiberEntities = new List<FiberEntity>();
+        private List<SiemensHelper> _siemensHelpers = new List<SiemensHelper>();
         #endregion
 
         #region 消息推送实例
@@ -59,9 +59,9 @@ namespace Caist.Framework.Service
             this.LoadDataDevice(TreeDevice.Nodes);
             this.LoadDataTagGroup();
             this.LoadDataTag();
-            this.siemens.Init();
+            //初始化SiemensHelpers
+            SiemensInit();
             this.GetInit();
-            Device device = this.siemens.GetDevice();
 
             var s = "WebSocketTimer".GetConfigrationStr();
             if (s.HasValue())
@@ -74,6 +74,17 @@ namespace Caist.Framework.Service
             Init();
         }
 
+        private void SiemensInit()
+        {
+            PublicEntity.DeviceEntities.ForEach(d =>
+            {
+                SiemensHelper siemensHelper = new SiemensHelper();
+                siemensHelper.DeviceEntity = d;
+                siemensHelper.Init();
+                _siemensHelpers.Add(siemensHelper);
+            });
+        }
+
         /// <summary>
         /// 加载指令
         /// </summary>
@@ -81,25 +92,28 @@ namespace Caist.Framework.Service
         {
             try
             {
-                Device device = siemens.GetDevice();
-                foreach (KeyValuePair<string, InstructGroupEntity> item in device.ValuePairs)
+                foreach (var siemens in _siemensHelpers)
                 {
-                    InstructGroupEntity groupEntity = item.Value;
-                    foreach (KeyValuePair<string, InstructEntity> list in groupEntity.InstructPairs)
+                    Device device = siemens.GetDevice();
+                    foreach (KeyValuePair<string, InstructGroupEntity> item in device.ValuePairs)
                     {
-                        InstructEntity instructEntity = list.Value;
-                        string Name = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
-                        string Key = string.Format("{0}.{1}", groupEntity.Id, instructEntity.Id);
-                        ListViewItem lvitem = new ListViewItem(Name);
-                        lvitem.ToolTipText = Key;
-                        lvitem.SubItems.Add(instructEntity.Desc);
-                        lvitem.SubItems.Add(instructEntity.DataType);
-                        lvitem.SubItems.Add(instructEntity.GetAddressName());
-                        lvitem.SubItems.Add("");
-                        lvitem.SubItems.Add(Extensions.ConvertOutPutEnum(int.Parse(instructEntity.Output)));
-                        lvitem.Tag = instructEntity;
-                        lvPoint.Items.Add(lvitem);
-                        lvPoint.Columns[0].Width = -1;
+                        InstructGroupEntity groupEntity = item.Value;
+                        foreach (KeyValuePair<string, InstructEntity> list in groupEntity.InstructPairs)
+                        {
+                            InstructEntity instructEntity = list.Value;
+                            string Name = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
+                            string Key = string.Format("{0}.{1}", groupEntity.Id, instructEntity.Id);
+                            ListViewItem lvitem = new ListViewItem(Name);
+                            lvitem.ToolTipText = Key;
+                            lvitem.SubItems.Add(instructEntity.Desc);
+                            lvitem.SubItems.Add(instructEntity.DataType);
+                            lvitem.SubItems.Add(instructEntity.GetAddressName());
+                            lvitem.SubItems.Add("");
+                            lvitem.SubItems.Add(Extensions.ConvertOutPutEnum(int.Parse(instructEntity.Output)));
+                            lvitem.Tag = instructEntity;
+                            lvPoint.Items.Add(lvitem);
+                            lvPoint.Columns[0].Width = -1;
+                        }
                     }
                 }
             }
@@ -136,16 +150,17 @@ namespace Caist.Framework.Service
         {
             //StartInfo info = new StartInfo { Timeout = 1, MinWorkerThreads = PublicEntity.DeviceEntities.Count() };
             //IThreadPool pool = ThreadPoolFactory.Create(info, "PLC线程池");
-            PublicEntity.DeviceEntities.ForEach(v =>
+            //PublicEntity.DeviceEntities.ForEach(v =>
+            _siemensHelpers.ForEach(v =>
             {
-                siemens.IP = v.Host;
-                siemens.Port = v.Port;
-                var result = siemens.Start();
+                v.IP = v.DeviceEntity.Host;
+                v.Port = v.DeviceEntity.Port;
+                var result = v.Start();
                 if (!result)
                 {
                     txtMessage.Invoke(new Action(() =>
                     {
-                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.Name, v.Host, v.Port));
+                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
                     }));
                 }
                 else
@@ -154,7 +169,7 @@ namespace Caist.Framework.Service
                     {
                         btnPLCStrats.Enabled = false;
                         btnPLCStop.Enabled = true;
-                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.Name, v.Host, v.Port));
+                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
                     }));
                     CaistTimer TimerMessage = new CaistTimer() { Interval = 1000 };
                     TimerMessage.Elapsed += TimerMessage_Elapsed;
@@ -176,10 +191,10 @@ namespace Caist.Framework.Service
         bool _deviceStatusflag = true;
         private void TimerMessage_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            DeviceEntity entity = (DeviceEntity)((CaistTimer)sender).obj;
+            SiemensHelper entity = (SiemensHelper)((CaistTimer)sender).obj;
             SystemStatus.Invoke(new Action(() =>
             {
-                switch (siemens.CommStatus)
+                switch (entity.CommStatus)
                 {
                     case 0:
                         txtStatus.Text = "未连接";
@@ -209,7 +224,7 @@ namespace Caist.Framework.Service
                 }
                 if (_deviceStatusflag)
                 {
-                    Device device = this.siemens.GetDevice();
+                    Device device = entity.GetDevice();
                     foreach (KeyValuePair<string, InstructGroupEntity> group in device.ValuePairs)
                     {
                         InstructGroupEntity groupEntity = group.Value;
@@ -225,12 +240,12 @@ namespace Caist.Framework.Service
                                 case DataTypeEnum.TYPE_BYTE:
                                 case DataTypeEnum.TYPE_SHORT:
                                 case DataTypeEnum.TYPE_BOOL:
-                                    SendData(Convert.ToInt32(siemens.GetValue(Name)), key, entity);
-                                    item.SubItems[4].Text = Convert.ToInt32(siemens.GetValue(Name)).ToString();
+                                    SendData(Convert.ToInt32(entity.GetValue(Name)), key, entity.DeviceEntity);
+                                    item.SubItems[4].Text = Convert.ToInt32(entity.GetValue(Name)).ToString();
                                     break;
                                 case DataTypeEnum.TYPE_FLOAT:
-                                    SendData(Convert.ToInt64(siemens.GetValue(Name)), key, entity);
-                                    item.SubItems[4].Text = siemens.GetValue(Name).ToString();
+                                    SendData(Convert.ToInt64(entity.GetValue(Name)), key, entity.DeviceEntity);
+                                    item.SubItems[4].Text = entity.GetValue(Name).ToString();
                                     break;
                                 default:
                                     break;
