@@ -21,7 +21,11 @@ namespace SyncUtil
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"select (placeholder)");
-            sb.Append(string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Keys));
+            if (model.TableFields != null && model.TableFields.Length > 0)
+            {
+                string tempStr = "," + string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Keys);
+                sb.Append(tempStr);
+            }
             switch (model.SourceDBType)
             {
                 case DataBaseType.SQLSERVER:
@@ -52,7 +56,12 @@ namespace SyncUtil
                 default:
                     break;
             }
-            sb.Append(string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Values));
+
+            if (model.TableFields != null && model.TableFields.Length > 0)
+            {
+                string tempStr = "," + string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Values);
+                sb.Append(tempStr);
+            }
             sb.Append(@") values({0})");
             return sb.ToString();
         }

@@ -109,8 +109,9 @@ namespace Caist.Framework.Service
                 btnStart.Enabled = true;
                 lblHint.Visible = false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
                 Task.Run(() => {
                     btnStart.Enabled = true;
                     lblHint.Visible = false;

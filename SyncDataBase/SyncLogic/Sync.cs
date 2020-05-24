@@ -60,7 +60,7 @@ namespace SyncLogic
                     {
                         DeleteSourceTableData(item);
                     }
-                    var dt = Query(sql, item);
+                    var dt = Query(sql, item, item.SourceDBType);
                     sql = item.ToInsertSql();
                     sql = sql.Replace("(placeholder)", sameFields);
                     flag = ExcuteInsertSql(sql, dt, item);
@@ -93,8 +93,8 @@ namespace SyncLogic
                 default:
                     break;
             }
-            var dtSource = Query(strSqlSource, baseModel);
-            var dtTarget = Query(strSqlTarget, baseModel);
+            var dtSource = Query(strSqlSource, baseModel, baseModel.SourceDBType);
+            var dtTarget = Query(strSqlTarget, baseModel, baseModel.TargetDBType);
             return CompareDataTable(dtSource, dtTarget);
         }
 
@@ -104,7 +104,7 @@ namespace SyncLogic
             StringBuilder res = new StringBuilder();
             foreach (DataRow dataRow in dtSource.Rows)
             {
-                var drs = dtTarget.Select($"LOWER(column_name) = '{dataRow["column_name"].ToString().ToLower()}'");
+                var drs = dtTarget.Select($"column_name = '{dataRow["column_name"].ToString().ToLower()}'");
                 if (drs.Length > 0)
                 {
                     res.Append($"{dataRow["column_name"]},");
@@ -217,10 +217,10 @@ namespace SyncLogic
             return flag;
         }
 
-        private DataTable Query(string sql, DataBaseModel item)
+        private DataTable Query(string sql, DataBaseModel item, DataBaseType dataBaseType)
         {
             var dt = new DataTable();
-            switch (item.SourceDBType)
+            switch (dataBaseType)
             {
                 case DataBaseType.MYSQL:
                     MySqlHelper mysqlhelper = new MySqlHelper();
@@ -228,7 +228,7 @@ namespace SyncLogic
                     break;
                 case DataBaseType.SQLSERVER:
                     SqlHelper helper = new SqlHelper();
-                    dt = helper.GetDataTable(sql, item.SourceDBConnStr);
+                    dt = helper.GetDataTable(sql, item.TargetDBConnStr);
                     break;
                 case DataBaseType.ORACLE:
                     break;
