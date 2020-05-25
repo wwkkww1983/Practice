@@ -131,8 +131,8 @@ namespace Caist.Framework.PLC.Siemens.Common
 
 		public bool StartConnect()//开始连接
 		{
-			bool result;
-			if (result = this.Connect())//PLC连接状态返回值=0 连接失败
+			bool result = this.Connect();
+			if (result)//PLC连接状态返回值=0 连接失败
 			{
 				this._Statue = 2; /*TCP连接成功*/
 				this._StopFlag = false;
@@ -194,11 +194,11 @@ namespace Caist.Framework.PLC.Siemens.Common
 			switch (Entity.CheckDataType())
 			{
 				case DataTypeEnum.TYPE_INT:
-					result = this.MethodInt(text, Convert.ToInt32(Entity.Address));
-					break;
+                    result = this.MethodInt(text, Convert.ToInt32(Entity.Address));
+                    break;
 				case DataTypeEnum.TYPE_FLOAT:
-					result = this.MethodFloat(text, Convert.ToInt32(Entity.Address));
-					break;
+                    result = this.MethodFloat(text, Convert.ToInt32(Entity.Address));
+                    break;
 				case DataTypeEnum.TYPE_BOOL:
 					{
 						string[] array2 = Entity.Address.Split(new char[]{ '.' });

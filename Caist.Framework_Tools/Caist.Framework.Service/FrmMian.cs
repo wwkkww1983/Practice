@@ -244,11 +244,12 @@ namespace Caist.Framework.Service
                                 case DataTypeEnum.TYPE_BYTE:
                                 case DataTypeEnum.TYPE_SHORT:
                                 case DataTypeEnum.TYPE_BOOL:
-                                    SendData(Convert.ToInt32(entity.GetValue(Name)), key, entity.DeviceEntity);
+                                    SendData(int.Parse(entity.GetValue(Name).ToString()), key, entity.DeviceEntity, item.SubItems[3].Text);
                                     item.SubItems[4].Text = Convert.ToInt32(entity.GetValue(Name)).ToString();
                                     break;
                                 case DataTypeEnum.TYPE_FLOAT:
-                                    SendData(Convert.ToInt64(entity.GetValue(Name)), key, entity.DeviceEntity);
+                                    SendData(Convert.ToDouble(entity.GetValue(Name)), key, entity.DeviceEntity, item.SubItems[3].Text);
+                                    
                                     item.SubItems[4].Text = entity.GetValue(Name).ToString();
                                     break;
                                 default:
@@ -260,7 +261,7 @@ namespace Caist.Framework.Service
             }));
         }
 
-        private async void SendData(float v, string key, DeviceEntity entity)
+        private async void SendData(double v, string key, DeviceEntity entity,string addr)
         {
             var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < v || p.MinValue > v) && p.ManipulateModelMark == key);
             if (item != null)
@@ -281,18 +282,17 @@ namespace Caist.Framework.Service
             }
             else
             {
-                dynamic ed = new
-                {
-                    key = v
-                };
-                var st = JsonConvert.SerializeObject(ed);
-                SendMessage(st);
+                StringBuilder sb = new StringBuilder();
+                sb.Append("{");
+                sb.AppendFormat("\"{0}\":\"{1}\"", addr, v.ToString("#0.00"));
+                sb.Append("}");
+                SendMessage(sb.ToString());
                 //保存数据到历史记录表
                 bool flag = await SaveDataToHistoryTab(key, v, entity);
             }
         }
 
-        private async Task<bool> SaveDataToHistoryTab(string key, float v, DeviceEntity device)
+        private async Task<bool> SaveDataToHistoryTab(string key, double v, DeviceEntity device)
         {
             var history = new HistoryEntity()
             {
@@ -303,7 +303,7 @@ namespace Caist.Framework.Service
             return await DataServices.SaveHistoryData(history);
         }
 
-        private async Task<bool> SaveAlarmData(AlarmEntity item, float v)
+        private async Task<bool> SaveAlarmData(AlarmEntity item, double v)
         {
             var alarm = new AlarmRecordEntity()
             {
