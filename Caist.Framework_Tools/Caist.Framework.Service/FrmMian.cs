@@ -260,7 +260,7 @@ namespace Caist.Framework.Service
                 }
             }));
         }
-
+        StringBuilder _sb = new StringBuilder();
         private async void SendData(double v, string key, DeviceEntity entity,string addr)
         {
             var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < v || p.MinValue > v) && p.ManipulateModelMark == key);
@@ -282,11 +282,11 @@ namespace Caist.Framework.Service
             }
             else
             {
-                StringBuilder sb = new StringBuilder();
-                sb.Append("{");
-                sb.AppendFormat("\"{0}\":\"{1}\"", addr, v.ToString("#0.00"));
-                sb.Append("}");
-                SendMessage(sb.ToString());
+                _sb.Append("{");
+                _sb.AppendFormat("\"{0}\":\"{1}\"", addr, v.ToString("#0.00"));
+                _sb.Append("}");
+                SendMessage(_sb.ToString());
+                _sb.Clear();
                 //保存数据到历史记录表
                 bool flag = await SaveDataToHistoryTab(key, v, entity);
             }

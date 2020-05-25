@@ -1,5 +1,5 @@
 [
-  {
+  { /*安全检测*/
     "sourceDBType": "mysql",
     "sourceDB": "mk_collert",
     "sourceTable": "securitymonitoringrealtimedata",
@@ -20,28 +20,28 @@
     "targetTableFields": [
       "id,int"
     ]
-   }
-      //,
-    //{
-    //  "sourceDBType": "mysql",
-    //  "sourceDB": "mk_collert",
-    //  "sourceTable": "jobposition",
-    //  "sourceDBConnStr": "Server=192.168.1.235;Port=3306;Database=mk_collert;Uid=root;Pwd=root;",
-    //  "targetDBType": "sqlserver",
-    //  "targetDB": "mk_cable_thermometry",
-    //  "targetTable": "mk_job_position",
-    //  "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
-    //  "syncPartial": false,
-    //  "flagField": "",
-    //  "tableFields": [
-    //    "PositionName,postion_name",
-    //    "PositionNumber,postion_number"
-    //  ],
-    //  "sourceTableFields": [
-    //    "id,int"
-    //  ],
-    //  "targetTableFields": [
-    //    "id,int"
-    //  ]
-    //}
+  }
+  //,
+  //{
+  //  "sourceDBType": "mysql",
+  //  "sourceDB": "mk_collert",
+  //  "sourceTable": "jobposition",
+  //  "sourceDBConnStr": "Server=192.168.1.235;Port=3306;Database=mk_collert;Uid=root;Pwd=root;",
+  //  "targetDBType": "sqlserver",
+  //  "targetDB": "mk_cable_thermometry",
+  //  "targetTable": "mk_job_position",
+  //  "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
+  //  "syncPartial": false,
+  //  "flagField": "",
+  //  "tableFields": [
+  //    "PositionName,postion_name",
+  //    "PositionNumber,postion_number"
+  //  ],
+  //  "sourceTableFields": [
+  //    "id,int"
+  //  ],
+  //  "targetTableFields": [
+  //    "id,int"
+  //  ]
+  //}
 ]
