@@ -261,7 +261,7 @@ namespace Caist.Framework.Service
             }));
         }
         StringBuilder _sb = new StringBuilder();
-        private async void SendData(double v, string key, DeviceEntity entity,string addr)
+        private async Task SendData(double v, string key, DeviceEntity entity,string addr)
         {
             var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < v || p.MinValue > v) && p.ManipulateModelMark == key);
             if (item != null)

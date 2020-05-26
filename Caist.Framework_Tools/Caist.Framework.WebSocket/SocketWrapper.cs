@@ -166,13 +166,13 @@ namespace Caist.Framework.WebSocket
 
         public Task Send(byte[] buffer, Action callback, Action<Exception> error)
         {
-            if (_tokenSource.IsCancellationRequested)
+            if (_tokenSource.IsCancellationRequested || !_socket.Connected)
                 return null;
-
+            
             try
             {
                 Func<AsyncCallback, object, IAsyncResult> begin =
-                    (cb, s) => _stream.BeginWrite(buffer, 0, buffer.Length, cb, s);
+                    (cb, s) => _stream.CanWrite ? _stream.BeginWrite(buffer, 0, buffer.Length, cb, s) : null; 
 
                 Task task = Task.Factory.FromAsync(begin, _stream.EndWrite, null);
                 task.ContinueWith(t => callback(), TaskContinuationOptions.NotOnFaulted)

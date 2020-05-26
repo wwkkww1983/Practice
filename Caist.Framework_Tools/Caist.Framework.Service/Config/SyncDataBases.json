@@ -7,7 +7,7 @@
     "targetDBType": "sqlserver",
     "targetDB": "caist_mk_db",
     "targetTable": "security_monitor_ingreal_time_data",
-    "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
+    "targetDBConnStr": "Server = 192.168.200.34;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
     "syncPartial": false,
     "flagField": "",
     "tableFields": [
