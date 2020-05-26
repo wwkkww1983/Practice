@@ -244,12 +244,12 @@ namespace Caist.Framework.Service
                                 case DataTypeEnum.TYPE_BYTE:
                                 case DataTypeEnum.TYPE_SHORT:
                                 case DataTypeEnum.TYPE_BOOL:
-                                    SendData(int.Parse(entity.GetValue(Name).ToString()), key, entity.DeviceEntity, item.SubItems[3].Text);
+                                    SendData(int.Parse(entity.GetValue(Name).ToString()), key, entity.DeviceEntity, string.Format("{0}-" + item.SubItems[3].Text, entity.DeviceEntity.Host));
                                     item.SubItems[4].Text = Convert.ToInt32(entity.GetValue(Name)).ToString();
                                     break;
                                 case DataTypeEnum.TYPE_FLOAT:
-                                    SendData(Convert.ToDouble(entity.GetValue(Name)), key, entity.DeviceEntity, item.SubItems[3].Text);
-                                    
+                                    SendData(Convert.ToDouble(entity.GetValue(Name)), key, entity.DeviceEntity, string.Format("{0}-" + item.SubItems[3].Text, entity.DeviceEntity.Host));
+
                                     item.SubItems[4].Text = entity.GetValue(Name).ToString();
                                     break;
                                 default:
@@ -261,7 +261,7 @@ namespace Caist.Framework.Service
             }));
         }
         StringBuilder _sb = new StringBuilder();
-        private async Task SendData(double v, string key, DeviceEntity entity,string addr)
+        private async void SendData(double v, string key, DeviceEntity entity, string addr)
         {
             var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < v || p.MinValue > v) && p.ManipulateModelMark == key);
             if (item != null)
