@@ -1,5 +1,6 @@
 ﻿using Caist.Framework.PLC.Siemens.CheckType;
 using Caist.Framework.PLC.Siemens.Model;
+using Caist.Framework.ThreadPool;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -28,7 +29,8 @@ namespace Caist.Framework.PLC.Siemens.Common
 		public string LocalTASP { get => _LocalTASP; set => _LocalTASP = value; }
 		public string RemoteTASP { get => _RemoteTASP; set => _RemoteTASP = value; }
 		public Dictionary<string, InstructGroupEntity> ValuePairs { get => _ValuePairs; set => _ValuePairs = value; }
-		
+		public readonly int _sleepTime = Convert.ToInt32("SleepTime".GetConfigrationStr());
+
 		public Device() : base()
 		{
 			PLCtype = FuckProtect.DataFrom(1736);//2 系列
@@ -80,12 +82,12 @@ namespace Caist.Framework.PLC.Siemens.Common
 					{
 						WriteDataEntity writeData_ = this._Queue.Dequeue();//从集合内取数据
 						this.WriteD(writeData_);
-						Thread.Sleep(20);
+						Thread.Sleep(_sleepTime);
 						this.Write();//写入数据
 					}
 					InstructGroupEntity value = keyValuePair.Value;
 					this.Send(value);
-					Thread.Sleep(20);
+					Thread.Sleep(_sleepTime);
 					this.ReceiveData(value);
 				}
 				result = true;
@@ -111,13 +113,13 @@ namespace Caist.Framework.PLC.Siemens.Common
 			{
 				bool flag = false;
 				socket.Send(StrTobyte.StrToArraybyte(this.SelectPLC()));
-				Thread.Sleep(20);
+				Thread.Sleep(_sleepTime);
 				byte[] buffer = new byte[1024];
 				int num = socket.Receive(buffer);
 				if (num == 22)
 				{
 					socket.Send(StrTobyte.StrToArraybyte(FuckProtect.DataFrom(884)));
-					Thread.Sleep(20);
+					Thread.Sleep(_sleepTime);
 					num = socket.Receive(buffer);
 					if (num == 27)
 					{

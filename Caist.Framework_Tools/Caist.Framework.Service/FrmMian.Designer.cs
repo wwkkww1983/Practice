@@ -55,6 +55,15 @@ namespace Caist.Framework.Service
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.tabDataBase = new System.Windows.Forms.TabPage();
+            this.lblwarn = new System.Windows.Forms.Label();
+            this.lblWaring = new System.Windows.Forms.Label();
+            this.lblHint = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txtInterval = new System.Windows.Forms.TextBox();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnStop = new System.Windows.Forms.Button();
+            this.btnStart = new System.Windows.Forms.Button();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.webMessage = new System.Windows.Forms.RichTextBox();
@@ -79,6 +88,7 @@ namespace Caist.Framework.Service
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.timerSyncData = new System.Windows.Forms.Timer(this.components);
             this.SystemMenu.SuspendLayout();
             this.SystemStatus.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -92,6 +102,7 @@ namespace Caist.Framework.Service
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.PlcTool.SuspendLayout();
+            this.tabDataBase.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
             this.splitContainer3.Panel1.SuspendLayout();
@@ -331,6 +342,15 @@ namespace Caist.Framework.Service
             // 
             // tabDataBase
             // 
+            this.tabDataBase.Controls.Add(this.lblwarn);
+            this.tabDataBase.Controls.Add(this.lblWaring);
+            this.tabDataBase.Controls.Add(this.lblHint);
+            this.tabDataBase.Controls.Add(this.label2);
+            this.tabDataBase.Controls.Add(this.label1);
+            this.tabDataBase.Controls.Add(this.txtInterval);
+            this.tabDataBase.Controls.Add(this.btnSave);
+            this.tabDataBase.Controls.Add(this.btnStop);
+            this.tabDataBase.Controls.Add(this.btnStart);
             this.tabDataBase.ImageIndex = 2;
             this.tabDataBase.Location = new System.Drawing.Point(4, 29);
             this.tabDataBase.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -340,6 +360,94 @@ namespace Caist.Framework.Service
             this.tabDataBase.TabIndex = 1;
             this.tabDataBase.Text = "数据同步";
             this.tabDataBase.UseVisualStyleBackColor = true;
+            // 
+            // lblwarn
+            // 
+            this.lblwarn.AutoSize = true;
+            this.lblwarn.Font = new System.Drawing.Font("SimSun", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblwarn.ForeColor = System.Drawing.Color.Red;
+            this.lblwarn.Location = new System.Drawing.Point(14, 58);
+            this.lblwarn.Name = "lblwarn";
+            this.lblwarn.Size = new System.Drawing.Size(38, 12);
+            this.lblwarn.TabIndex = 8;
+            this.lblwarn.Text = "警告:";
+            this.lblwarn.Visible = false;
+            // 
+            // lblWaring
+            // 
+            this.lblWaring.AutoSize = true;
+            this.lblWaring.Font = new System.Drawing.Font("SimSun", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblWaring.ForeColor = System.Drawing.Color.Black;
+            this.lblWaring.Location = new System.Drawing.Point(53, 58);
+            this.lblWaring.Name = "lblWaring";
+            this.lblWaring.Size = new System.Drawing.Size(0, 12);
+            this.lblWaring.TabIndex = 9;
+            // 
+            // lblHint
+            // 
+            this.lblHint.AutoSize = true;
+            this.lblHint.Location = new System.Drawing.Point(166, 161);
+            this.lblHint.Name = "lblHint";
+            this.lblHint.Size = new System.Drawing.Size(62, 17);
+            this.lblHint.TabIndex = 10;
+            this.lblHint.Text = "同步中......";
+            this.lblHint.Visible = false;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(306, 118);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(57, 17);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "(分钟/次)";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(59, 118);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(59, 17);
+            this.label1.TabIndex = 12;
+            this.label1.Text = "定时设置:";
+            // 
+            // txtInterval
+            // 
+            this.txtInterval.Location = new System.Drawing.Point(119, 115);
+            this.txtInterval.MaxLength = 5;
+            this.txtInterval.Name = "txtInterval";
+            this.txtInterval.Size = new System.Drawing.Size(181, 23);
+            this.txtInterval.TabIndex = 7;
+            // 
+            // btnSave
+            // 
+            this.btnSave.Location = new System.Drawing.Point(371, 113);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(75, 25);
+            this.btnSave.TabIndex = 3;
+            this.btnSave.Text = "保存";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // btnStop
+            // 
+            this.btnStop.Location = new System.Drawing.Point(180, 217);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(75, 25);
+            this.btnStop.TabIndex = 5;
+            this.btnStop.Text = "定时停止";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
+            // btnStart
+            // 
+            this.btnStart.Location = new System.Drawing.Point(62, 217);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(75, 25);
+            this.btnStart.TabIndex = 6;
+            this.btnStart.Text = "同步数据";
+            this.btnStart.UseVisualStyleBackColor = true;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // tabPage1
             // 
@@ -374,7 +482,7 @@ namespace Caist.Framework.Service
             this.splitContainer3.Panel2.Controls.Add(this.webContent);
             this.splitContainer3.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.splitContainer3.Size = new System.Drawing.Size(990, 486);
-            this.splitContainer3.SplitterDistance = 318;
+            this.splitContainer3.SplitterDistance = 317;
             this.splitContainer3.TabIndex = 1;
             // 
             // webMessage
@@ -384,7 +492,7 @@ namespace Caist.Framework.Service
             this.webMessage.Location = new System.Drawing.Point(0, 0);
             this.webMessage.Name = "webMessage";
             this.webMessage.ReadOnly = true;
-            this.webMessage.Size = new System.Drawing.Size(988, 316);
+            this.webMessage.Size = new System.Drawing.Size(988, 315);
             this.webMessage.TabIndex = 1;
             this.webMessage.Text = "";
             // 
@@ -395,7 +503,7 @@ namespace Caist.Framework.Service
             this.webContent.Location = new System.Drawing.Point(0, 0);
             this.webContent.Name = "webContent";
             this.webContent.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.webContent.Size = new System.Drawing.Size(988, 162);
+            this.webContent.Size = new System.Drawing.Size(988, 163);
             this.webContent.TabIndex = 0;
             this.webContent.Text = "";
             this.webContent.TextChanged += new System.EventHandler(this.webContent_TextChanged);
@@ -429,7 +537,6 @@ namespace Caist.Framework.Service
             // webAddress
             // 
             this.webAddress.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.webAddress.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.webAddress.Name = "webAddress";
             this.webAddress.Size = new System.Drawing.Size(120, 25);
             this.webAddress.Text = "0.0.0.0";
@@ -443,7 +550,6 @@ namespace Caist.Framework.Service
             // webPort
             // 
             this.webPort.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.webPort.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.webPort.Name = "webPort";
             this.webPort.Size = new System.Drawing.Size(60, 25);
             this.webPort.Text = "8000";
@@ -558,6 +664,10 @@ namespace Caist.Framework.Service
             this.columnHeader6.Text = "读/写";
             this.columnHeader6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // timerSyncData
+            // 
+            this.timerSyncData.Interval = 1000;
+            // 
             // FrmMian
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -592,6 +702,8 @@ namespace Caist.Framework.Service
             this.splitContainer2.ResumeLayout(false);
             this.PlcTool.ResumeLayout(false);
             this.PlcTool.PerformLayout();
+            this.tabDataBase.ResumeLayout(false);
+            this.tabDataBase.PerformLayout();
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
             this.splitContainer3.Panel1.ResumeLayout(false);
@@ -654,6 +766,16 @@ namespace Caist.Framework.Service
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripButton webSend;
         private System.Windows.Forms.Timer timerWebSocket;
+        private System.Windows.Forms.Label lblwarn;
+        private System.Windows.Forms.Label lblWaring;
+        private System.Windows.Forms.Label lblHint;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtInterval;
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Button btnStart;
+        private System.Windows.Forms.Timer timerSyncData;
     }
 }
 

@@ -67,6 +67,10 @@
       <Project>{6BC0FCEB-56F5-404F-BE7C-5E1A374B5ACC}</Project>
       <Name>Caist.Framework.Entity</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Caist.Framework.ThreadPool\Caist.Framework.ThreadPool.csproj">
+      <Project>{EF33BFDD-D536-4A41-8D8D-86CD1C89CB0A}</Project>
+      <Name>Caist.Framework.ThreadPool</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

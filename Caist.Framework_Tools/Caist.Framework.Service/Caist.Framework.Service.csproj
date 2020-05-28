@@ -45,6 +45,21 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="SyncCommon">
+      <HintPath>Libaries\SyncCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="SyncHelper">
+      <HintPath>Libaries\SyncHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="SyncLogic">
+      <HintPath>Libaries\SyncLogic.dll</HintPath>
+    </Reference>
+    <Reference Include="SyncModel">
+      <HintPath>Libaries\SyncModel.dll</HintPath>
+    </Reference>
+    <Reference Include="SyncUtil">
+      <HintPath>Libaries\SyncUtil.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -76,6 +91,9 @@
       <DependentUpon>ListViewLoad.cs</DependentUpon>
     </Compile>
     <Compile Include="DataServices.cs" />
+    <Compile Include="FormMainPart.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FrmMian.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -96,6 +114,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="Config\SyncDataBases.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -135,6 +156,14 @@
       <Project>{1C3875B1-0639-4A0F-9CEA-3E35621B59CB}</Project>
       <Name>Caist.Framework.WebSocket</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Config\Interval.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SyncPoints.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

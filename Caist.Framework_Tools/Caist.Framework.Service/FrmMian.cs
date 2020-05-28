@@ -12,7 +12,6 @@ using Caist.Framework.WebSocket;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -28,12 +27,11 @@ namespace Caist.Framework.Service
     {
         /**{"key": "value"}**/
         #region 变量定义
-        private CaistTimer TimerMessage = new CaistTimer() { Interval = 250 };
-        private SiemensHelper siemens = new SiemensHelper();
         private Stopwatch sw = new Stopwatch();
         private TimeSpan ts = new TimeSpan();
         private List<SubStationEntity> _stationEntities = new List<SubStationEntity>();
         private List<FiberEntity> _fiberEntities = new List<FiberEntity>();
+        private List<SiemensHelper> _siemensHelpers = new List<SiemensHelper>();
         #endregion
 
         #region 消息推送实例
@@ -61,16 +59,30 @@ namespace Caist.Framework.Service
             this.LoadDataDevice(TreeDevice.Nodes);
             this.LoadDataTagGroup();
             this.LoadDataTag();
-            this.siemens.Init();
+            //初始化SiemensHelpers
+            SiemensInit();
             this.GetInit();
-            Device device = this.siemens.GetDevice();
 
-            var s = GetConfigrationStr("WebSocketTimer");
+            var s = "WebSocketTimer".GetConfigrationStr();
             if (s.HasValue())
             {
                 timerWebSocket.Interval = 1000;// Convert.ToInt32(s);
             }
             MappingModel();
+
+            //数据同步初始化
+            Init();
+        }
+
+        private void SiemensInit()
+        {
+            PublicEntity.DeviceEntities.ForEach(d =>
+            {
+                SiemensHelper siemensHelper = new SiemensHelper();
+                siemensHelper.DeviceEntity = d;
+                siemensHelper.Init();
+                _siemensHelpers.Add(siemensHelper);
+            });
         }
 
         /// <summary>
@@ -80,25 +92,28 @@ namespace Caist.Framework.Service
         {
             try
             {
-                Device device = siemens.GetDevice();
-                foreach (KeyValuePair<string, InstructGroupEntity> item in device.ValuePairs)
+                foreach (var siemens in _siemensHelpers)
                 {
-                    InstructGroupEntity groupEntity = item.Value;
-                    foreach (KeyValuePair<string, InstructEntity> list in groupEntity.InstructPairs)
+                    Device device = siemens.GetDevice();
+                    foreach (KeyValuePair<string, InstructGroupEntity> item in device.ValuePairs)
                     {
-                        InstructEntity instructEntity = list.Value;
-                        string Name = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
-                        string Key = string.Format("{0}.{1}", groupEntity.Id, instructEntity.Id);
-                        ListViewItem lvitem = new ListViewItem(Name);
-                        lvitem.ToolTipText = Key;
-                        lvitem.SubItems.Add(instructEntity.Desc);
-                        lvitem.SubItems.Add(instructEntity.DataType);
-                        lvitem.SubItems.Add(instructEntity.GetAddressName());
-                        lvitem.SubItems.Add("");
-                        lvitem.SubItems.Add(Extensions.ConvertOutPutEnum(int.Parse(instructEntity.Output)));
-                        lvitem.Tag = instructEntity;
-                        lvPoint.Items.Add(lvitem);
-                        lvPoint.Columns[0].Width = -1;
+                        InstructGroupEntity groupEntity = item.Value;
+                        foreach (KeyValuePair<string, InstructEntity> list in groupEntity.InstructPairs)
+                        {
+                            InstructEntity instructEntity = list.Value;
+                            string Name = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
+                            string Key = string.Format("{0}.{1}", groupEntity.Id, instructEntity.Id);
+                            ListViewItem lvitem = new ListViewItem(Name);
+                            lvitem.ToolTipText = Key;
+                            lvitem.SubItems.Add(instructEntity.Desc);
+                            lvitem.SubItems.Add(instructEntity.DataType);
+                            lvitem.SubItems.Add(instructEntity.GetAddressName());
+                            lvitem.SubItems.Add("");
+                            lvitem.SubItems.Add(Extensions.ConvertOutPutEnum(int.Parse(instructEntity.Output)));
+                            lvitem.Tag = instructEntity;
+                            lvPoint.Items.Add(lvitem);
+                            lvPoint.Columns[0].Width = -1;
+                        }
                     }
                 }
             }
@@ -125,36 +140,49 @@ namespace Caist.Framework.Service
         /// <param name="e"></param>
         private void btnPLCStrats_Click(object sender, EventArgs e)
         {
+            Task.Run(() =>
+            {
+                PlcStart();
+            });
+        }
+
+        private void PlcStart()
+        {
             //StartInfo info = new StartInfo { Timeout = 1, MinWorkerThreads = PublicEntity.DeviceEntities.Count() };
             //IThreadPool pool = ThreadPoolFactory.Create(info, "PLC线程池");
             //PublicEntity.DeviceEntities.ForEach(v =>
-            //{
-            //    siemens.IP = v.Host;
-            //    siemens.Port = v.Port;
-            //    var result = siemens.Start();
-            //    if (!result)
-            //    {
-            //        txtMessage.Invoke(new Action(() =>
-            //        {
-            //            txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.Name, v.Host, v.Port));
-            //        }));
-            //    }
-            //    else
-            //    {
-            //        PlcTool.Invoke(new Action(() =>
-            //        {
-            //            btnPLCStrats.Enabled = false;
-            //            btnPLCStop.Enabled = true;
-            //            txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.Name, v.Host, v.Port));
-            //        }));
-            //        TimerMessage.Elapsed += TimerMessage_Elapsed;
-            //        TimerMessage.obj = v;
-            //        TimerMessage.Start();
-            //        IWorkItem item = pool.QueueUserWorkItem(Print, v);
+            _siemensHelpers.ForEach(v =>
+            {
+                v.IP = v.DeviceEntity.Host;
+                v.Port = v.DeviceEntity.Port;
+                var result = v.Start();
+                if (!result)
+                {
+                    txtMessage.Invoke(new Action(() =>
+                    {
+                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
+                    }));
+                }
+                else
+                {
+                    PlcTool.Invoke(new Action(() =>
+                    {
+                        btnPLCStrats.Enabled = false;
+                        btnPLCStop.Enabled = true;
+                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
+                    }));
+                    Task.Run(()=>{ 
+                        CaistTimer TimerMessage = new CaistTimer() { Interval = 1000 };
+                        TimerMessage.Elapsed += TimerMessage_Elapsed;
+                        TimerMessage.obj = v;
+                        TimerMessage.Start();
+                        
+                    });
+                    //IWorkItem item = pool.QueueUserWorkItem(Print, v);
 
+                }
+            });
             webStart_Click(null, null);
-            //    }
-            //});
             //pool.WaitAll();
         }
 
@@ -163,69 +191,77 @@ namespace Caist.Framework.Service
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        bool _deviceStatusflag = true;
         private void TimerMessage_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            DeviceEntity entity = (DeviceEntity)((CaistTimer)sender).obj;
+            _deviceStatusflag = true;
+            SiemensHelper entity = (SiemensHelper)((CaistTimer)sender).obj;
             SystemStatus.Invoke(new Action(() =>
             {
-                switch (siemens.CommStatus)
+                switch (entity.CommStatus)
                 {
                     case 0:
-                        txtStatus.Text = string.Format("未连接");
+                        txtStatus.Text = "未连接";
                         break;
                     case 1:
-                        txtStatus.Text = string.Format("正在进行TCP连接");
+                        txtStatus.Text = "正在进行TCP连接";
                         break;
                     case 2:
-                        txtStatus.Text = string.Format("TCP连接成功");
+                        txtStatus.Text = "TCP连接成功";
                         break;
                     case 3:
-                        txtStatus.Text = string.Format("PLC握手成功");
+                        txtStatus.Text = "PLC握手成功";
                         break;
                     case 4:
-                        txtStatus.Text = string.Format("正常采集过程中...");
+                        txtStatus.Text = "正常采集过程中...";
                         break;
                     case 5:
-                        txtStatus.Text = string.Format("PLC握手错误");
+                        _deviceStatusflag = false;
+                        txtStatus.Text = "PLC握手错误";
                         break;
                     case 6:
-                        txtStatus.Text = string.Format("通讯错误");
+                        _deviceStatusflag = false;
+                        txtStatus.Text = "通讯错误";
                         break;
                     default:
                         break;
                 }
-                Device device = this.siemens.GetDevice();
-                foreach (KeyValuePair<string, InstructGroupEntity> group in device.ValuePairs)
+                if (_deviceStatusflag)
                 {
-                    InstructGroupEntity groupEntity = group.Value;
-                    foreach (KeyValuePair<string, InstructEntity> pair in groupEntity.InstructPairs)
+                    Device device = entity.GetDevice();
+                    foreach (KeyValuePair<string, InstructGroupEntity> group in device.ValuePairs)
                     {
-                        InstructEntity instructEntity = pair.Value;
-                        string key = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
-                        ListViewItem item = lvPoint.FindItemWithText(key);
-                        string Name = item.ToolTipText.ToString();
-                        switch (instructEntity.CheckDataType())
+                        InstructGroupEntity groupEntity = group.Value;
+                        foreach (KeyValuePair<string, InstructEntity> pair in groupEntity.InstructPairs)
                         {
-                            case DataTypeEnum.TYPE_INT:
-                            case DataTypeEnum.TYPE_BYTE:
-                            case DataTypeEnum.TYPE_SHORT:
-                            case DataTypeEnum.TYPE_BOOL:
-                                SendData(Convert.ToInt32(siemens.GetValue(Name)), key, entity);
-                                item.SubItems[4].Text = Convert.ToInt32(siemens.GetValue(Name)).ToString();
-                                break;
-                            case DataTypeEnum.TYPE_FLOAT:
-                                SendData(Convert.ToInt64(siemens.GetValue(Name)), key, entity);
-                                item.SubItems[4].Text = siemens.GetValue(Name).ToString();
-                                break;
-                            default:
-                                break;
+                            InstructEntity instructEntity = pair.Value;
+                            string key = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
+                            ListViewItem item = lvPoint.FindItemWithText(key);
+                            string Name = item.ToolTipText.ToString();
+                            switch (instructEntity.CheckDataType())
+                            {
+                                case DataTypeEnum.TYPE_INT:
+                                case DataTypeEnum.TYPE_BYTE:
+                                case DataTypeEnum.TYPE_SHORT:
+                                case DataTypeEnum.TYPE_BOOL:
+                                    SendData(int.Parse(entity.GetValue(Name).ToString()), key, entity.DeviceEntity, string.Format("{0}-" + item.SubItems[3].Text, entity.DeviceEntity.Host));
+                                    item.SubItems[4].Text = Convert.ToInt32(entity.GetValue(Name)).ToString();
+                                    break;
+                                case DataTypeEnum.TYPE_FLOAT:
+                                    SendData(Convert.ToDouble(entity.GetValue(Name)), key, entity.DeviceEntity, string.Format("{0}-" + item.SubItems[3].Text, entity.DeviceEntity.Host));
+
+                                    item.SubItems[4].Text = entity.GetValue(Name).ToString();
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     }
                 }
             }));
         }
-
-        private async void SendData(float v, string key, DeviceEntity entity)
+        StringBuilder _sb = new StringBuilder();
+        private async void SendData(double v, string key, DeviceEntity entity, string addr)
         {
             var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < v || p.MinValue > v) && p.ManipulateModelMark == key);
             if (item != null)
@@ -246,14 +282,17 @@ namespace Caist.Framework.Service
             }
             else
             {
-                var s = string.Format("{\"{0}\":\"{1}\"}", key, v.ToString());
-                SendMessage(s);
+                _sb.Append("{");
+                _sb.AppendFormat("\"{0}\":\"{1}\"", addr, v.ToString("#0.00"));
+                _sb.Append("}");
+                SendMessage(_sb.ToString());
+                _sb.Clear();
                 //保存数据到历史记录表
                 bool flag = await SaveDataToHistoryTab(key, v, entity);
             }
         }
 
-        private async Task<bool> SaveDataToHistoryTab(string key, float v, DeviceEntity device)
+        private async Task<bool> SaveDataToHistoryTab(string key, double v, DeviceEntity device)
         {
             var history = new HistoryEntity()
             {
@@ -264,7 +303,7 @@ namespace Caist.Framework.Service
             return await DataServices.SaveHistoryData(history);
         }
 
-        private async Task<bool> SaveAlarmData(AlarmEntity item, float v)
+        private async Task<bool> SaveAlarmData(AlarmEntity item, double v)
         {
             var alarm = new AlarmRecordEntity()
             {
@@ -285,7 +324,6 @@ namespace Caist.Framework.Service
                 return null;
             }
         }
-
         /// <summary>
         /// 计时器
         /// </summary>
@@ -308,9 +346,8 @@ namespace Caist.Framework.Service
         {
             try
             {
-                var url = GetConfigrationStr("WebSocketAddress");
+                var url = "WebSocketAddress".GetConfigrationStr();
                 string loaction = string.Format("ws://{0}", url);
-                //string loaction = string.Format("ws://{0}:{1}", webAddress.Text.Trim(), webPort.Text.Trim());
                 server = new WebSocketServer(loaction);//监听所有的的地址
                 server.RestartAfterListenError = true;//出错后进行重启
                 if (!string.IsNullOrEmpty(webAddress.Text.ToString()) && !string.IsNullOrEmpty(webPort.Text.ToString()))
@@ -327,9 +364,6 @@ namespace Caist.Framework.Service
                             string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
                             dic_Sockets.Add(clientUrl, socket);
                             WebSocketMessage("|服务器:和客户端网页:" + clientUrl + " 建立WebSock连接！");
-
-                            //Task.Run(() => { timerWebSocket.Start(); });
-                            //PushMsgToClient();
                         };
                         socket.OnClose = () =>  //连接关闭事件
                         {
@@ -551,7 +585,8 @@ namespace Caist.Framework.Service
         {
             StringBuilder builder = new StringBuilder();
             builder.Append(@"SELECT  a.tab_name,a.id as Id, a.Device_Name as Name, a.Device_Host as Host, a.Device_Port as Port, a.Slot_No as CPU_SlotNO, a.PLCType as PLCType,
-                            a.Local as LocalTASP,  a.Remote as RemoteTASP, a.parent_id as ParentId  FROM mk_device a WHERE a.base_is_delete = 0 ");
+                            a.Local as LocalTASP,  a.Remote as RemoteTASP, a.parent_id as ParentId,a.tab_name as TabName  FROM mk_device a WHERE a.base_is_delete = 0 and tab_name is not null and tab_name <> ''
+                            ;");//and a.Device_Host in ('192.168.200.53')
             using (var conn = Connect.GetConn("SQLServer"))
             {
                 DataTable dataTable = conn.GetDataTable(builder.ToString());
@@ -617,20 +652,6 @@ namespace Caist.Framework.Service
             }
         }
         #endregion
-
-        public string GetConfigrationStr(string key)
-        {
-            string str = string.Empty;
-            if (key.HasValue())
-            {
-                str = ConfigurationManager.AppSettings[key];
-            }
-            else
-            {
-                MessageBox.Show($"请在config中配置 {key} 的值！");
-            }
-            return str;
-        }
 
         private void timerWebSocket_Tick(object sender, EventArgs e)
         {

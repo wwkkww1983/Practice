@@ -20,8 +20,12 @@ namespace SyncUtil
         public static string ToSelectSql(this DataBaseModel model)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append($"select ");
-            sb.Append(string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Keys));
+            sb.Append($"select (placeholder)");
+            if (model.TableFields != null && model.TableFields.Length > 0)
+            {
+                string tempStr = "," + string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Keys);
+                sb.Append(tempStr);
+            }
             switch (model.SourceDBType)
             {
                 case DataBaseType.SQLSERVER:
@@ -43,16 +47,21 @@ namespace SyncUtil
             switch (model.TargetDBType)
             {
                 case DataBaseType.SQLSERVER:
-                    sb.Append($"insert into {model.TargetDB}.dbo.{model.TargetTable}(");
+                    sb.Append($"insert into {model.TargetDB}.dbo.{model.TargetTable}( (placeholder)");
                     break;
                 case DataBaseType.ORACLE://TODO:oracle 可能还得测试下
                 case DataBaseType.MYSQL:
-                    sb.Append($"insert into {model.TargetDB}.{model.TargetTable}(");
+                    sb.Append($"insert into {model.TargetDB}.{model.TargetTable}((placeholder)");
                     break;
                 default:
                     break;
             }
-            sb.Append(string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Values));
+
+            if (model.TableFields != null && model.TableFields.Length > 0)
+            {
+                string tempStr = "," + string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Values);
+                sb.Append(tempStr);
+            }
             sb.Append(@") values({0})");
             return sb.ToString();
         }

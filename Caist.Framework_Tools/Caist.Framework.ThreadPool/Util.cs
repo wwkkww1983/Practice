@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Text;
 
 namespace Caist.Framework.ThreadPool
@@ -35,6 +36,21 @@ namespace Caist.Framework.ThreadPool
         public static bool HasValue(this string str)
         {
             return !string.IsNullOrWhiteSpace(str);
+        }
+        /// <summary>
+        /// 根据字符串获取配置文件值
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="appSetting">默认为获取appsetting的值</param>
+        /// <returns></returns>
+        public static string GetConfigrationStr(this string key, bool appSetting = true)
+        {
+            string str = string.Empty;
+            if (key.HasValue())
+            {
+                str = appSetting ? ConfigurationManager.AppSettings[key] : ConfigurationManager.ConnectionStrings[key].ConnectionString;
+            }
+            return str;
         }
     }
 }

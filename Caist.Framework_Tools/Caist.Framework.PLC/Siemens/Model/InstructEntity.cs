@@ -62,7 +62,7 @@ namespace Caist.Framework.PLC.Siemens.Model
 		{
 			string text = "";
 			string a;
-			if ((a = this.DataType) != null)
+			if ((a = this.DataType.ToLower()) != null)
 			{
 				if (!(a == FuckProtect.DataFrom(8)))
 				{
