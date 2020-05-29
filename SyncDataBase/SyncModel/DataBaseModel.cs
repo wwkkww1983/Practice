@@ -8,6 +8,7 @@ namespace SyncModel
         public string SourceDB { get; set; }
         public string SourceTable { get; set; }
         public string SourceDBConnStr { get; set; }
+        public string SourceSql { get; set; }
 
         public DataBaseType TargetDBType { get; set; }
         public string TargetDB { get; set; }

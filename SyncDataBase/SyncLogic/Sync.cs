@@ -14,6 +14,7 @@ namespace SyncLogic
 {
     public class Sync
     {
+        //一次执行数据条数
         readonly int _count = Convert.ToInt32(Common.GetConfigValue("MaxOnceData"));
         public bool SyncData(ref string res)
         {
@@ -36,38 +37,11 @@ namespace SyncLogic
         private bool Excute(List<DataBaseModel> models)
         {
             bool flag = false;
-            string sql = string.Empty;
             try
             {
-                string sameFields = string.Empty;
                 foreach (var item in models)
                 {
-                    //生成查询SQL
-                    sql = item.ToSelectSql();
-                    //找到相同的字段
-                    sameFields = FindSameFields(item);
-                    sql = sql.Replace("(placeholder)", sameFields);
-                    //增量插入查询
-                    if (item.SyncPartial)
-                    {
-                        string point = GetPoint(item);
-                        if (point.HasValue())
-                        {
-                            sql += $" where {item.FlagField} > '{point.Replace("\r\n", string.Empty)}'";
-                        }
-                    }
-                    else
-                    {
-                        DeleteSourceTableData(item);
-                    }
-                    var dt = Query(sql, item, item.SourceDBType);
-                    sql = item.ToInsertSql();
-                    sql = sql.Replace("(placeholder)", sameFields);
-                    flag = ExcuteInsertSql(sql, dt, item);
-                    if (item.SyncPartial && item.FlagField.HasValue())
-                    {
-                        SavePoint(item, dt);
-                    }
+                    SqlToData(out flag, item);
                 }
             }
             catch (Exception ex)
@@ -77,7 +51,51 @@ namespace SyncLogic
             return flag;
         }
 
-        private string FindSameFields(DataBaseModel baseModel)
+        private void SqlToData(out bool flag, DataBaseModel item)
+        {
+            string sql = string.Empty;
+            string sameFields = string.Empty;
+            if (item.SourceSql.HasValue())//多表的情况
+            {
+                sql = item.SourceSql;
+            }
+            else
+            {
+                //生成查询SQL
+                sql = item.ToSelectSql();
+                //找到相同的字段
+                sameFields = FindSameFieldsForSingle(item);
+                sql = sql.Replace("(placeholder)", sameFields);
+                //增量插入查询
+                if (item.SyncPartial)
+                {
+                    string point = GetPoint(item);
+                    if (point.HasValue())
+                    {
+                        sql += $" where {item.FlagField} > '{point.Replace("\r\n", string.Empty)}'";
+                    }
+                }
+                else
+                {
+                    DeleteSourceTableData(item);
+                }
+            }
+            var dt = Query(sql, item, item.SourceDBType);
+            sql = item.ToInsertSql();
+            if (item.SourceSql.HasValue())
+            {
+                sameFields = FindSameFieldsForMultiple(dt);
+            }
+            sql = sql.Replace("(placeholder)", sameFields);
+            flag = ExcuteInsertSql(sql, dt, item);
+            if (item.SyncPartial && item.FlagField.HasValue())
+            {
+                SavePoint(item, dt);
+            }
+        }
+
+        #region 查找相同字段名(源数据单表的情况下)
+        private string FindSameFieldsForSingle(DataBaseModel baseModel)
         {
             string strSqlSource = string.Empty;
             string strSqlTarget = string.Empty;
@@ -116,6 +134,40 @@ namespace SyncLogic
             }
             return str;
         }
+        #endregion
+
+        #region 查找目标字段表名(源数据多表的情况下)
+        private string FindSameFieldsForMultiple(DataTable dt)
+        {
+            //根据源table表来获取字段
+            string res = string.Empty;
+            StringBuilder str = new StringBuilder();
+            if (dt.HasData())
+            {
+                foreach (DataColumn dc in dt.Columns)
+                {
+                    str.Append(dc.ColumnName + ",");
+                }
+                res = str.ToString().TrimEnd(',');
+            }
+            return res;
+        }
+
+        //private string GetTableFields(DataTable dtTarget)
+        //{
+        //    string str = string.Empty;
+        //    StringBuilder res = new StringBuilder();
+        //    foreach (DataRow dataRow in dtTarget.Rows)
+        //    {
+        //        res.Append($"{dataRow["column_name"]},");
+        //    }
+        //    if (res.Length > 0)
+        //    {
+        //        str = res.ToString().TrimEnd(',');
+        //    }
+        //    return str;
+        //}
+        #endregion
 
         private static string GetPoint(DataBaseModel model)
         {
@@ -169,7 +221,6 @@ namespace SyncLogic
             {
                 StringBuilder sb = new StringBuilder();
                 StringBuilder strs = new StringBuilder();
-                //strs.Append(sql);
                 for (var i = 0; i < dt.Rows.Count; i++)
                 {
                     for (int j = 0; j < dt.Columns.Count; j++)
