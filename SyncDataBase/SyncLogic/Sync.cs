@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace SyncLogic
@@ -77,10 +76,10 @@ namespace SyncLogic
                 }
                 else
                 {
-                    DeleteSourceTableData(item);
+                    DeleteTargetTableData(item);
                 }
             }
-            var dt = Query(sql, item, item.SourceDBType);
+            var dt = Query(sql, item.SourceDBConnStr, item.SourceDBType);
             sql = item.ToInsertSql();
             if (item.SourceSql.HasValue())
             {
@@ -111,8 +110,8 @@ namespace SyncLogic
                 default:
                     break;
             }
-            var dtSource = Query(strSqlSource, baseModel, baseModel.SourceDBType);
-            var dtTarget = Query(strSqlTarget, baseModel, baseModel.TargetDBType);
+            var dtSource = Query(strSqlSource, baseModel.SourceDBConnStr, baseModel.SourceDBType);
+            var dtTarget = Query(strSqlTarget, baseModel.TargetDBConnStr, baseModel.TargetDBType);
             return CompareDataTable(dtSource, dtTarget);
         }
 
@@ -196,7 +195,7 @@ namespace SyncLogic
             }
         }
 
-        private bool DeleteSourceTableData(DataBaseModel item)
+        private bool DeleteTargetTableData(DataBaseModel item)
         {
             string sql = string.Empty;
             switch (item.TargetDBType)
@@ -211,7 +210,7 @@ namespace SyncLogic
                 default:
                     break;
             }
-            return ExcuteSQL(sql, item);
+            return ExcuteSQL(sql, item.TargetDBType, item.TargetDBConnStr);
         }
 
         private bool ExcuteInsertSql(string sql, DataTable dt, DataBaseModel item)
@@ -234,7 +233,7 @@ namespace SyncLogic
                     {
                         if (sb.ToString().HasValue())
                         {
-                            flag = ExcuteSQL(sb.ToString(), item);
+                            flag = ExcuteSQL(sb.ToString(), item.TargetDBType, item.TargetDBConnStr);
                             sb.Clear();
                             if (!flag)
                             {
@@ -247,18 +246,18 @@ namespace SyncLogic
             return flag;
         }
 
-        private bool ExcuteSQL(string sql, DataBaseModel item)
+        private bool ExcuteSQL(string sql, DataBaseType dbType, string dbConnStr)
         {
             bool flag = false;
-            switch (item.TargetDBType)
+            switch (dbType)
             {
                 case DataBaseType.MYSQL:
                     MySqlHelper mysqlhelper = new MySqlHelper();
-                    flag = mysqlhelper.InsertData(sql, item.TargetDBConnStr);
+                    flag = mysqlhelper.InsertData(sql, dbConnStr);
                     break;
                 case DataBaseType.SQLSERVER:
                     SqlHelper helper = new SqlHelper();
-                    flag = helper.InsertData(sql, item.TargetDBConnStr);
+                    flag = helper.InsertData(sql, dbConnStr);
                     break;
                 case DataBaseType.ORACLE:
                     break;
@@ -268,18 +267,18 @@ namespace SyncLogic
             return flag;
         }
 
-        private DataTable Query(string sql, DataBaseModel item, DataBaseType dataBaseType)
+        private DataTable Query(string sql, string dbConnStr, DataBaseType dataBaseType)
         {
             var dt = new DataTable();
             switch (dataBaseType)
             {
                 case DataBaseType.MYSQL:
                     MySqlHelper mysqlhelper = new MySqlHelper();
-                    dt = mysqlhelper.GetDataTable(sql, item.SourceDBConnStr);
+                    dt = mysqlhelper.GetDataTable(sql, dbConnStr);
                     break;
                 case DataBaseType.SQLSERVER:
                     SqlHelper helper = new SqlHelper();
-                    dt = helper.GetDataTable(sql, item.TargetDBConnStr);
+                    dt = helper.GetDataTable(sql, dbConnStr);
                     break;
                 case DataBaseType.ORACLE:
                     break;
