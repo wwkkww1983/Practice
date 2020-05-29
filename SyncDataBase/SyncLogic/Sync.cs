@@ -57,6 +57,7 @@ namespace SyncLogic
             if (item.SourceSql.HasValue())//多表的情况
             {
                 sql = item.SourceSql;
+                DeleteTargetTableData(item);
             }
             else
             {
