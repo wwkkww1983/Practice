@@ -30,8 +30,10 @@ namespace Caist.Framework.Service
         private Stopwatch sw = new Stopwatch();
         private TimeSpan ts = new TimeSpan();
         private List<SubStationEntity> _stationEntities = new List<SubStationEntity>();
+        private List<PepolePostionEntity> _pepolePostionEntities = new List<PepolePostionEntity>();
         private List<FiberEntity> _fiberEntities = new List<FiberEntity>();
         private List<SiemensHelper> _siemensHelpers = new List<SiemensHelper>();
+        public static FrmMian MyForm;
         #endregion
 
         #region 消息推送实例
@@ -45,6 +47,7 @@ namespace Caist.Framework.Service
         public FrmMian()
         {
             InitializeComponent();
+            MyForm = this;
         }
 
         /// <summary>
@@ -54,24 +57,44 @@ namespace Caist.Framework.Service
         /// <param name="e"></param>
         private void FrmMian_Load(object sender, EventArgs e)
         {
+            //底部程序运时间
             this.sw.Start();
             this.timing.Start();
+
+            //加载plc列表
             this.LoadDataDevice(TreeDevice.Nodes);
+            //加载PLC内存块长度配置信息列表
             this.LoadDataTagGroup();
+            //加载PLC后台配置内存地址指向表
             this.LoadDataTag();
             //初始化SiemensHelpers
             SiemensInit();
+            //初始化plc 指令列表
             this.GetInit();
 
+            #region 初始化websocket配置
             var s = "WebSocketTimer".GetConfigrationStr();
             if (s.HasValue())
             {
-                timerWebSocket.Interval = 1000;// Convert.ToInt32(s);
+                timerWebSocket.Interval = Convert.ToInt32(s);
+                timerWebSocket.Tick += TimerWebSocket_Tick;
+                //其它表的推送
+                timerWebSocket.Start();
             }
+            #endregion
+            //对象映射
             MappingModel();
 
             //数据同步初始化
             Init();
+            //初始化mqtt配置信息
+            LoadMqtt();
+        }
+
+        //socket 推送plc数据
+        private void TimerWebSocket_Tick(object sender, EventArgs e)
+        {
+            PushMsgToClient();
         }
 
         private void SiemensInit()
@@ -128,6 +151,7 @@ namespace Caist.Framework.Service
             {
                 cfg.CreateMap<FiberEntity, FiberContent>();
                 cfg.CreateMap<SubStationEntity, SubStationContent>();
+                cfg.CreateMap<PepolePostionEntity, PepolePostionContent>();
             });
         }
         #endregion
@@ -171,12 +195,13 @@ namespace Caist.Framework.Service
                         btnPLCStop.Enabled = true;
                         txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
                     }));
-                    Task.Run(()=>{ 
+                    Task.Run(() =>
+                    {
                         CaistTimer TimerMessage = new CaistTimer() { Interval = 1000 };
                         TimerMessage.Elapsed += TimerMessage_Elapsed;
                         TimerMessage.obj = v;
                         TimerMessage.Start();
-                        
+
                     });
                     //IWorkItem item = pool.QueueUserWorkItem(Print, v);
 
@@ -316,7 +341,7 @@ namespace Caist.Framework.Service
         }
 
         //TODO:1、整合推送到plc采集； 2、判断报警信息（存入报警表，发送特定消息给前端）；3、整合数据同步进来；
-        //TODO: 1、光纤测温websocket推送；2、供电站webscoket推送；3、建历史表；4、svn 外网映射；
+        //TODO: 1、光纤测温websocket推送；2、供电站webscoket推送；3、建历史表；4、svn 外网映射；5、PLC联调
         public object Print(Object obj)
         {
             while (true)
@@ -364,6 +389,9 @@ namespace Caist.Framework.Service
                             string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
                             dic_Sockets.Add(clientUrl, socket);
                             WebSocketMessage("|服务器:和客户端网页:" + clientUrl + " 建立WebSock连接！");
+                            //Task.Run(() =>
+                            //{
+                            //});
                         };
                         socket.OnClose = () =>  //连接关闭事件
                         {
@@ -387,8 +415,6 @@ namespace Caist.Framework.Service
                 {
                     WebSocketMessage("请输入IP地址或者端口");
                 }
-                //其它表的推送
-                this.timerWebSocket.Start();
             }
             catch (Exception ex)
             {
@@ -402,12 +428,36 @@ namespace Caist.Framework.Service
         /// 向前端推送数据库表数据
         /// </summary>
         /// <returns></returns>
-        private async Task PushMsgToClient()
+        private async void PushMsgToClient()
         {
             await SendFiberData();
             await SendSubStationData();
+            await SendPepolePostionData();
         }
 
+        private async Task SendPepolePostionData()
+        {
+            List<PepolePostionEntity> pepoleEntities = await DataServices.GetPepolePostionData();
+            var list = new List<PepolePostionContent>();
+            foreach (var item in pepoleEntities)
+            {
+                list.Add(Mapper.Map<PepolePostionEntity, PepolePostionContent>(item));
+            }
+            var ssm = new PepolePostionModel()
+            {
+                PepolePosition = list
+            };
+            if ((!_pepolePostionEntities.HasValue() || !ListNotEqual(pepoleEntities, _pepolePostionEntities)) &&
+                dic_Sockets.Values.Count > 0)
+            {
+                var str = ssm.ToJson();
+                SendMessage(str);
+                _pepolePostionEntities = pepoleEntities;
+            }
+        }
+
+
+        #region 供配电
         private async Task SendSubStationData()
         {
             List<SubStationEntity> stationEntities = await DataServices.GetSubStationData();
@@ -428,6 +478,7 @@ namespace Caist.Framework.Service
                 _stationEntities = stationEntities;
             }
         }
+        #endregion
 
         private async Task SendFiberData()
         {
@@ -520,7 +571,10 @@ namespace Caist.Framework.Service
 
         public void SendMessage(string val)
         {
-            foreach (var socket in dic_Sockets.Values)
+            //处理错误：DIctionary：集合已修改，可能无法执行枚举操作
+            //解决：另外创建一个数组来循环修改集合值
+            var New_Sockets = dic_Sockets.Values.ToArray<IWebSocketConnection>();
+            foreach (var socket in New_Sockets)
             {
                 socket.Send(val);
                 string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
@@ -653,11 +707,13 @@ namespace Caist.Framework.Service
         }
         #endregion
 
-        private void timerWebSocket_Tick(object sender, EventArgs e)
+        #region 全局窗口事件
+
+        private void FrmMian_FormClosed(object sender, FormClosedEventArgs e)
         {
-            //启动websocket
-            PushMsgToClient();
+            MqtCLient?.Disconnect();
         }
+        #endregion
     }
 
     #region 返回数据模型
@@ -709,5 +765,18 @@ namespace Caist.Framework.Service
     }
     #endregion
 
-    #endregion 
+    #region 人员定位
+    public class PepolePostionModel
+    {
+        public List<PepolePostionContent> PepolePosition { get; set; }
+    }
+
+    public class PepolePostionContent
+    {
+        public string CurrentStation { get; set; }
+        public string StationAddress { get; set; }
+        public string Nums { get; set; }
+    }
+    #endregion
+    #endregion
 }

@@ -3,6 +3,7 @@ using Caist.Framework.Entity;
 using Caist.Framework.Entity.Entity;
 using Caist.Framework.IdGenerator;
 using Caist.Framework.ThreadPool;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -52,6 +53,29 @@ namespace Caist.Framework.Service
             {
                 DataTable dataTable = await conn.GetDataTableAsync(builder.ToString());
                 return DataConvert.DataTableToList<FiberEntity>(dataTable).ToList();
+            }
+        }
+
+        /// <summary>
+        /// 获取人员定位的数据
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<List<PepolePostionEntity>> GetPepolePostionData()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendFormat(@"select count(people_id)as Nums,Current_Station, Station_Address 
+                         from
+                         (
+                         select  people_id, position_id as Current_Station, [position_desc] as Station_Address from mk_people_position p
+                        where convert(varchar(10),report_time,23) = '{0}'
+                         group by position_id,position_desc,people_id,people_name
+                         )res
+                         group by Current_Station, Station_Address order by Current_Station;", DateTime.Now.ToString("yyyy-MM-dd"));
+
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                DataTable dataTable = await conn.GetDataTableAsync(builder.ToString());
+                return DataConvert.DataTableToList<PepolePostionEntity>(dataTable).ToList();
             }
         }
 
