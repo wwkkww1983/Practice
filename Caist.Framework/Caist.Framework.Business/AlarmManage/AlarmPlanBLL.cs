@@ -6,7 +6,6 @@ using Caist.Framework.Model.Param.SystemManage;
 using Caist.Framework.Service.AlarmManage;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
-using Microsoft.AspNetCore.Builder;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -31,6 +30,7 @@ namespace Caist.Framework.Business.AlarmManage
         {
             TData<List<AlarmPlanReturnEntity>> obj = new TData<List<AlarmPlanReturnEntity>>();
             obj.Result = await planService.GetPageList(param, pagination);
+            #region 获取模块对应附件信息
             foreach (var item in obj.Result)//根据模块ID来获取对应的文件列表
             {
                 List<FileEntity> list = new List<FileEntity>();
@@ -50,7 +50,8 @@ namespace Caist.Framework.Business.AlarmManage
                     }
                 }
                 item.Files = list;
-            }
+            } 
+            #endregion
             obj.TotalCount = pagination.TotalCount;
             obj.Tag = 1;
             return obj;

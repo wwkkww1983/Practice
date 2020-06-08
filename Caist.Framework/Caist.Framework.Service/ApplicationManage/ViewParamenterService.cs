@@ -105,7 +105,7 @@ namespace Caist.Framework.Service.ApplicationManage
                 if (!string.IsNullOrEmpty(param.ParamenterName))
                 {
                     strSql.Append(" AND a.paramenter_name like @ParamenterName");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@ParamenterName", '%' + param.ParamenterName + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ParamenterName", "%" + param.ParamenterName + "%"));
                 }
                 if (param.ParamenterStatus>0)
                 {

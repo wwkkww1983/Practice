@@ -107,7 +107,7 @@ namespace Caist.Framework.Service.OrganizationManage
                 if (!string.IsNullOrEmpty(param.NewsTitle))
                 {
                     strSql.Append(" AND a.news_title like @NewsTitle");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@NewsTitle", '%' + param.NewsTitle + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@NewsTitle", "%" + param.NewsTitle + "%"));
                 }
                 if (param.NewsType > 0)
                 {
@@ -117,7 +117,7 @@ namespace Caist.Framework.Service.OrganizationManage
                 if (!string.IsNullOrEmpty(param.NewsTag))
                 {
                     strSql.Append(" AND a.news_tag like @NewsTag");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@NewsTag", '%' + param.NewsTag + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@NewsTag", "%" + param.NewsTag + "%"));
                 }
                 if (param.ProvinceId > 0)
                 {

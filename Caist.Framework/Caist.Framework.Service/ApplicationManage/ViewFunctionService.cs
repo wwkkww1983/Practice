@@ -119,7 +119,7 @@ namespace Caist.Framework.Service.ApplicationManage
                 if (!string.IsNullOrEmpty(param.ViewName))
                 {
                     strSql.Append(" AND b.[system_nick_name] like @ViewName");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@ViewName", '%' + param.ViewName + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ViewName", "%" + param.ViewName + "%"));
                 }
                 if (param.ViewStatus > 0)
                 {

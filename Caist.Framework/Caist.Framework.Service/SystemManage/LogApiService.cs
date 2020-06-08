@@ -90,7 +90,7 @@ namespace Caist.Framework.Service.SystemManage
                 if (!string.IsNullOrEmpty(param.UserName))
                 {
                     strSql.Append(" AND b.user_name like @UserName");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@UserName", '%' + param.UserName + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@UserName", "%" + param.UserName + "%"));
                 }
                 if (param.LogStatus > -1)
                 {
@@ -100,7 +100,7 @@ namespace Caist.Framework.Service.SystemManage
                 if (!string.IsNullOrEmpty(param.ExecuteUrl))
                 {
                     strSql.Append(" AND a.execute_url like @ExecuteUrl");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@ExecuteUrl", '%' + param.ExecuteUrl + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ExecuteUrl", "%" + param.ExecuteUrl + "%"));
                 }
                 if (!string.IsNullOrEmpty(param.StartTime.ParseToString()))
                 {

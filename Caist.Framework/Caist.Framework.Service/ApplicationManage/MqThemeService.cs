@@ -105,7 +105,7 @@ namespace Caist.Framework.Service.ApplicationManage
                 if (!string.IsNullOrEmpty(param.MqHost))
                 {
                     strSql.Append(" AND a.mq_host like @MqHost");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@MqHost", '%' + param.MqHost + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@MqHost", "%" + param.MqHost + "%"));
                 }
                 if (!string.IsNullOrEmpty(param.MqUser))
                 {

@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Caist.Framework.Data;
+﻿using Caist.Framework.Data;
 using Caist.Framework.Data.EF;
 using Caist.Framework.Data.Repository;
-using Caist.Framework.Entity;
 using Caist.Framework.Entity.OrganizationManage;
 using Caist.Framework.Entity.SystemManage;
 using Caist.Framework.Model.Result.SystemManage;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Model;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Caist.Framework.Service.SystemManage
 {
@@ -41,7 +40,7 @@ namespace Caist.Framework.Service.SystemManage
             if (!string.IsNullOrEmpty(tableName))
             {
                 strSql.Append(" AND table_name like @TableName ");
-                parameter.Add(DbParameterExtension.CreateDbParameter("@TableName", '%' + tableName + '%'));
+                parameter.Add(DbParameterExtension.CreateDbParameter("@TableName", "%" + tableName + "%"));
             }
 
             IEnumerable<TableInfo> list = await this.BaseRepository().FindList<TableInfo>(strSql.ToString(), parameter.ToArray(), pagination);

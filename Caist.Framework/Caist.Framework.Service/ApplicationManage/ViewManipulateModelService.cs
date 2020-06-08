@@ -115,7 +115,7 @@ namespace Caist.Framework.Service.ApplicationManage
                 if (!string.IsNullOrEmpty(param.ManipulateModelName))
                 {
                     strSql.Append(" AND a.manipulate_model_name like @ManipulateModelName");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@ManipulateModelName", '%' + param.ManipulateModelName + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ManipulateModelName", "%" + param.ManipulateModelName + "%"));
                 }
                 if (param.ManipulateModelStutas > 0)
                 {

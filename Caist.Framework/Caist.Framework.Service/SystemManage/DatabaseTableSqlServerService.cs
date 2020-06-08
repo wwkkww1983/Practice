@@ -39,7 +39,7 @@ namespace Caist.Framework.Service.SystemManage
             if (!tableName.IsEmpty())
             {
                 strSql.Append(" AND name like @TableName ");
-                parameter.Add(DbParameterExtension.CreateDbParameter("@TableName", '%' + tableName + '%'));
+                parameter.Add(DbParameterExtension.CreateDbParameter("@TableName", "%" + tableName + "%"));
             }
 
             IEnumerable<TableInfo> list = await this.BaseRepository().FindList<TableInfo>(strSql.ToString(), parameter.ToArray(), pagination);

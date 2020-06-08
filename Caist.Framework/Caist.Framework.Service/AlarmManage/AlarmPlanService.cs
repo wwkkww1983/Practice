@@ -81,8 +81,8 @@ namespace Caist.Framework.Service.AlarmManage
             {
                 if (param.AlarmName.HasValue())
                 {
-                    strSql.Append(" AND a.alarm_name like @AlarmName");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@AlarmName", '%' + param.AlarmName + '%'));
+                    strSql.Append(" AND p.alarm_name like @AlarmName");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@AlarmName", "%" + param.AlarmName + "%"));
                 }
             }
             return parameter;

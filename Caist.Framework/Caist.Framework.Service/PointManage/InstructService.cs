@@ -107,7 +107,7 @@ namespace Caist.Framework.Service.PointManage
                 if (!string.IsNullOrEmpty(param.Name))
                 {
                     strSql.Append(" AND a.Name like @Name");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@Name", '%' + param.Name + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@Name", "%" + param.Name + "%"));
                 }
             }
             return parameter;

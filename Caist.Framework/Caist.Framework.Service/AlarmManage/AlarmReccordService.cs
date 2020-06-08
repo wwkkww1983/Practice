@@ -84,7 +84,7 @@ namespace Caist.Framework.Service.AlarmManage
                 if (!string.IsNullOrEmpty(param.SystemId.ToString()))
                 {
                     strSql.Append(" AND e.system_models like @Id");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@Id", '%' + param.SystemId + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@Id", "%" + param.SystemId + "%"));
                 }
             }
             return parameter;

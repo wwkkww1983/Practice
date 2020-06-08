@@ -117,7 +117,7 @@ namespace Caist.Framework.Service.PointManage
                 if (!string.IsNullOrEmpty(param.DeviceName))
                 {
                     strSql.Append(" AND a.Device_Name like @DeviceName");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@DeviceName", '%' + param.DeviceName + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@DeviceName", "%" + param.DeviceName + "%"));
                 }
                 if (!string.IsNullOrEmpty(param.DeviceHost))
                 {

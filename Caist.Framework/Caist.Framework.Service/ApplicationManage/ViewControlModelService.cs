@@ -99,7 +99,7 @@ namespace Caist.Framework.Service.ApplicationManage
                 if (!string.IsNullOrEmpty(param.ControlName))
                 {
                     strSql.Append(" AND a.control_name like @ControlName");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@ControlName", '%' + param.ControlName + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ControlName", "%" + param.ControlName + "%"));
                 }
                 if (param.ControlStutas > 0)
                 {

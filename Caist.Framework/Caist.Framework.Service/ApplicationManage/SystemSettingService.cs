@@ -105,7 +105,7 @@ namespace Caist.Framework.Service.ApplicationManage
                 if (!string.IsNullOrEmpty(param.SystemName))
                 {
                     strSql.Append(" AND a.system_name like @SystemName");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemName", '%' + param.SystemName + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemName", "%" + param.SystemName + "%"));
                 }
                 if (!string.IsNullOrEmpty(param.SystemNickName))
                 {

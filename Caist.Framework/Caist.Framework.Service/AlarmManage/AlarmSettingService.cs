@@ -93,19 +93,17 @@ namespace Caist.Framework.Service.AlarmManage
                 if (!string.IsNullOrEmpty(param.ViewManipulateId.ToString()))
                 {
                     strSql.Append(" AND a.id like @Id");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@Id", '%' + param.ViewManipulateId + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@Id", "%" + param.ViewManipulateId + "%"));
                 }
                 if (!string.IsNullOrEmpty(param.ManipulateModelName))
                 {
                     strSql.Append(" AND a.system_name like @SystemName");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemName", '%' + param.ManipulateModelName + '%'));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemName", "%" + param.ManipulateModelName + "%"));
                 }
                 if (!string.IsNullOrEmpty(param.SystemModels.ToString()))
                 {
-                    //strSql.Append(" AND a.system_models like @SystemModels");
-                    //parameter.Add(DbParameterExtension.CreateDbParameter("@SystemModels", '%' + param.SystemModels + '%'));
-                    strSql.Append(" AND a.system_models = @SystemModels");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemModels", param.SystemModels));
+                    strSql.Append(" AND a.system_models like @SystemModels");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemModels", "%" + param.SystemModels + "%"));
                 }
             }
             return parameter;
