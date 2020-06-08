@@ -1,0 +1,158 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormWhite.cshtml";
+}
+
+    <div class="wrapper animated fadeInRight">
+        <form id="form" class="form-horizontal m">
+            <div class="form-group">
+                <label class="col-sm-2 control-label ">应用模块</label>
+                <div class="col-sm-10">
+                    <div id="systemSettingId" col="SystemSettingId"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">视图类型</label>
+                <div class="col-sm-4" id="viewType" col="ViewType"></div>
+                <label class="col-sm-2 control-label">显示排序</label>
+                <div class="col-sm-4">
+                    <input id="viewSort" col="ViewSort" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">视图名称<font class="red"> *</font></label>
+                <div class="col-sm-10">
+                    <input id="viewName" col="ViewName" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">事件名称</label>
+                <div class="col-sm-4">
+                    <input id="viewButtonEvent" col="ViewButtonEvent" type="text" class="form-control" />
+                </div>
+                <label class="col-sm-2 control-label">视图ID</label>
+                <div class="col-sm-4">
+                    <input id="viewButtonId" col="ViewButtonId" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">打开方式</label>
+                <div class="col-sm-4">
+                    <input id="viewButtonAlt" col="ViewButtonAlt" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">请求地址</label>
+                <div class="col-sm-10">
+                    <input id="viewButtonUrl" col="ViewButtonUrl" type="text" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">视图状态</label>
+                <div class="col-sm-10" id="viewStatus" col="ViewStatus"></div>
+            </div>
+        </form>
+    </div>
+<script type="text/javascript">
+    var id = ys.request("id");
+    var systemSettingName = ys.request("systemSettingName");
+    $(function () {
+
+        $("#viewType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(ViewFunctionEnum).EnumToDictionaryString())) });
+        $("#viewStatus").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(StatusEnum).EnumToDictionaryString())) });
+        getForm();
+        $('input[name=viewType_radiobox]').on('ifChecked', function (event) {
+            var viewType = $(event.target).val();
+            viewTypeVisible(viewType);
+        });
+
+
+        $("#systemSettingId").ysComboBox({
+            url: '@Url.Content("~/ApplicationManage/SystemSetting/GetListJson")',
+            key: "Id",
+            value: "SystemName",
+            class: "form-control",
+        });
+
+
+        $("#form").validate({
+            rules: {
+                systemSettingId: { required: true },
+                viewType: { required: true },
+                viewName: { required: true },
+                viewButtonEvent: { required: true },
+                viewButtonId: { required: true },
+                viewButtonAlt: { required: true },
+                viewSort: { required: true },
+                viewButtonUrl: { required: true },
+                viewStatus: { required: true }
+            }
+        });
+
+    });
+    
+
+    function getForm() {
+        if (id > 0) {
+            ys.ajax({
+                url: '@Url.Content("~/ApplicationManage/ViewFunction/GetFormJson")' + '?id=' + id,
+                type: "get",
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        $("#form").setWebControls(obj.Result);
+                    }
+                }
+            });
+        }
+        else {
+            ys.ajax({
+                url: '@Url.Content("~/ApplicationManage/ViewFunction/GetMaxSortJson")',
+                type: "get",
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        var defaultData = {};
+                        defaultData.ViewStatus = "@StatusEnum.Yes.ParseToInt()";
+                        defaultData.ViewSort = obj.Result;
+                        $("#form").setWebControls(defaultData);
+                    }
+                }
+            });
+        }
+    }
+
+    function saveForm(index) {
+        if ($("#form").validate().form()) {
+            var postData = $("#form").getWebControls({ Id: id });
+            ys.ajax({
+                url: '@Url.Content("~/ApplicationManage/ViewFunction/SaveFormJson")',
+                type: "post",
+                data: postData,
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        ys.msgSuccess(obj.Message);
+                        parent.searchGrid();
+                        parent.layer.close(index);
+                    }
+                    else {
+                        ys.msgError(obj.Message);
+                    }
+                }
+            });
+        }
+    }
+
+    function viewTypeVisible(viewType) {
+        if (viewType == "@ViewFunctionEnum.Page.ParseToInt()") {
+            $("#viewButtonEvent").parents(".form-group").hide();
+            $("#viewButtonId").parents(".form-group").hide();
+            $("#viewButtonAlt").parents(".form-group").hide();
+            $("#viewButtonUrl").parents(".form-group").hide();
+            $("#viewButtonId").parents(".form-group").hide();
+        } else if (viewType == "@ViewFunctionEnum.Button.ParseToInt()") {
+            $("#viewButtonEvent").parents(".form-group").show();
+            $("#viewButtonId").parents(".form-group").show();
+            $("#viewButtonAlt").parents(".form-group").show();
+            $("#viewButtonUrl").parents(".form-group").show();
+            $("#viewButtonId").parents(".form-group").show();
+        } 
+    }
+</script>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName>Svn</SccProjectName>
+    <SccProvider>SubversionScc</SccProvider>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccLocalPath>Svn</SccLocalPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Caist.Framework.Cache\Caist.Framework.Cache.csproj" />
+    <ProjectReference Include="..\Caist.Framework.Data.Repository\Caist.Framework.Data.Repository.csproj" />
+    <ProjectReference Include="..\Caist.Framework.Entity\Caist.Framework.Entity.csproj" />
+    <ProjectReference Include="..\Caist.Framework.Util\Caist.Framework.Util.csproj" />
+  </ItemGroup>
+
+</Project>

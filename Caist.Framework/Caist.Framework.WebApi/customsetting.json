@@ -1,0 +1,5 @@
+{
+  "Address": {
+    "allowUrl": "http://localhost;http://localhost:8080;http://192.168.5.166;http://192.168.5.166:8080"
+  }
+}

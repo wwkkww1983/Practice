@@ -1,0 +1,129 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormWhite.cshtml";
+}
+
+<div class="wrapper animated fadeInRight">
+    <form id="form" class="form-horizontal m">
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">IP地址<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="mqHost" col="MqHost" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label ">端口<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="mqPort" col="MqPort" type="text" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">客户端ID</label>
+            <div class="col-sm-4">
+                <input id="mqClientid" col="MqClientid" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label">加密字符<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="mqEncryption" col="MqEncryption" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">用户名</label>
+            <div class="col-sm-4">
+                <input id="mqUser" col="MqUser" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label">密码</label>
+            <div class="col-sm-4">
+                <input id="mqPassword" col="MqPassword" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">集团名称</label>
+            <div class="col-sm-4">
+                <input id="mqCtl" col="MqCtl" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label">集团编码</label>
+            <div class="col-sm-4">
+                <input id="mqCode" col="MqCode" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">煤矿名称</label>
+            <div class="col-sm-4">
+                <input id="mqCollieryName" col="MqCollieryName" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label">煤矿编码</label>
+            <div class="col-sm-4">
+                <input id="mqCollieryCode" col="MqCollieryCode" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">承建公司</label>
+            <div class="col-sm-4">
+                <input id="mqName" col="MqName" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label">状态</label>
+            <div class="col-sm-4" id="mqStutas" col="MqStutas"></div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    debugger;
+        var id = ys.request("id");
+        $(function () {
+            $("#mqStutas").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(StatusEnum).EnumToDictionaryString())) });
+            getForm();
+            $("#form").validate({
+                rules: {
+                    viewFunctionId: { required: true },
+                    manipulateModelName: { required: true }
+                }
+            });
+        });
+        function getForm() {
+            if (id > 0) {
+                ys.ajax({
+                    url: '@Url.Content("~/ApplicationManage/MqTheme/GetFormJson")' + '?id=' + id,
+                    type: "get",
+                    success: function (obj) {
+                        if (obj.Tag == 1) {
+                            $("#form").setWebControls(obj.Result);
+                        }
+                    }
+                });
+            }
+            else {
+                ys.ajax({
+                    url: '@Url.Content("~/ApplicationManage/MqTheme/GetMaxSortJson")',
+                    type: "get",
+                    success: function (obj) {
+                        if (obj.Tag == 1) {
+                            var defaultData = {};
+                            defaultData.manipulateModelStutas = "@StatusEnum.Yes.ParseToInt()";
+                            defaultData.manipulateModelSort = obj.Result;
+                            $("#form").setWebControls(defaultData);
+                        }
+                    }
+                });
+            }
+        }
+
+        function saveForm(index) {
+            if ($("#form").validate().form()) {
+                var postData = $("#form").getWebControls({ Id: id });
+                ys.ajax({
+                    url: '@Url.Content("~/ApplicationManage/MqTheme/SaveFormJson")',
+                    type: "post",
+                    data: postData,
+                    success: function (obj) {
+                        if (obj.Tag == 1) {
+                            ys.msgSuccess(obj.Message);
+                            parent.searchGrid();
+                            parent.layer.close(index);
+                        }
+                        else {
+                            ys.msgError(obj.Message);
+                        }
+                    }
+                });
+            }
+        }
+</script>

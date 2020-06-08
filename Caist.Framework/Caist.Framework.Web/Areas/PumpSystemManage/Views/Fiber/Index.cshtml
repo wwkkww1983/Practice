@@ -1,0 +1,75 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormGray.cshtml";
+}
+
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment HostingEnvironment
+@section header{
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/report/peity/jquery.peity.min.js"))
+}
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>线性图</h5>
+                    <div class="ibox-tools">
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <table class="table table-bordered white-bg">
+                        <thead>
+                            <tr>
+                                <th>图表</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <span data-diameter="20" class="updating-chart">5,3,9,6,5,9,7,3,5,2,5,3,9,6,5,9,7,3,5,2</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("span.pie").peity("pie", {
+            fill: ['#1ab394', '#d7d7d7', '#ffffff']
+        })
+
+        $(".line").peity("line", {
+            fill: '#1ab394',
+            stroke: '#169c81',
+        })
+
+        $(".bar").peity("bar", {
+            fill: ["#1ab394", "#d7d7d7"]
+        })
+
+        $(".bar_dashboard").peity("bar", {
+            fill: ["#1ab394", "#d7d7d7"],
+            width: 100
+        })
+
+        var updatingChart = $(".updating-chart").peity("line", { fill: '#1ab394', stroke: '#169c81', width: 1164 })
+
+        setInterval(function () {
+            var random = Math.round(Math.random() * 10)
+            var values = updatingChart.text().split(",")
+            values.shift()
+            values.push(random)
+
+            updatingChart
+                .text(values.join(","))
+                .change()
+        }, 1000);
+    });
+</script>

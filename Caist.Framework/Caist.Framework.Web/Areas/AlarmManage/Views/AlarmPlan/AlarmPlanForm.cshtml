@@ -1,0 +1,290 @@
+﻿@{ Layout = "~/Views/Shared/_FormWhite.cshtml"; }
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment HostingEnvironment
+@section header{
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/summernote/0.8.8/summernote.min.css"))
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/summernote/0.8.8/summernote.min.js"))
+
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/imageupload/1.0/css/imgup.min.css"))
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/imageupload/1.0/js/imgup.min.js"))
+}
+
+<div class="wrapper animated fadeInRight">
+    <form id="form" class="form-horizontal m">
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">预警名称 <font class="red"> *</font> </label>
+            <div class="col-sm-4">
+                <input id="alarmName" col="AlarmName" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label ">是否启用</label>
+            <div class="col-sm-4">
+                <div id="enable" col="Enable" class="col-sm-8"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">所属系统<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="sysId" col="SysId"></div>
+            </div>
+            <label class="col-sm-2 control-label ">报警内容<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="alarmField" col="AlarmField"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">备注</label>
+            <div class="col-sm-10">
+                <input id="remark" col="Remark" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">
+                <span>缩略图</span><br />
+                <span>(宽高比 1.5：1)</span>
+            </label>
+            <div class="col-sm-10">
+                <div id="thumbImage" class="img-box">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">预案文件</label>
+            <div class="col-sm-10">
+                <a onclick="addFiles();">添加文件</a><input style="display:none;" type="file" name="alarmFile" id="alarmFile" />
+                <div id="files" class="img-box">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+    var id = ys.request("id");
+    var sysId = ys.request("sysId");
+    $(function () {
+        $("#enable").ysRadioBox({
+            data: ys.getJson(@Html.Raw(typeof(StatusEnum).EnumToDictionaryString()))
+        });
+
+        $("#sysId").ysComboBox({
+            url: '@Url.Content("~/ApplicationManage/SystemSetting/GetListJson")',
+            key: "Id",
+            value: "SystemNickName",
+            class: "form-control",
+            onChange: function (res) {
+                var modelId = res.currentTarget.value;
+                $("#alarmField").ysComboBox({
+                    url: '@Url.Content("~/AlarmManage/AlarmSetting/GetListJson")' + '?SystemModels=' + modelId,
+                    key: "Id",
+                    value: "BroadcastContent",
+                    class: "form-control",
+                });
+            }
+        });
+
+        $("#alarmFile").change(function () {
+            uploadAlarmFile();
+        });
+
+        $("#thumbImage").imageUpload({ uploadImage: 'uploadThumbImage', limit: 1, context: ctx });
+
+        getForm();
+
+        $("#form").validate({
+            rules: {
+                alarmName: { required: true },
+                enable: { required: true },
+                sysId: { required: true },
+                alarmField: { required: true }
+            }
+        });
+    });
+
+    function addFiles() {
+        $("#alarmFile").click();
+    }
+
+    function getForm() {
+        if (id > 0) {
+            ys.ajax({
+                url: '@Url.Content("~/AlarmManage/AlarmPlan/GetFormJson")' + '?id=' + id,
+                type: "get",
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        $("#form").setWebControls(obj.Result);
+                        getFiles(obj.Result);
+                    }
+                }
+            });
+        }
+    }
+
+    var global_files = new Array();
+    function saveForm(index) {
+        if ($("#form").validate().form()) {
+            var postData = $("#form").getWebControls({ Id: id });
+
+            var imgUrl = $("#thumbImage").imageUpload("getImageUrl");
+            addArray(imgUrl,"img");
+            postData.Files = global_files;
+            ys.ajax({
+                url: '@Url.Content("~/AlarmManage/AlarmPlan/SaveFormJson")',
+                type: "post",
+                data: postData,
+                success: function (obj) {
+                    if (obj.Tag == 1) {
+                        ys.msgSuccess(obj.Message);
+                        parent.searchGrid();
+                        parent.layer.close(index);
+                    }
+                    else {
+                        ys.msgError(obj.Message);
+                    }
+                }
+            });
+        }
+    }
+
+    function getFiles(obj) {
+        var moduleId = obj.Id;
+        ys.ajax({
+            url: '@Url.Content("~/File/GetFileList")' + '?ModuleId=' + moduleId,
+            type: "get",
+            data: moduleId,
+            success: function (obj) {
+                if (obj.Tag != 1) {
+                    ys.msgError(obj.Message);
+                } else {
+                    global_files.length = 0;
+                    structureArray(obj.Result);
+                    buildFileList();
+                }
+            }
+        });
+    }
+
+    //页面加载构建数组
+    function structureArray(objs) {
+        if (objs != null && objs.length > 0) {
+            for (var f in objs) {
+                if (objs[f].FilePath.length > 0) {
+                    if (objs[f].FileName.length > 35) {//判断缩略图
+                        $("#thumbImage").imageUpload("setImageUrl", objs[f].FilePath);
+                    }
+                    var ob = {
+                        FileName: objs[f].FileName,
+                        FilePath: objs[f].FilePath,
+                        FileType: objs[f].FileType
+                    }
+                    global_files.push(ob);
+                }
+            }
+        }
+    }
+
+    //添加单个file对象
+    function addArray(obj,type) {
+        if (obj != null) {
+            var ob = {
+                FileName: type == "img" ? getFileInfo(obj, "FileName") : global_fileName,
+                FilePath: getFileInfo(obj, "FilePath", type),
+                FileType: getFileInfo(obj, "FileType")
+            }
+            global_files.push(ob);
+        }
+    }
+
+    function removeArray(index) {
+        global_files.splice(index, 1);
+    }
+
+    function buildFileList() {
+        if (global_files != null && global_files.length > 0) {
+            $("#files").empty();//重新构建文件列表
+            var fileHtml = "";
+            var index = 0;
+            for (var f in global_files) {
+                if (global_files[f].FileName.length < 36) {//判断缩略图
+                    var url = global_files[f].FilePath;
+                    fileHtml += "<span><a title='右键可以保存下载' href='" + url + "' target='_blank'>" + global_files[f].FileName + "</a> <a href='javascript:void(0);' onclick='deleteFile(this," + index + ");' style='color:red;' title='删除文件'>X</a></span><br/>";
+                    index++;
+                }
+            }
+            $("#files").html(fileHtml);
+        }
+    }
+
+    function deleteFile(obj, index) {
+        removeArray(index);
+        document.getElementById("files").removeChild(obj.parentNode);
+    }
+
+    function getFileInfo(url, type,fileType) {
+        var str = "";
+        var pre = url.lastIndexOf("/");
+        var last = url.lastIndexOf(".");
+        switch (type) {
+            case "FileName":
+                str = url.substr(pre + 1);
+                break;
+            case "FileType":
+                str = url.substring(last);
+                break;
+            case "FilePath":
+                if (fileType == "img") {
+                    str = removeDomian(url);//TODO:url截取
+                } else {
+                    str = url;
+                }
+                break;
+            default:
+        }
+        return str;
+    }
+
+    function removeDomian(url) {
+        var pre = url.replace("://", "");
+        return pre.substr(pre.indexOf("/"));
+    }
+
+    var global_fileName;
+    function uploadAlarmFile() {
+        var inputFile = document.getElementById("alarmFile");
+        var formdata = new FormData();
+        var file = inputFile.files[0];
+        global_fileName = file.name;
+        formdata.append("file", file);
+        ys.ajaxUploadFile({
+            url: '@GlobalContext.SystemConfig.ApiSite' + '/File/UploadFile?fileModule=@UploadFileType.Model.ParseToInt()',
+            data: formdata,
+            success: function (obj) {
+                if (obj.Tag == 1) {
+                    addArray(obj.Result);
+                    buildFileList();
+                }
+                else {
+                    ys.msgError(obj.Message);
+                }
+            }
+        })
+    }
+
+    function uploadThumbImage(file, callback) {
+        var formdata = new FormData();
+        formdata.append("file", file);
+        ys.ajaxUploadFile({
+            url: '@GlobalContext.SystemConfig.ApiSite' + '/File/UploadFile?fileModule=@UploadFileType.News.ParseToInt()',
+            data: formdata,
+            success: function (obj) {
+                if (obj.Tag == 1) {
+                    if (callback) {
+                        callback('@GlobalContext.SystemConfig.ApiSite' + obj.Result);
+                    }
+                }
+                else {
+                    ys.msgError(obj.Message);
+                }
+            }
+        })
+    }
+</script>
+
