@@ -1,4 +1,5 @@
-﻿using SyncCommon;
+﻿using Caist.Framework.DataAccess;
+using SyncCommon;
 using SyncModel;
 using System.Data;
 using System.Linq;
@@ -28,11 +29,11 @@ namespace SyncUtil
             }
             switch (model.SourceDBType)
             {
-                case DataBaseType.SQLSERVER:
+                case DataEmun.SQLServer:
                     sb.Append($" from {model.SourceDB}.dbo.{model.SourceTable} ");
                     break;
-                case DataBaseType.ORACLE://TODO:oracle 可能还得测试下
-                case DataBaseType.MYSQL:
+                case DataEmun.Oracle://TODO:oracle 可能还得测试下
+                case DataEmun.MySQL:
                     sb.Append($" from {model.SourceDB}.{model.SourceTable} ");
                     break;
                 default:
@@ -46,11 +47,11 @@ namespace SyncUtil
             StringBuilder sb = new StringBuilder();
             switch (model.TargetDBType)
             {
-                case DataBaseType.SQLSERVER:
+                case DataEmun.SQLServer:
                     sb.Append($"insert into {model.TargetDB}.dbo.{model.TargetTable}( (placeholder)");
                     break;
-                case DataBaseType.ORACLE://TODO:oracle 可能还得测试下
-                case DataBaseType.MYSQL:
+                case DataEmun.Oracle://TODO:oracle 可能还得测试下
+                case DataEmun.MySQL:
                     sb.Append($"insert into {model.TargetDB}.{model.TargetTable}((placeholder)");
                     break;
                 default:

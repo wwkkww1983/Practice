@@ -50,11 +50,15 @@ namespace SyncDataBase
         {
             try
             {
-                sc.SyncData(ref _res);
-                if (_res.HasValue())
+                var tp = sc.SyncDataAsync();
+                if (tp.IsCompleted)
                 {
-                    timer1.Stop();
-                    MessageBox.Show(_res);
+                    var _res = tp.Result.Item1;
+                    if (_res.HasValue())
+                    {
+                        timer1.Stop();
+                        MessageBox.Show(_res);
+                    }
                 }
             }
             catch (Exception ex)
@@ -63,7 +67,6 @@ namespace SyncDataBase
                 MessageBox.Show(ex.Message);
             }
         }
-        string _res = string.Empty;
         private void btnStart_Click(object sender, System.EventArgs e)
         {
             if (_interval.HasValue())
@@ -76,11 +79,16 @@ namespace SyncDataBase
                     timer1.Start();
                     Task.Run(() =>
                     {
-                        sc.SyncData(ref _res);
-                        if (_res.HasValue())
+                        var tp = sc.SyncDataAsync();
+                        if (tp.IsCompleted)
                         {
-                            this.btnStop_Click(null, null);
-                            MessageBox.Show(_res);
+                            var _res = tp.Result.Item1;
+
+                            if (_res.HasValue())
+                            {
+                                this.btnStop_Click(null, null);
+                                MessageBox.Show(_res);
+                            }
                         }
                     });
                 }

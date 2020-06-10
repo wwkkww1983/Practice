@@ -1,5 +1,8 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Caist.Framework.DataAccess;
+using MySql.Data.MySqlClient;
+using SyncCommon;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace SyncDataAccess
 {
@@ -48,6 +51,52 @@ namespace SyncDataAccess
                 throw ex;
             }
             return flag;
+        }
+
+
+        public async Task<DataTable> GetDataTableAsync(string sql, string connStr, DataEmun dbType)
+        {
+            try
+            {
+                using (var conn = Connect.GetConn(dbType.ToString(), connStr))
+                {
+                    return await conn.GetDataTableAsync(sql);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<bool> InsertDataAsync(string sql, string connStr, DataEmun dbType)
+        {
+            try
+            {
+                using (var conn = Connect.GetConn(dbType.ToString(), connStr))
+                {
+                    return await conn.InsertAsync(sql) > 0;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<bool> ExcuteAsync(string sql, string connStr, DataEmun dbType)
+        {
+            try
+            {
+                using (var conn = Connect.GetConn(dbType.ToString(), connStr))
+                {
+                    return await conn.ExcuteSQLAsync(sql, null) > 0;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SyncCommon
+﻿namespace SyncCommon
 {
     public enum DataBaseType
     {
-        SQLSERVER,
-        ORACLE,
-        MYSQL
+        SqlServer,
+        Oracle,
+        MySql
     }
 }

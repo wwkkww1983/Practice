@@ -56,6 +56,10 @@
       <Project>{287960B3-43E3-4450-8DBE-EED08ABF2963}</Project>
       <Name>SyncCommon</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SyncDataAccess\Caist.Framework.DataAccess.csproj">
+      <Project>{0DA701DC-48E9-4CA5-B0EB-3B068F2256E7}</Project>
+      <Name>Caist.Framework.DataAccess</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SyncHelper\SyncDataAccess.csproj">
       <Project>{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}</Project>
       <Name>SyncDataAccess</Name>

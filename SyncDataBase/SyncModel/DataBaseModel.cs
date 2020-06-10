@@ -1,16 +1,16 @@
-﻿using SyncCommon;
+﻿using Caist.Framework.DataAccess;
 
 namespace SyncModel
 {
     public class DataBaseModel
     {
-        public DataBaseType SourceDBType { get; set; }
+        public DataEmun SourceDBType { get; set; }
         public string SourceDB { get; set; }
         public string SourceTable { get; set; }
         public string SourceDBConnStr { get; set; }
         public string SourceSql { get; set; }
 
-        public DataBaseType TargetDBType { get; set; }
+        public DataEmun TargetDBType { get; set; }
         public string TargetDB { get; set; }
         public string TargetTable { get; set; }
         public string TargetDBConnStr { get; set; }

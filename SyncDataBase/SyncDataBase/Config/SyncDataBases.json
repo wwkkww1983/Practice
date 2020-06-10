@@ -1,14 +1,78 @@
 [
   {
-    "sourceDBType": "mysql",
-    "sourceDB": "mk_collert",
+    /*光纤测温*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "dts_xlz",
     "sourceTable": "",
-    "sourceDBConnStr": "Server=192.168.1.235;Port=3306;Database=mk_collert;Uid=root;Pwd=root;",
-    "sourceSql": "select point,Address,lc,lx,dw,ssz,StatName as Stat_Name,UpdatDateTime as Updat_Date_Time from securitymonitoringrealtimedata", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "sourceDBConnStr": "Server = 192.168.200.29;Database = DTS_XLZ;User ID = sa;Password = 2006;Trusted_Connection = False;",
+    "sourceSql": "select SInfo.ID, SInfo.SectionName as area_name,STemp.tempmax as max_value,STemp.maxposition as max_value_pos,STemp.tempmin as min_value,STemp.minposition as min_value_pos,STemp.tempavg as average_value from [DTS_XLZ].[dbo].[TB_DTS_SectionInfo] SInfo left join [DTS_XLZ].[dbo].[TB_DTS_SectionTempData] STemp on SInfo.ID = STemp.SectionID;", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "mk_cable_thermometry",
+    "targetDBConnStr": "Server = 192.168.200.34;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+    ],
+    "sourceTableFields": [
+      "id,int"
+    ],
+    "targetTableFields": [
+      "id,int"
+    ]
+  },
+  {
+    /*安全监测*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "KJ90N",
+    "sourceTable": "realdata_kj90",
+    "sourceDBConnStr": "Server = 192.168.200.87;Database = KJ90N;User ID = tms;Password = tms;Trusted_Connection = False;",
+    "sourceSql": "", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
     "targetDBType": "sqlserver",
     "targetDB": "caist_mk_db",
     "targetTable": "security_monitor_ingreal_time_data",
-    "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
+    "targetDBConnStr": "Server = 192.168.200.34;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+      "StatName,Stat_Name",
+      "sj,Updat_Date_Time"
+    ],
+    "sourceTableFields": [
+    ],
+    "targetTableFields": [
+    ]
+  },
+  {
+    /*人员定位*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "KJ07",
+    "sourceTable": "",
+    "sourceDBConnStr": "Server = 192.168.200.88;Database = KJ07;User ID = sa;Password =;Trusted_Connection = False;",
+    "sourceSql": "select a.people_id,a.People_name,b.[Worktype_Name],c.Rank_name,d.sender_id,d.Branch_id,d.Receiver_id,d.Position_id,pos.position_desc,d.Report_time from [People](nolock) a left join worktype(nolock) b on a.worktype_id = b.[Worktype_id] left join [Rank](nolock) c on a.Rank_id = c.Rank_id left join (select e.people_id,f.sender_id,f.Branch_id,f.Receiver_id,f.Position_id,f.Report_time from [PeopleSender](nolock) e left join [positionreport](nolock) f on e.sender_id = f.sender_id) d on d.people_id = a.people_id inner join [dbo].position(nolock) pos on pos.position_id=d.Position_id where  CONVERT(varchar(12) ,d.report_time , 23) =  CONVERT(varchar(12) ,getdate() , 23) group by a.people_id,a.People_name,b.[Worktype_Name],c.Rank_name,d.sender_id,d.Branch_id,d.Receiver_id,d.Position_id,d.Report_time,pos.position_desc;", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "mk_people_position",
+    "targetDBConnStr": "Server = 192.168.200.34;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+    ],
+    "sourceTableFields": [
+    ],
+    "targetTableFields": [
+    ]
+  },
+  {
+    /*人员定位*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "KJ07",
+    "sourceTable": "RegionSenderNumber",
+    "sourceDBConnStr": "Data Source=192.168.200.88;database=KJ07;uid=sa;pwd=",
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "mk_regionSenderNumber",
+    "targetDBConnStr": "Server = 192.168.200.34;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
     "syncPartial": false,
     "flagField": "",
     "tableFields": [
@@ -20,27 +84,4 @@
       "id,int"
     ]
   }
-  //,
-  //{
-  //  "sourceDBType": "mysql",
-  //  "sourceDB": "mk_collert",
-  //  "sourceTable": "jobposition",
-  //  "sourceDBConnStr": "Server=192.168.1.235;Port=3306;Database=mk_collert;Uid=root;Pwd=root;",
-  //  "targetDBType": "sqlserver",
-  //  "targetDB": "mk_cable_thermometry",
-  //  "targetTable": "mk_job_position",
-  //  "targetDBConnStr": "Server = 192.168.1.231;Database = caist_mk_db;User ID = sa;Password = sasa;Trusted_Connection = False;",
-  //  "syncPartial": false,
-  //  "flagField": "",
-  //  "tableFields": [
-  //    "PositionName,postion_name",
-  //    "PositionNumber,postion_number"
-  //  ],
-  //  "sourceTableFields": [
-  //    "id,int"
-  //  ],
-  //  "targetTableFields": [
-  //    "id,int"
-  //  ]
-  //}
 ]
