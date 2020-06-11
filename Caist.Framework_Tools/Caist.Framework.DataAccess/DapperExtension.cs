@@ -319,6 +319,10 @@ namespace Caist.Framework.DataAccess
 
         }
 
+        public static int ExcuteSQL(this IDbConnection conn, string sql, IDbTransaction tran = null, int? commandTimeout = null)
+        {
+            return conn.Execute(sql, null, tran, commandTimeout);
+        }
         #endregion
 
         #region method (Query)

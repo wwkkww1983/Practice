@@ -159,6 +159,10 @@ namespace Caist.Framework.DataAccess
 
         }
 
+        public static async Task<int> ExcuteSQLAsync(this IDbConnection conn, string sql, IDbTransaction tran = null, int? commandTimeout = null)
+        {
+            return await conn.ExecuteAsync(sql, null, tran, commandTimeout);
+        }
 
         #endregion
 

@@ -13,7 +13,7 @@
         <div class="form-group">
             <label class="col-sm-2 control-label">PLC模块<font class="red"> *</font></label>
             <div class="col-sm-4">
-                <div id="deviceID" col="DeviceID"></div>
+                <div id="deviceId" col="DeviceId"></div>
             </div>
             
             <label class="col-sm-2 control-label">寄存器名称</label>
@@ -41,10 +41,10 @@
 </div>
 <script type="text/javascript">
     var id = ys.request("id");
-    var deviceID = ys.request("deviceID");
+    var deviceId = ys.request("deviceId");
     $(function () {
         getForm();
-        $("#deviceID").ysComboBox({
+        $("#deviceId").ysComboBox({
             url: '@Url.Content("~/PointManage/Device/GetListJson")',
             key: "Id",
             value: "DeviceName",
@@ -52,7 +52,7 @@
         });
         $("#form").validate({
             rules: {
-                deviceID: { required: true },
+                deviceId: { required: true },
                 manipulateModelName: { required: true }
             }
         });
@@ -65,6 +65,7 @@
                 success: function (obj) {
                     if (obj.Tag == 1) {
                         $("#form").setWebControls(obj.Result);
+                        //$("#deviceId").ysComboBox('setValue', obj.Result.DeviceId);
                     }
                 }
             });

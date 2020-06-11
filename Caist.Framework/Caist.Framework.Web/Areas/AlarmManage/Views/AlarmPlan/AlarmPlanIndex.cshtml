@@ -7,7 +7,7 @@
             <div class="select-list">
                 <ul>
                     <li>
-                        预警名称：<input id="alarmName" col="AlarmName" type="text" />
+                        预案名称：<input id="alarmName" col="AlarmName" type="text" />
                     </li>
                     <li>
                         <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -40,18 +40,18 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'Id', visible: false },
-                { field: 'AlarmName', title: '预警名称' },
+                { field: 'AlarmName', title: '预案名称' },
                 { field: 'SysName', title: '所属系统' },
                 { field: 'AlarmContent', title: '报警内容' },
                 {
-                    field: 'Img', title: '逃生图', formatter: function (value, row, index) {
+                    field: 'Img', title: '路线图', formatter: function (value, row, index) {
                         if (row.Img != null && row.Img.FilePath.length > 0) {
                             return "<a title='右键可以保存下载' href='" + row.Img.FilePath + "' target='_blank'>" + row.Img.FileName + "</a><br/>";
                         }
                     }
                 },
                 {
-                    field: 'Files', title: '预案附件', formatter: function (value, row, index) {
+                    field: 'Files', title: '应急预案', formatter: function (value, row, index) {
                         var htmls = "";
                         for (var i in row.Files) {
                             htmls += "<a title='右键可以保存下载' href='" + row.Files[i].FilePath + "' target='_blank'>" + row.Files[i].FileName + "</a><br/>";
@@ -94,7 +94,7 @@
             }
         }
         ys.openDialog({
-            title: id > 0 ? "编辑预警" : "添加预警",
+            title: id > 0 ? "编辑预案" : "添加预案",
             content: '@Url.Content("~/AlarmManage/AlarmPlan/AlarmPlanForm")' + '?id=' + id,
             width: "900px",
             height: "600px",

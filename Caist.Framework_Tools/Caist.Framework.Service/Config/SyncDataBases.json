@@ -68,13 +68,13 @@
     "sourceDBType": "sqlserver",
     "sourceDB": "KJ07",
     "sourceTable": "RegionSenderNumber",
-    "sourceDBConnStr": "Server=192.168.200.88;Port=3306;Database=KJ07;Uid=sa;Pwd=;",
+    "sourceDBConnStr": "Data Source=192.168.200.88;database=KJ07;uid=sa;pwd=",
     "targetDBType": "sqlserver",
     "targetDB": "caist_mk_db",
     "targetTable": "mk_regionSenderNumber",
     "targetDBConnStr": "Server = 192.168.200.34;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
-    "syncPartial": true,
-    "flagField": "report_time",
+    "syncPartial": false,
+    "flagField": "",
     "tableFields": [
     ],
     "sourceTableFields": [

@@ -43,6 +43,10 @@ namespace Caist.Framework.Util.Model
         /// 网站虚拟目录
         /// </summary>
         public string VirtualDirectory { get; set; }
+        /// <summary>
+        /// 限制主题模块添加数据条数
+        /// </summary>
+        public int AddModelLimit { get; set; }
 
         public string AppId { get; set; }
         public string AppSecret { get; set; }

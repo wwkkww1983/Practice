@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Caist.Framework.Util;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -11,7 +13,8 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// <summary>
         /// 视图ID
         /// </summary>
-        public long? ViewFunctionId { get; set; }
+        [JsonConverter(typeof(StringJsonConverter))]
+		public long? ViewFunctionId { get; set; }
         /// <summary>
         /// 控制模块
         /// </summary>

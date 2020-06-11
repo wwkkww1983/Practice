@@ -1,6 +1,7 @@
 ﻿using SyncLogic;
 using SyncUtil;
 using System;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -39,17 +40,19 @@ namespace Caist.Framework.Service
         {
             try
             {
-                sc.SyncData(ref _res);
-                if (_res.HasValue())
+                Task.Run(async () =>
                 {
-                    timerSyncData.Stop();
-                    MessageBox.Show(_res);
-                }
+                    var tp = await sc.SyncDataAsync();
+                    _res = tp.Item1;
+                    if (_res.HasValue())
+                    {
+                        ShowErrorLog(_res);
+                    }
+                });
             }
             catch (Exception ex)
             {
-                timerSyncData.Stop();
-                MessageBox.Show(ex.Message);
+                ShowErrorLog(ex.Message);
             }
         }
         string _res = string.Empty;
@@ -63,26 +66,36 @@ namespace Caist.Framework.Service
                     btnStart.Enabled = false;
                     lblHint.Visible = true;
                     timerSyncData.Start();
-                    Task.Run(() =>
+                    Task.Run(async () =>
                     {
-                        sc.SyncData(ref _res);
-                        if (_res.HasValue())
-                        {
-                            this.btnStop_Click(null, null);
-                            MessageBox.Show(_res);
-                        }
+                        var tp = await sc.SyncDataAsync();
+                            _res = tp.Item1;
+                            if (_res.HasValue())
+                            {
+                                ShowErrorLog(_res);
+                            }
                     });
                 }
                 catch (Exception ex)
                 {
-                    timerSyncData.Stop();
-                    MessageBox.Show(ex.Message);
+                    ShowErrorLog(ex.Message);
                 }
             }
             else
             {
                 MessageBox.Show("请先设置定时时间！");
             }
+        }
+
+        private void ShowErrorLog(string msg)
+        {
+            lvSyncLog.Invoke(new Action(() =>
+            {
+                string value = $"时间：{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")}  报错信息：{msg}\r";
+                lvSyncLog.SelectionFont = new Font("宋体", 12, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
+                lvSyncLog.SelectionColor = System.Drawing.Color.Red;    //设置SelectionColor属性实现控件中的文本颜色为红色
+                lvSyncLog.AppendText(value);
+            }));
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -93,7 +106,7 @@ namespace Caist.Framework.Service
                 var path = Common.GetConfigValue("IntervalPath");
                 var res = FileOperation.WriteText(path, i);
                 _interval = i;
-                MessageBox.Show(res);
+                ShowErrorLog(res);
             }
             else
             {
@@ -111,11 +124,7 @@ namespace Caist.Framework.Service
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
-                Task.Run(() => {
-                    btnStart.Enabled = true;
-                    lblHint.Visible = false;
-                });
+                ShowErrorLog(ex.Message);
             }
         }
 

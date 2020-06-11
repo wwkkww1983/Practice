@@ -63,6 +63,17 @@ namespace Caist.Framework.Business.ApplicationManage
         public async Task<TData<string>> SaveForm(ViewManipulateModelEntity entity)
         {
             TData<string> obj = new TData<string>();
+            //添加新数据时，检查当前类别数据条数是否超限
+            if (entity.Id.IsNullOrZero())
+            {
+                object Count = await viewManipulateModelService.ExistViewFunctionId(entity);
+                if (Count.ParseToInt() >= Util.GlobalContext.SystemConfig.AddModelLimit)
+                {
+                    obj.Message = "当前类型数据模块超限制";
+                    obj.Tag = -1;
+                    return obj;
+                }
+            }
             await viewManipulateModelService.SaveForm(entity);
             obj.Result = entity.Id.ParseToString();
             obj.Tag = 1;

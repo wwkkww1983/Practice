@@ -11,6 +11,7 @@ using System.Text.Unicode;
 using Caist.Framework.Web.Controllers;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Model;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Caist.Framework.Web
 {
@@ -43,6 +44,19 @@ namespace Caist.Framework.Web
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            //services.Configure<FormOptions>(x =>
+            //{
+            //    x.ValueLengthLimit = int.MaxValue;
+            //    x.MultipartBodyLengthLimit = int.MaxValue;
+            //    x.MemoryBufferThreshold = int.MaxValue;
+            //    x.BufferBodyLengthLimit = int.MaxValue;
+            //});
+            services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 100000000;
+            });
+
 
             services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));
 

@@ -41,6 +41,34 @@ namespace Caist.Framework.DataAccess
             return connection;
         }
 
+        public static IDbConnection GetConn(string dbType, string connStr)
+        {
+            IDbConnection connection = null;
+            GetEnumDic<DataEmun>().Where(v => v.Key == dbType).ToList().ForEach(x =>
+            {
+
+                switch ((DataEmun)Enum.Parse(typeof(DataEmun), x.Key))
+                {
+                    case DataEmun.SQLServer:
+                        connection = new SqlConnection(connStr);
+                        break;
+                    case DataEmun.MySQL:
+                        connection = new MySqlConnection(connStr);
+                        break;
+                    case DataEmun.Oracle:
+                        connection = new OracleConnection(connStr);
+                        break;
+                    case DataEmun.SQLite:
+                        connection = new SQLiteConnection(connStr);
+                        break;
+                    case DataEmun.Npgsql:
+                        connection = new NpgsqlConnection(connStr);
+                        break;
+                }
+            });
+            return connection;
+        }
+
         /// <summary>
         /// 将枚举转换成字典集合
         /// </summary>

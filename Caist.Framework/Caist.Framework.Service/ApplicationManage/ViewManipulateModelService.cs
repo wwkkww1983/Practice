@@ -67,6 +67,16 @@ namespace Caist.Framework.Service.ApplicationManage
             }
             return this.BaseRepository().IQueryable(expression).Count() > 0 ? true : false;
         }
+
+        public async Task<object> ExistViewFunctionId(ViewManipulateModelEntity param)
+        {
+            StringBuilder strSql = new StringBuilder();
+            var parameter = new List<DbParameter>();
+            strSql.Append("select count(1) from mk_view_manipulate_model where mk_view_manipulate_model.view_function_id=@ViewFunctionId");
+            parameter.Add(DbParameterExtension.CreateDbParameter("@ViewFunctionId", param.ViewFunctionId));
+            object count = await this.BaseRepository().FindObject(strSql.ToString(), parameter.ToArray());
+            return count;
+        }
         #endregion
 
         #region 提交数据

@@ -20,6 +20,7 @@ namespace Caist.Framework.Web.Controllers
         readonly FileBLL fileBLL = new FileBLL();
         #region 上传单个文件
         [HttpPost]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> UploadFile(int fileModule, IFormCollection files)
         {
             TData<string> obj = await FileHelper.UploadFile(fileModule, files.Files);

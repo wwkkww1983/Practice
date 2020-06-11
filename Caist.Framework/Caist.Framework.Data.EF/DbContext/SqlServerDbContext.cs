@@ -40,7 +40,9 @@ namespace Caist.Framework.Data.EF
         #region 重载
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(ConnectionString);
+            //解决EF版本过高导致在 FETCH 语句中选项 NEXT 的用法无效 的BUG
+            //optionsBuilder.UseSqlServer(ConnectionString);
+            optionsBuilder.UseSqlServer(ConnectionString, b => b.UseRowNumberForPaging());
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

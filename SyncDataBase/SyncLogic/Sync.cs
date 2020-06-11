@@ -311,7 +311,7 @@ namespace SyncLogic
             }
             catch (Exception ex)
             {
-                res = ex.Message;
+                res = $"{ex.Message}\r\n{ex.StackTrace}";
             }
 
             return Tuple.Create<string, bool>(res, flag);

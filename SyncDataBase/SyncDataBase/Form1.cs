@@ -28,6 +28,7 @@ namespace SyncDataBase
 
             IntervalInit();
             timer1.Tick += Timer1_Tick;
+
         }
 
         private void IntervalInit()
@@ -50,20 +51,20 @@ namespace SyncDataBase
         {
             try
             {
-                var tp = sc.SyncDataAsync();
-                if (tp.IsCompleted)
+                Task.Run(async () =>
                 {
-                    var _res = tp.Result.Item1;
+                    var tp = await sc.SyncDataAsync();
+                    var _res = tp.Item1;
                     if (_res.HasValue())
                     {
-                        timer1.Stop();
+                        //timer1.Stop();
                         MessageBox.Show(_res);
                     }
-                }
+                });
             }
             catch (Exception ex)
             {
-                timer1.Stop();
+                //timer1.Stop();
                 MessageBox.Show(ex.Message);
             }
         }
@@ -77,24 +78,20 @@ namespace SyncDataBase
                     btnStart.Enabled = false;
                     lblHint.Visible = true;
                     timer1.Start();
-                    Task.Run(() =>
+                    Task.Run(async () =>
                     {
-                        var tp = sc.SyncDataAsync();
-                        if (tp.IsCompleted)
+                        var tp = await sc.SyncDataAsync();
+                        var _res = tp.Item1;
+                        if (_res.HasValue())
                         {
-                            var _res = tp.Result.Item1;
-
-                            if (_res.HasValue())
-                            {
-                                this.btnStop_Click(null, null);
-                                MessageBox.Show(_res);
-                            }
+                            //this.btnStop_Click(null, null);
+                            MessageBox.Show(_res);
                         }
                     });
                 }
                 catch (Exception ex)
                 {
-                    timer1.Stop();
+                    //timer1.Stop();
                     MessageBox.Show(ex.Message);
                 }
             }
@@ -131,7 +128,8 @@ namespace SyncDataBase
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
-                Task.Run(()=> {
+                Task.Run(() =>
+                {
                     btnStart.Enabled = true;
                     lblHint.Visible = false;
                 });

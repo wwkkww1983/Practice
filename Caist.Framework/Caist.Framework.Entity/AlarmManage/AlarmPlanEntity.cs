@@ -1,4 +1,6 @@
 ﻿using Caist.Framework.Entity.SystemManage;
+using Caist.Framework.Util;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,13 +13,17 @@ namespace Caist.Framework.Entity.AlarmManage
         /// 预警名称
         /// </summary>
         public string AlarmName { get; set; }
+
         /// <summary>
         /// 系统ID
         /// </summary>
+        [JsonConverter(typeof(StringJsonConverter))]
         public long? SysId { get; set; }
+
         /// <summary>
         /// 报警字段
         /// </summary>
+        [JsonConverter(typeof(StringJsonConverter))]
         public long? AlarmField { get; set; }
         /// <summary>
         /// 备注

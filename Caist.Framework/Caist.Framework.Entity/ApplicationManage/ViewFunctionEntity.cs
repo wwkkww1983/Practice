@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Caist.Framework.Util;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Caist.Framework.Entity.ApplicationManage
 {
     [Table("mk_view_function")]
     public class ViewFunctionEntity : BaseExtensionEntity
     {
+        [JsonConverter(typeof(StringJsonConverter))]
         public long? SystemSettingId { get; set; }
         public string ViewName { get; set; }
         public int? ViewSort { get; set; }

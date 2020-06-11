@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Caist.Framework.Util;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Caist.Framework.Entity.AlarmManage
 {
     [Table("mk_alarm_settings")]
     public class AlarmSettingEntity : BaseExtensionEntity
     {
+        [JsonConverter(typeof(StringJsonConverter))]
         public long? ViewManipulateId { get; set; }
         public string MinValue { get; set; }
         public string MaxValue { get; set; }

@@ -311,6 +311,7 @@
             if (typeof value != 'string') {
                 value = value.toString();
             }
+           //$("#" + $(target).attr("id") + "_select").select2().val(value.split(',')[0]).trigger("change");
             $("#" + $(target).attr("id") + "_select").val(value.split(',')).trigger("change");
         }
     };
