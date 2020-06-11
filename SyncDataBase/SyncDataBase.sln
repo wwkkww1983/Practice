@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncDataBase", "SyncDataBase\SyncDataBase.csproj", "{1773343E-721B-4FA3-A3FA-0269A44E4AB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncDataAccess", "SyncHelper\SyncDataAccess.csproj", "{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncLogic", "SyncLogic\SyncLogic.csproj", "{C799FA1F-50F3-4973-ACE6-EF612ABC6CDD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncUtil", "SyncUtil\SyncUtil.csproj", "{74CB20A4-A37D-45B1-990F-37A66F3F2A1A}"
@@ -16,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncCommon", "SyncCommon\SyncCommon.csproj", "{287960B3-43E3-4450-8DBE-EED08ABF2963}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caist.Framework.DataAccess", "SyncDataAccess\Caist.Framework.DataAccess.csproj", "{0DA701DC-48E9-4CA5-B0EB-3B068F2256E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncHelper", "SyncHelper\SyncHelper.csproj", "{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +27,6 @@ Global
 		{1773343E-721B-4FA3-A3FA-0269A44E4AB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1773343E-721B-4FA3-A3FA-0269A44E4AB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1773343E-721B-4FA3-A3FA-0269A44E4AB8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C799FA1F-50F3-4973-ACE6-EF612ABC6CDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C799FA1F-50F3-4973-ACE6-EF612ABC6CDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C799FA1F-50F3-4973-ACE6-EF612ABC6CDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,6 +47,10 @@ Global
 		{0DA701DC-48E9-4CA5-B0EB-3B068F2256E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DA701DC-48E9-4CA5-B0EB-3B068F2256E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DA701DC-48E9-4CA5-B0EB-3B068F2256E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

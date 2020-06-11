@@ -92,8 +92,8 @@ namespace Caist.Framework.Service
             lvSyncLog.Invoke(new Action(() =>
             {
                 string value = $"时间：{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")}  报错信息：{msg}\r";
-                lvSyncLog.SelectionFont = new Font("宋体", 12, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
-                lvSyncLog.SelectionColor = System.Drawing.Color.Red;    //设置SelectionColor属性实现控件中的文本颜色为红色
+                lvSyncLog.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  
+                lvSyncLog.SelectionColor = System.Drawing.Color.Red;    
                 lvSyncLog.AppendText(value);
             }));
         }

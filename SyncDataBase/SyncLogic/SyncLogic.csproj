@@ -60,9 +60,9 @@
       <Project>{0DA701DC-48E9-4CA5-B0EB-3B068F2256E7}</Project>
       <Name>Caist.Framework.DataAccess</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SyncHelper\SyncDataAccess.csproj">
+    <ProjectReference Include="..\SyncHelper\SyncHelper.csproj">
       <Project>{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}</Project>
-      <Name>SyncDataAccess</Name>
+      <Name>SyncHelper</Name>
     </ProjectReference>
     <ProjectReference Include="..\SyncModel\SyncModel.csproj">
       <Project>{BC2EE129-80B5-4329-9854-F2203EB93502}</Project>

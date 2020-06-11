@@ -97,10 +97,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SyncHelper\SyncDataAccess.csproj">
-      <Project>{B8908B7A-56CE-418C-88DD-A006C1FE3BC9}</Project>
-      <Name>SyncDataAccess</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SyncLogic\SyncLogic.csproj">
       <Project>{C799FA1F-50F3-4973-ACE6-EF612ABC6CDD}</Project>
       <Name>SyncLogic</Name>

@@ -320,17 +320,17 @@ namespace SyncLogic
         private async Task<bool> ExcuteAsync(List<DataBaseModel> models)
         {
             bool flag = false;
-            try
-            {
+            //try
+            //{
                 foreach (var item in models)
                 {
                     flag = await SqlToDataAsync(item);
                 }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw ex;
+            //}
             return flag;
         }
 
