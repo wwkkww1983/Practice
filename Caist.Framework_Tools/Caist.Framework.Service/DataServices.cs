@@ -2,11 +2,9 @@
 using Caist.Framework.Entity;
 using Caist.Framework.Entity.Entity;
 using Caist.Framework.IdGenerator;
-using Caist.Framework.ThreadPool;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -106,14 +104,9 @@ namespace Caist.Framework.Service
             StringBuilder builder = new StringBuilder();
             builder.Append($"INSERT INTO [dbo].{history.TabName} ([dict_Id],[dict_value])VALUES('{history.DictId}','{history.DictValue}')");
 
-            using (var conn = new SqlConnection("SQLServer".GetConfigrationStr(false)))
+            using (var conn = Connect.GetConn("SQLServer"))
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = conn;
-                cmd.CommandText = builder.ToString();
-                cmd.CommandType = CommandType.Text;
-                return cmd.ExecuteNonQuery() > 0;
+                return await conn.ExcuteSQLAsync(builder.ToString()) > 0;
             }
         }
     }

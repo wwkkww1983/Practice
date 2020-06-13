@@ -375,7 +375,7 @@ namespace Caist.Framework.Service
                 string loaction = string.Format("ws://{0}", url);
                 server = new WebSocketServer(loaction);//监听所有的的地址
                 server.RestartAfterListenError = true;//出错后进行重启
-                if (!string.IsNullOrEmpty(webAddress.Text.ToString()) && !string.IsNullOrEmpty(webPort.Text.ToString()))
+                if (url.HasValue())
                 {
                     webStart.Enabled = false;
                     webStop.Enabled = true;
@@ -413,7 +413,7 @@ namespace Caist.Framework.Service
                 }
                 else
                 {
-                    WebSocketMessage("请输入IP地址或者端口");
+                    WebSocketMessage("请配置文件配置IP地址和端口！");
                 }
             }
             catch (Exception ex)
@@ -578,7 +578,7 @@ namespace Caist.Framework.Service
             {
                 socket.Send(val);
                 string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
-                WebSocketMessage("|服务器:【发送】客户端网页:" + clientUrl + "的信息：\n" + val);
+                //WebSocketMessage("|服务器:【发送】客户端网页:" + clientUrl + "的信息：\n" + val);
                 webContent.Clear();
             }
         }
