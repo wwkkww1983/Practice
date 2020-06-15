@@ -1,7 +1,7 @@
 ﻿using SyncLogic;
 using SyncUtil;
 using System;
-using System.Drawing;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,6 +12,7 @@ namespace Caist.Framework.Service
         readonly int _millSeconds = 60000;
         string _interval;
         Sync sc;
+        string _path = Common.GetConfigValue("LogPath");
         public void Init()
         {
             sc = new Sync();
@@ -89,13 +90,8 @@ namespace Caist.Framework.Service
 
         private void ShowErrorLog(string msg)
         {
-            lvSyncLog.Invoke(new Action(() =>
-            {
-                string value = $"时间：{DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")}  报错信息：{msg}\r";
-                lvSyncLog.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  
-                lvSyncLog.SelectionColor = System.Drawing.Color.Red;    
-                lvSyncLog.AppendText(value);
-            }));
+            string path = Path.Combine(_path, DateTime.Now.ToString("yyyyMMdd") + ".txt");
+            FileOperation.WriteText(path, msg);
         }
 
         private void btnSave_Click(object sender, EventArgs e)

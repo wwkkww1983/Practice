@@ -8,7 +8,7 @@ using Caist.Framework.PLC.Siemens.Common;
 using Caist.Framework.PLC.Siemens.Model;
 using Caist.Framework.Service.Control;
 using Caist.Framework.ThreadPool;
-using Caist.Framework.WebSocket;
+using Fleck;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -83,7 +83,7 @@ namespace Caist.Framework.Service
             }
             #endregion
             //对象映射
-            MappingModel();
+            //MappingModel();
 
             //数据同步初始化
             Init();
@@ -145,15 +145,15 @@ namespace Caist.Framework.Service
             }
         }
 
-        private void MappingModel()
-        {
-            Mapper.Initialize(cfg =>
-            {
-                cfg.CreateMap<FiberEntity, FiberContent>();
-                cfg.CreateMap<SubStationEntity, SubStationContent>();
-                cfg.CreateMap<PepolePostionEntity, PepolePostionContent>();
-            });
-        }
+        //private void MappingModel()
+        //{
+        //    Mapper.Initialize(cfg =>
+        //    {
+        //        cfg.CreateMap<FiberEntity, FiberContent>();
+        //        cfg.CreateMap<SubStationEntity, SubStationContent>();
+        //        cfg.CreateMap<PepolePostionEntity, PepolePostionContent>();
+        //    });
+        //}
         #endregion
 
         #region PLC读取
@@ -389,23 +389,16 @@ namespace Caist.Framework.Service
                             string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
                             dic_Sockets.Add(clientUrl, socket);
                             WebSocketMessage("|服务器:和客户端网页:" + clientUrl + " 建立WebSock连接！");
-                            //Task.Run(() =>
-                            //{
-                            //});
                         };
                         socket.OnClose = () =>  //连接关闭事件
                         {
                             string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
-                            //如果存在这个客户端,那么对这个socket进行移除
-                            if (dic_Sockets.ContainsKey(clientUrl))
-                            {
-                                dic_Sockets.Remove(clientUrl);
-                            }
                             WebSocketMessage("|服务器:和客户端网页:" + clientUrl + " 断开WebSock连接！");
                         };
-                        socket.OnMessage = message =>  //接受客户端网页消息事件
+                        socket.OnMessage = async message =>  //接受客户端网页消息事件
                         {
                             string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
+                            await PushSpecifiedMsg(message);
                             WebSocketMessage("|服务器:【收到】来客户端网页:" + clientUrl + "的信息：\n" + message);
 
                         };
@@ -413,7 +406,7 @@ namespace Caist.Framework.Service
                 }
                 else
                 {
-                    WebSocketMessage("请配置文件配置IP地址和端口！");
+                    WebSocketMessage("请在配置文件中配置IP地址和端口！");
                 }
             }
             catch (Exception ex)
@@ -421,6 +414,22 @@ namespace Caist.Framework.Service
                 webStart.Enabled = true;
                 webStop.Enabled = false;
                 webSend.Enabled = false;
+            }
+        }
+
+        private async Task PushSpecifiedMsg(string message)
+        {
+            if (message.Contains("人员定位"))
+            {
+                await SendPepolePostionData(true);
+            }
+            else if (message.Contains("光纤测温"))
+            {
+                await SendFiberData(true);
+            }
+            else if (message.Contains("供配电"))
+            {
+                await SendSubStationData(true);
             }
         }
 
@@ -432,72 +441,102 @@ namespace Caist.Framework.Service
         {
             await SendFiberData();
             await SendSubStationData();
-            await SendPepolePostionData();
+            await SendPepolePostionData(true);
         }
 
-        private async Task SendPepolePostionData()
+        private async Task SendPepolePostionData(bool flag = false)
         {
             List<PepolePostionEntity> pepoleEntities = await DataServices.GetPepolePostionData();
             var list = new List<PepolePostionContent>();
             foreach (var item in pepoleEntities)
             {
-                list.Add(Mapper.Map<PepolePostionEntity, PepolePostionContent>(item));
+                //list.Add(Mapper.Map<PepolePostionEntity, PepolePostionContent>(item));
+                list.Add(new PepolePostionContent() { 
+                    CurrentStation = item.CurrentStation,
+                    Nums = item.Nums,
+                    StationAddress = item.StationAddress
+                });
             }
             var ssm = new PepolePostionModel()
             {
                 PepolePosition = list
             };
-            if ((!_pepolePostionEntities.HasValue() || !ListNotEqual(pepoleEntities, _pepolePostionEntities)) &&
-                dic_Sockets.Values.Count > 0)
+            if ((!_pepolePostionEntities.HasValue() || !ListNotEqual(pepoleEntities, _pepolePostionEntities)) && list.Count > 0 &&
+                dic_Sockets.Values.Count > 0 || flag)//flag:标识是否略过重复判断发送数据
             {
                 var str = ssm.ToJson();
-                SendMessage(str);
-                _pepolePostionEntities = pepoleEntities;
+                if (str.HasValue())
+                {
+                    SendMessage(str);
+                    _pepolePostionEntities = pepoleEntities;
+                }
             }
         }
 
 
         #region 供配电
-        private async Task SendSubStationData()
+        private async Task SendSubStationData(bool flag = false)
         {
             List<SubStationEntity> stationEntities = await DataServices.GetSubStationData();
             var list = new List<SubStationContent>();
             foreach (var item in stationEntities)
             {
-                list.Add(Mapper.Map<SubStationEntity, SubStationContent>(item));
+                //list.Add(Mapper.Map<SubStationEntity, SubStationContent>(item));
+                list.Add(new SubStationContent() { 
+                    COS = item.COS,
+                    F = item.F,
+                    IA = item.IA,
+                    P = item.P,
+                    Q = item.Q,
+                    Sys_Id = item.SysId
+                });
             }
             var ssm = new SubStationModel()
             {
                 SubStation = list
             };
-            if ((!_stationEntities.HasValue() || !ListNotEqual(stationEntities, _stationEntities)) &&
-                dic_Sockets.Values.Count > 0)
+            if ((!_stationEntities.HasValue() || !ListNotEqual(stationEntities, _stationEntities)) && list.Count > 0 &&
+                dic_Sockets.Values.Count > 0 || flag)
             {
                 var str = ssm.ToJson();
-                SendMessage(str);
-                _stationEntities = stationEntities;
+                if (str.HasValue())
+                {
+                    SendMessage(str);
+                    _stationEntities = stationEntities;
+                }
             }
         }
         #endregion
 
-        private async Task SendFiberData()
+        private async Task SendFiberData(bool flag = false)
         {
             List<FiberEntity> fibers = await DataServices.GetFiberData();
             var list = new List<FiberContent>();
             foreach (var item in fibers)
             {
-                list.Add(Mapper.Map<FiberEntity, FiberContent>(item));
+                //list.Add(Mapper.Map<FiberEntity, FiberContent>(item));
+                list.Add(new FiberContent(){ 
+                    AreaName = item.AreaName,
+                    AverageValue = item.AverageValue,
+                    MaxValue = item.MaxValue,
+                    MaxValuePos = item.MaxValuePos,
+                    MinValue = item.MinValue,
+                    MinValuePos = item.MinValuePos
+                });
             }
             var fm = new FiberModel()
             {
                 Fiber = list
             };
-            if ((!_fiberEntities.HasValue() || !ListNotEqual(fibers, _fiberEntities)) &&
-                    dic_Sockets.Values.Count > 0)
+            if ((!_fiberEntities.HasValue() || !ListNotEqual(fibers, _fiberEntities)) && list.Count > 0 &&
+                    dic_Sockets.Values.Count > 0 || flag)
             {
                 var str = fm.ToJson();
-                SendMessage(str);
-                _fiberEntities = fibers;
+                if (str.HasValue())
+                {
+                    SendMessage(str);
+                    _fiberEntities = fibers;
+                }
             }
         }
 
@@ -573,14 +612,12 @@ namespace Caist.Framework.Service
         {
             //处理错误：DIctionary：集合已修改，可能无法执行枚举操作
             //解决：另外创建一个数组来循环修改集合值
-            var New_Sockets = dic_Sockets.Values.ToArray<IWebSocketConnection>();
+            var New_Sockets = dic_Sockets.Values.ToList<IWebSocketConnection>();
             foreach (var socket in New_Sockets)
             {
                 socket.Send(val);
-                string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
-                //WebSocketMessage("|服务器:【发送】客户端网页:" + clientUrl + "的信息：\n" + val);
-                webContent.Clear();
             }
+            New_Sockets.Clear();
         }
 
         /// <summary>
