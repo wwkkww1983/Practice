@@ -70,11 +70,11 @@ namespace Caist.Framework.Service
                     Task.Run(async () =>
                     {
                         var tp = await sc.SyncDataAsync();
-                            _res = tp.Item1;
-                            if (_res.HasValue())
-                            {
-                                ShowErrorLog(_res);
-                            }
+                        _res = tp.Item1;
+                        if (_res.HasValue())
+                        {
+                            ShowErrorLog(_res);
+                        }
                     });
                 }
                 catch (Exception ex)
@@ -100,7 +100,7 @@ namespace Caist.Framework.Service
             if (i.HasValue())
             {
                 var path = Common.GetConfigValue("IntervalPath");
-                var res = FileOperation.WriteText(path, i);
+                var res = FileOperation.WriteText(path, i, false);
                 _interval = i;
                 ShowErrorLog(res);
             }

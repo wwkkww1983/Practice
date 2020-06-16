@@ -52,6 +52,7 @@ namespace Caist.Framework.Service
             using (var conn = Connect.GetConn("SQLServer"))
             {
                 DataTable dataTable = await conn.GetDataTableAsync(builder.ToString());
+                builder.Clear();
                 return DataConvert.DataTableToList<FiberEntity>(dataTable).ToList();
             }
         }
@@ -75,6 +76,7 @@ namespace Caist.Framework.Service
             using (var conn = Connect.GetConn("SQLServer"))
             {
                 DataTable dataTable = await conn.GetDataTableAsync(builder.ToString());
+                builder.Clear();
                 return DataConvert.DataTableToList<PepolePostionEntity>(dataTable).ToList();
             }
         }
@@ -92,6 +94,7 @@ namespace Caist.Framework.Service
             using (var conn = Connect.GetConn("SQLServer"))
             {
                 DataTable dataTable = await conn.GetDataTableAsync(builder.ToString());
+                builder.Clear();
                 return DataConvert.DataTableToList<SubStationEntity>(dataTable).ToList();
             }
         }

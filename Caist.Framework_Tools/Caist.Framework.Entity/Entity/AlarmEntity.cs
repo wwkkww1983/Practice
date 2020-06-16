@@ -4,6 +4,8 @@
     {
         [DBColumn(ColName = "id")]
         public long Id { get; set; }
+        [DBColumn(ColName = "ModuleId")]
+        public long ModuleId { get; set; }
         [DBColumn(ColName = "system_name")]
         public string SystemName { get; set; }
         /// <summary>

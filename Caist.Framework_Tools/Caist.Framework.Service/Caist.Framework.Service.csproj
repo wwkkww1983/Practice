@@ -71,18 +71,6 @@
     <Reference Include="Polly, Version=7.0.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.7.2.1\lib\net461\Polly.dll</HintPath>
     </Reference>
-    <Reference Include="SyncHelper">
-      <HintPath>Libaries\SyncHelper.dll</HintPath>
-    </Reference>
-    <Reference Include="SyncLogic">
-      <HintPath>Libaries\SyncLogic.dll</HintPath>
-    </Reference>
-    <Reference Include="SyncModel">
-      <HintPath>Libaries\SyncModel.dll</HintPath>
-    </Reference>
-    <Reference Include="SyncUtil">
-      <HintPath>Libaries\SyncUtil.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -184,6 +172,14 @@
     <ProjectReference Include="..\Caist.Framework.PLC\Caist.Framework.PLC.csproj">
       <Project>{CEF12833-7919-4A18-9285-7E9E00EA509A}</Project>
       <Name>Caist.Framework.PLC</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Caist.Framework.Sync\SyncLogic\SyncLogic.csproj">
+      <Project>{C799FA1F-50F3-4973-ACE6-EF612ABC6CDD}</Project>
+      <Name>SyncLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Caist.Framework.Sync\SyncUtil\SyncUtil.csproj">
+      <Project>{74CB20A4-A37D-45B1-990F-37A66F3F2A1A}</Project>
+      <Name>SyncUtil</Name>
     </ProjectReference>
     <ProjectReference Include="..\Caist.Framework.ThreadPool\Caist.Framework.ThreadPool.csproj">
       <Project>{EF33BFDD-D536-4A41-8D8D-86CD1C89CB0A}</Project>

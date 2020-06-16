@@ -1,8 +1,8 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Caist.Framework.IdGenerator;
+using MySql.Data.MySqlClient;
 using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Data.OracleClient;
@@ -97,19 +97,5 @@ namespace Caist.Framework.DataAccess
         {
             return Enum.GetNames(typeof(T));
         }
-    }
-
-    public enum DataEmun
-    {
-        [Description("SQLServer")]
-        SQLServer,
-        [Description("MySQL")]
-        MySQL,
-        [Description("Oracle")]
-        Oracle,
-        [Description("SQLite")]
-        SQLite,
-        [Description("Npgsql")]
-        Npgsql
     }
 }

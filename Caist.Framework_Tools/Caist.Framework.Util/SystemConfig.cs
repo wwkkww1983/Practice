@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.ComponentModel;
 
 namespace Caist.Framework.IdGenerator
 {
@@ -53,5 +51,19 @@ namespace Caist.Framework.IdGenerator
         public string PayKey { get; set; }
         public string NotifyUrl { get; set; }
 
+    }
+
+    public enum DataEmun
+    {
+        [Description("SQLServer")]
+        SQLServer,
+        [Description("MySQL")]
+        MySQL,
+        [Description("Oracle")]
+        Oracle,
+        [Description("SQLite")]
+        SQLite,
+        [Description("Npgsql")]
+        Npgsql
     }
 }

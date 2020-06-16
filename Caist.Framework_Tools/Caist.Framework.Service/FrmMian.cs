@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Caist.Framework.DataAccess;
+﻿using Caist.Framework.DataAccess;
 using Caist.Framework.Entity;
 using Caist.Framework.Entity.Entity;
 using Caist.Framework.Entity.Enum;
@@ -295,6 +294,8 @@ namespace Caist.Framework.Service
                 {
                     Alarm = new AlarmContent()
                     {
+                        SysId  = item.Id,
+                        ModuleId = item.ModuleId,
                         Name = item.SystemName,
                         Message = item.BroadCastContent,
                         Type = true
@@ -392,8 +393,8 @@ namespace Caist.Framework.Service
                         };
                         socket.OnClose = () =>  //连接关闭事件
                         {
-                            string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
-                            WebSocketMessage("|服务器:和客户端网页:" + clientUrl + " 断开WebSock连接！");
+                            //string clientUrl = socket.ConnectionInfo.ClientIpAddress + ":" + socket.ConnectionInfo.ClientPort;
+                            //WebSocketMessage("|服务器:和客户端网页:" + clientUrl + " 断开WebSock连接！");
                         };
                         socket.OnMessage = async message =>  //接受客户端网页消息事件
                         {
@@ -441,7 +442,7 @@ namespace Caist.Framework.Service
         {
             await SendFiberData();
             await SendSubStationData();
-            await SendPepolePostionData(true);
+            await SendPepolePostionData();
         }
 
         private async Task SendPepolePostionData(bool flag = false)
@@ -451,7 +452,8 @@ namespace Caist.Framework.Service
             foreach (var item in pepoleEntities)
             {
                 //list.Add(Mapper.Map<PepolePostionEntity, PepolePostionContent>(item));
-                list.Add(new PepolePostionContent() { 
+                list.Add(new PepolePostionContent()
+                {
                     CurrentStation = item.CurrentStation,
                     Nums = item.Nums,
                     StationAddress = item.StationAddress
@@ -465,12 +467,13 @@ namespace Caist.Framework.Service
                 dic_Sockets.Values.Count > 0 || flag)//flag:标识是否略过重复判断发送数据
             {
                 var str = ssm.ToJson();
-                if (str.HasValue())
+                if (str.HasValue() && list.Count > 0)
                 {
                     SendMessage(str);
                     _pepolePostionEntities = pepoleEntities;
                 }
             }
+            list.Clear();
         }
 
 
@@ -482,7 +485,8 @@ namespace Caist.Framework.Service
             foreach (var item in stationEntities)
             {
                 //list.Add(Mapper.Map<SubStationEntity, SubStationContent>(item));
-                list.Add(new SubStationContent() { 
+                list.Add(new SubStationContent()
+                {
                     COS = item.COS,
                     F = item.F,
                     IA = item.IA,
@@ -499,12 +503,13 @@ namespace Caist.Framework.Service
                 dic_Sockets.Values.Count > 0 || flag)
             {
                 var str = ssm.ToJson();
-                if (str.HasValue())
+                if (str.HasValue() && list.Count > 0)
                 {
                     SendMessage(str);
                     _stationEntities = stationEntities;
                 }
             }
+            list.Clear();
         }
         #endregion
 
@@ -515,7 +520,8 @@ namespace Caist.Framework.Service
             foreach (var item in fibers)
             {
                 //list.Add(Mapper.Map<FiberEntity, FiberContent>(item));
-                list.Add(new FiberContent(){ 
+                list.Add(new FiberContent()
+                {
                     AreaName = item.AreaName,
                     AverageValue = item.AverageValue,
                     MaxValue = item.MaxValue,
@@ -532,12 +538,13 @@ namespace Caist.Framework.Service
                     dic_Sockets.Values.Count > 0 || flag)
             {
                 var str = fm.ToJson();
-                if (str.HasValue())
+                if (str.HasValue() && list.Count > 0)
                 {
                     SendMessage(str);
                     _fiberEntities = fibers;
                 }
             }
+            list.Clear();
         }
 
         private bool ListNotEqual<T>(List<T> entityies1, List<T> entityies2)
@@ -612,12 +619,12 @@ namespace Caist.Framework.Service
         {
             //处理错误：DIctionary：集合已修改，可能无法执行枚举操作
             //解决：另外创建一个数组来循环修改集合值
-            var New_Sockets = dic_Sockets.Values.ToList<IWebSocketConnection>();
-            foreach (var socket in New_Sockets)
+            //var New_Sockets = dic_Sockets.Values.ToList<IWebSocketConnection>();
+            foreach (var socket in dic_Sockets.Values)
             {
                 socket.Send(val);
             }
-            New_Sockets.Clear();
+            //New_Sockets.Clear();
         }
 
         /// <summary>
@@ -729,7 +736,7 @@ namespace Caist.Framework.Service
         public void LoadAlarmData(string id = null)
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(@"select s.id,s.system_name,a.min_value,a.max_value,a.broadcast_content,m.manipulate_model_mark,m.manipulate_model_name
+            builder.Append(@"select s.id,a.id as ModuleId,s.system_name,a.min_value,a.max_value,a.broadcast_content,m.manipulate_model_mark,m.manipulate_model_name
                 from [dbo].[mk_system_setting] s inner join [dbo].[mk_alarm_settings] a  on s.id=a.system_models
                 inner join [dbo].[mk_view_manipulate_model] m on a.view_manipulate_id=m.id where a.base_is_delete = 0 ");
             if (!string.IsNullOrEmpty(id))
@@ -762,6 +769,8 @@ namespace Caist.Framework.Service
 
     public class AlarmContent
     {
+        public long SysId { get; set; }
+        public long ModuleId { get; set; }
         public string Name { get; set; }
         public string Message { get; set; }
         public bool Type { get; set; }

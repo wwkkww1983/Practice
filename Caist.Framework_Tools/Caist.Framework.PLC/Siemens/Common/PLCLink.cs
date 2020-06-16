@@ -202,9 +202,16 @@ namespace Caist.Framework.PLC.Siemens.Common
 				case DataTypeEnum.TYPE_BOOL:
 					{
 						string[] array2 = Entity.Address.Split(new char[]{ '.' });
-						int Adderss = Convert.ToInt32(array2[0]);
-						int Index = Convert.ToInt32(array2[1]);
-						result = this.MethodBit(text, Adderss, Index);
+						if (array2.Length > 1)
+						{
+							int Adderss = Convert.ToInt32(array2[0]);
+							int Index = Convert.ToInt32(array2[1]);
+							result = this.MethodBit(text, Adderss, Index);
+						}
+						else
+						{
+							result = -9999f;
+						}
 						break;
 					}
 				case DataTypeEnum.TYPE_SHORT:
