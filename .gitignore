@@ -6,5 +6,6 @@ obj
 packages
 *.log
 .svn
+Resource
 /WebApplication1/.vs/WebApplication1
 /WebSocketDemo/.vs/WebSocketDemo
