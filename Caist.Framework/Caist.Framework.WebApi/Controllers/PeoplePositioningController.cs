@@ -33,7 +33,6 @@ namespace Caist.Framework.WebApi.Controllers
         /// 相应点位的人数统计
         /// </summary>
         /// <param name="param"></param>
-        /// <param name="pagination"></param>
         /// <returns></returns>
         [HttpPost]
         public async Task<string> PeopleCounting([FromBody] RegionParam param)

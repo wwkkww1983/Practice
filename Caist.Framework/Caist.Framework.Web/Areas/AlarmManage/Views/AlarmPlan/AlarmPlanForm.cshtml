@@ -122,9 +122,6 @@
     function saveForm(index) {
         if ($("#form").validate().form()) {
             var postData = $("#form").getWebControls({ Id: id });
-
-            var imgUrl = $("#thumbImage").imageUpload("getImageUrl");
-            addArray(imgUrl,"img");
             postData.Files = global_files;
             ys.ajax({
                 url: '@Url.Content("~/AlarmManage/AlarmPlan/SaveFormJson")',
@@ -167,13 +164,14 @@
         if (objs != null && objs.length > 0) {
             for (var f in objs) {
                 if (objs[f].FilePath.length > 0) {
-                    if (objs[f].FileName.length > 35) {//判断缩略图
+                    if (objs[f].ModuleType == "RoadMap" ) {//判断缩略图
                         $("#thumbImage").imageUpload("setImageUrl", objs[f].FilePath);
                     }
                     var ob = {
                         FileName: objs[f].FileName,
                         FilePath: objs[f].FilePath,
-                        FileType: objs[f].FileType
+                        FileType: objs[f].FileType,
+                        ModuleType: objs[f].ModuleType
                     }
                     global_files.push(ob);
                 }
@@ -181,40 +179,55 @@
         }
     }
 
-    //添加单个file对象
-    function addArray(obj,type) {
-        if (obj != null) {
+    //添加单个附件对象
+    function addArray(url, type, fileName) {
+        if (url != null) {
             var ob = {
-                FileName: type == "img" ? getFileInfo(obj, "FileName") : global_fileName,
-                FilePath: getFileInfo(obj, "FilePath", type),
-                FileType: getFileInfo(obj, "FileType")
+                FileName: type == "img" ? fileName : global_fileName,
+                FilePath: type == "img" ? url : getFileInfo(url, "FilePath", type),
+                FileType: getFileInfo(url, "FileType"),
+                ModuleType: type == "img" ? "RoadMap" : "Files"
             }
             global_files.push(ob);
         }
     }
 
-    function removeArray(index) {
-        global_files.splice(index, 1);
+    function deleteRoadMap() {
+        if (global_files != null && global_files.length > 0) {
+            for (var i in global_files) {
+                if (global_files[i].ModuleType == "RoadMap") {
+                    removeArray(global_files[i].FilePath);
+                }
+            }
+        }
+    }
+    function removeArray(url) {
+        if (global_files != null && global_files.length > 0) {
+            for (var i in global_files) {
+                if (global_files[i].FilePath.indexOf(url) > -1) {
+                    global_files.splice(i, 1);
+                }
+            }
+        }
     }
 
     function buildFileList() {
         if (global_files != null && global_files.length > 0) {
             $("#files").empty();//重新构建文件列表
             var fileHtml = "";
-            var index = 0;
             for (var f in global_files) {
-                if (global_files[f].FileName.length < 36) {//判断缩略图
+                if (global_files[f].ModuleType != "RoadMap") {//判断缩略图
                     var url = global_files[f].FilePath;
-                    fileHtml += "<span><a title='右键可以保存下载' href='" + url + "' target='_blank'>" + global_files[f].FileName + "</a> <a href='javascript:void(0);' onclick='deleteFile(this," + index + ");' style='color:red;' title='删除文件'>X</a></span><br/>";
-                    index++;
+                    var key = getFileInfo(global_files[f].FilePath, "FileName");
+                    fileHtml += "<span><a title='右键可以保存下载' href='" + url + "' target='_blank'>" + global_files[f].FileName + "</a> <a href='javascript:void(0);' onclick=\"deleteFile(this,'" + key + "');\" style='color:red;' title='删除文件'>X</a></span><br/>";
                 }
             }
             $("#files").html(fileHtml);
         }
     }
 
-    function deleteFile(obj, index) {
-        removeArray(index);
+    function deleteFile(obj, url) {
+        removeArray(url);
         document.getElementById("files").removeChild(obj.parentNode);
     }
 
@@ -255,7 +268,7 @@
             global_fileName = file.name;
             formdata.append("file", file);
             ys.ajaxUploadFile({
-                url: '@GlobalContext.SystemConfig.ApiSite' + '/File/UploadFile?fileModule=@UploadFileType.Model.ParseToInt()',
+                url: '@GlobalContext.SystemConfig.ApiSite' + '/File/UploadFile?fileModule=@UploadFileType.Files.ParseToInt()',
                 data: formdata,
                 success: function (obj) {
                     if (obj.Tag == 1) {
@@ -283,10 +296,11 @@
         var formdata = new FormData();
         formdata.append("file", file);
         ys.ajaxUploadFile({
-            url: '@GlobalContext.SystemConfig.ApiSite' + '/File/UploadFile?fileModule=@UploadFileType.News.ParseToInt()',
+            url: '@GlobalContext.SystemConfig.ApiSite' + '/File/UploadFile?fileModule=@UploadFileType.Files.ParseToInt()',
             data: formdata,
             success: function (obj) {
                 if (obj.Tag == 1) {
+                    addArray(obj.Result, "img", file.name);//路线图加入数组
                     if (callback) {
                         callback('@GlobalContext.SystemConfig.ApiSite' + obj.Result);
                     }

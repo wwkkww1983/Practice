@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Caist.Framework.Business.Baojinghistory;
@@ -30,9 +31,20 @@ namespace Caist.Framework.WebApi.Controllers
         public async Task<string> GetSecurityInfoList([FromQuery] BojingMonitorParam param)
         {
             var obj = await BojingMonitor.GetSecurityInfoList(param);
-           
+
             return obj.RemoveNullValue();
         }
 
+        /// <summary>
+        /// 获取报警预案详情
+        /// </summary>
+        /// <param name="AlarmField">mk_alarm_plan.alarm_field</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<string> GetAlarmPlanInfo([FromQuery] long? AlarmField)
+        {
+            var obj = await BojingMonitor.GetAlarmPlanInfo(AlarmField);
+            return obj.RemoveNullValue();
+        }
     }
 }

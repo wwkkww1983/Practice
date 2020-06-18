@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,8 @@ namespace SyncLogic
 {
     public class Sync
     {
+        SqlHelper _helper = new SqlHelper();
+        MySqlHelper _mysqlhelper = new MySqlHelper();
         //一次执行数据条数
         readonly int _count = Convert.ToInt32(Common.GetConfigValue("MaxOnceData"));
         #region 异步方法
@@ -47,9 +50,9 @@ namespace SyncLogic
 
         private async Task<bool> SqlToDataAsync(DataBaseModel item)
         {
-            string sql = string.Empty;
+            string sql;
             string sameFields = string.Empty;
-            bool flag = false;
+            bool flag;
             if (item.SourceSql.HasValue())//多表的情况
             {
                 sql = item.SourceSql;
@@ -58,7 +61,7 @@ namespace SyncLogic
             else
             {
                 //生成查询SQL
-                sql = item.ToSelectSql();
+                sql = ToSelectSql(item);
                 //找到相同的字段
                 sameFields = await FindSameFieldsForSingleAsync(item);
                 sql = sql.Replace("(placeholder)", sameFields);
@@ -76,14 +79,25 @@ namespace SyncLogic
                     await DeleteTargetTableDataAsync(item);
                 }
             }
-            var dt = await QueryAsync(sql, item.SourceDBConnStr, item.SourceDBType);
-            sql = item.ToInsertSql();
-            if (item.SourceSql.HasValue())
+            using (var dt = await QueryAsync(sql, item.SourceDBConnStr, item.SourceDBType))
             {
-                sameFields = FindSameFieldsForMultiple(dt);
+                sql = ToInsertSql(item);
+                if (item.SourceSql.HasValue())
+                {
+                    sameFields = FindSameFieldsForMultiple(dt);
+                }
+                sql = sql.Replace("(placeholder)", sameFields);
+                flag = await ExcuteInsertSqlAsync(sql, dt, item);
+
             }
-            sql = sql.Replace("(placeholder)", sameFields);
-            flag = await ExcuteInsertSqlAsync(sql, dt, item);
+            //    var dt = await QueryAsync(sql, item.SourceDBConnStr, item.SourceDBType);
+            //sql = ToInsertSql(item);
+            //if (item.SourceSql.HasValue())
+            //{
+            //    sameFields = FindSameFieldsForMultiple(dt);
+            //}
+            //sql = sql.Replace("(placeholder)", sameFields);
+            //flag = await ExcuteInsertSqlAsync(sql, dt, item);
             return flag;
         }
 
@@ -96,8 +110,8 @@ namespace SyncLogic
             {
                 case DataEmun.SQLServer:
                 case DataEmun.MySQL:
-                    strSqlSource = $"select LOWER(column_name)as column_name from information_schema.columns where table_name='{baseModel.SourceTable}';";
-                    strSqlTarget = $"select LOWER(column_name)as column_name from information_schema.columns where table_name='{baseModel.TargetTable}';";
+                    strSqlSource = $"select LOWER(column_name)as column_name from information_schema.columns where table_name='{baseModel.SourceTable}' order by column_name;";
+                    strSqlTarget = $"select LOWER(column_name)as column_name from information_schema.columns where table_name='{baseModel.TargetTable}' order by column_name;";
                     break;
                 case DataEmun.Oracle:
                     break;
@@ -168,12 +182,14 @@ namespace SyncLogic
         {
             if (dt.HasData())
             {
-                var dv = new DataView(dt);
-                dv.Sort = $"{item.FlagField} desc";
-                dt = dv.ToTable();
-                var point = dt.Rows[0][item.FlagField].ToString();
-                string path = GetPointPath(item);
-                FileOperation.WriteText(path, point, false);
+                using (var dv = new DataView(dt))
+                {
+                    dv.Sort = $"{item.FlagField} desc";
+                    dt = dv.ToTable();
+                    var point = dt.Rows[0][item.FlagField].ToString();
+                    string path = GetPointPath(item);
+                    FileOperation.WriteText(path, point, false);
+                }
             }
         }
 
@@ -200,16 +216,23 @@ namespace SyncLogic
             bool flag = false;
             if (dt.HasData())
             {
+                if (dt.Rows.Count > 5000)
+                {
+                    _helper.InsertBulk(item, dt);
+                    flag = true;
+                }
+                else
+                { 
                 StringBuilder sb = new StringBuilder();
-                StringBuilder strs = new StringBuilder();
+                StringBuilder sbValues = new StringBuilder();
                 for (var i = 0; i < dt.Rows.Count; i++)
                 {
                     for (int j = 0; j < dt.Columns.Count; j++)
                     {
-                        strs.Append($"'{dt.Rows[i][j]}',");
+                        sbValues.Append($"'{dt.Rows[i][j]}',");
                     }
-                    var strsql = string.Format(sql, strs.ToString().TrimEnd(','));
-                    strs.Clear();
+                    var strsql = string.Format(sql, sbValues.ToString().TrimEnd(','));
+                    sbValues.Clear();
                     sb.Append(strsql + ";");
                     if ((i > _count - 1 && i % _count == 0) || (i == dt.Rows.Count - 1))
                     {
@@ -228,9 +251,9 @@ namespace SyncLogic
                 {
                     SavePoint(item, dt);
                 }
-                dt.Rows.Clear();
                 sb.Clear();
-                strs.Clear();
+                sbValues.Clear();
+            }
             }
             return flag;
         }
@@ -241,12 +264,10 @@ namespace SyncLogic
             switch (dbType)
             {
                 case DataEmun.MySQL:
-                    MySqlHelper mysqlhelper = new MySqlHelper();
-                    flag = await mysqlhelper.ExcuteAsync(sql, connStr, DataEmun.MySQL);
+                    flag = await _mysqlhelper.ExcuteAsync(sql, connStr, DataEmun.MySQL);
                     break;
                 case DataEmun.SQLServer:
-                    SqlHelper helper = new SqlHelper();
-                    flag = await helper.ExcuteAsync(sql, connStr, DataEmun.SQLServer);
+                    flag = await _helper.ExcuteAsync(sql, connStr, DataEmun.SQLServer);
                     break;
                 case DataEmun.Oracle:
                     break;
@@ -262,12 +283,10 @@ namespace SyncLogic
             switch (dataBaseType)
             {
                 case DataEmun.MySQL:
-                    MySqlHelper mysqlhelper = new MySqlHelper();
-                    dt = await mysqlhelper.GetDataTableAsync(sql, connStr, DataEmun.MySQL);
+                    dt = await _mysqlhelper.GetDataTableAsync(sql, connStr, DataEmun.MySQL);
                     break;
                 case DataEmun.SQLServer:
-                    SqlHelper helper = new SqlHelper();
-                    dt = await helper.GetDataTableAsync(sql, connStr, DataEmun.SQLServer);
+                    dt = await _helper.GetDataTableAsync(sql, connStr, DataEmun.SQLServer);
                     break;
                 case DataEmun.Oracle:
                     break;
@@ -275,6 +294,57 @@ namespace SyncLogic
                     break;
             }
             return dt;
+        }
+        #endregion
+
+        #region sql生成
+        public string ToSelectSql(DataBaseModel model)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"select (placeholder)");
+            if (model.TableFields != null && model.TableFields.Length > 0)
+            {
+                string tempStr = "," + string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Keys);
+                sb.Append(tempStr);
+            }
+            switch (model.SourceDBType)
+            {
+                case DataEmun.SQLServer:
+                    sb.Append($" from {model.SourceDB}.dbo.{model.SourceTable} ");
+                    break;
+                case DataEmun.Oracle://TODO:oracle 可能还得测试下
+                case DataEmun.MySQL:
+                    sb.Append($" from {model.SourceDB}.{model.SourceTable} ");
+                    break;
+                default:
+                    break;
+            }
+            return sb.ToString();
+        }
+
+        public string ToInsertSql(DataBaseModel model)
+        {
+            StringBuilder sb = new StringBuilder();
+            switch (model.TargetDBType)
+            {
+                case DataEmun.SQLServer:
+                    sb.Append($"insert into {model.TargetDB}.dbo.{model.TargetTable}( (placeholder)");
+                    break;
+                case DataEmun.Oracle://TODO:oracle 可能还得测试下
+                case DataEmun.MySQL:
+                    sb.Append($"insert into {model.TargetDB}.{model.TargetTable}((placeholder)");
+                    break;
+                default:
+                    break;
+            }
+
+            if (model.TableFields != null && model.TableFields.Length > 0)
+            {
+                string tempStr = "," + string.Join(",", model.TableFields.Select(p => p.Split(',')).ToDictionary(k => k[0], v => v[1]).Values);
+                sb.Append(tempStr);
+            }
+            sb.Append(@") values({0})");
+            return sb.ToString();
         }
         #endregion
     }

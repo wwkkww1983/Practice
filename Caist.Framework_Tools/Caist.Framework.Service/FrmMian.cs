@@ -123,7 +123,7 @@ namespace Caist.Framework.Service
                         foreach (KeyValuePair<string, InstructEntity> list in groupEntity.InstructPairs)
                         {
                             InstructEntity instructEntity = list.Value;
-                            string Name = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
+                            string Name = string.Format("{2}-{0}.{1}", groupEntity.Name, instructEntity.Name, siemens.DeviceEntity.Host);
                             string Key = string.Format("{0}.{1}", groupEntity.Id, instructEntity.Id);
                             ListViewItem lvitem = new ListViewItem(Name);
                             lvitem.ToolTipText = Key;
@@ -259,7 +259,7 @@ namespace Caist.Framework.Service
                         foreach (KeyValuePair<string, InstructEntity> pair in groupEntity.InstructPairs)
                         {
                             InstructEntity instructEntity = pair.Value;
-                            string key = string.Format("{0}.{1}", groupEntity.Name, instructEntity.Name);
+                            string key = string.Format("{2}-{0}.{1}", groupEntity.Name, instructEntity.Name, entity.DeviceEntity.Host);
                             ListViewItem item = lvPoint.FindItemWithText(key);
                             string Name = item.ToolTipText.ToString();
                             switch (instructEntity.CheckDataType())
@@ -290,16 +290,18 @@ namespace Caist.Framework.Service
             var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < v || p.MinValue > v) && p.ManipulateModelMark == key);
             if (item != null)
             {
+                var list = new List<AlarmContent>();
+                list.Add(new AlarmContent()
+                {
+                    SysId = item.Id,
+                    ModuleId = item.ModuleId,
+                    Name = item.SystemName,
+                    Message = item.BroadCastContent,
+                    Type = true
+                });
                 var alarmModel = new AlarmModel()
                 {
-                    Alarm = new AlarmContent()
-                    {
-                        SysId  = item.Id,
-                        ModuleId = item.ModuleId,
-                        Name = item.SystemName,
-                        Message = item.BroadCastContent,
-                        Type = true
-                    }
+                    Alarm = list
                 };
                 var str = JsonConvert.SerializeObject(alarmModel);
                 SendMessage(str);
@@ -764,7 +766,7 @@ namespace Caist.Framework.Service
     #region 报警
     public class AlarmModel
     {
-        public AlarmContent Alarm { get; set; }
+        public List<AlarmContent> Alarm { get; set; }
     }
 
     public class AlarmContent

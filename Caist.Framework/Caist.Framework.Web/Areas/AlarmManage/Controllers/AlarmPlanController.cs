@@ -69,7 +69,8 @@ namespace Caist.Framework.Web.Areas.AlarmManage.Controllers
                 SysId = entity.SysId,
                 AlarmField = entity.AlarmField,
                 Remark = entity.Remark,
-                Enable = entity.Enable
+                Enable = entity.Enable,
+                Id = entity.Id
             });
             if (obj.Result.HasValue())
             {

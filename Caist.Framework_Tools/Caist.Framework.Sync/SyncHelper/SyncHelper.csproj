@@ -111,6 +111,10 @@
       <Project>{BC2EE129-80B5-4329-9854-F2203EB93502}</Project>
       <Name>SyncModel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SyncUtil\SyncUtil.csproj">
+      <Project>{74CB20A4-A37D-45B1-990F-37A66F3F2A1A}</Project>
+      <Name>SyncUtil</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

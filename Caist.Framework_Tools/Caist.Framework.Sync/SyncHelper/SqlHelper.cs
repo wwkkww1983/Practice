@@ -1,5 +1,8 @@
 ﻿using Caist.Framework.DataAccess;
 using Caist.Framework.IdGenerator;
+using SyncModel;
+using SyncUtil;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
@@ -76,6 +79,62 @@ namespace SyncDataAccess
             {
                 return await conn.ExcuteSQLAsync(sql, null) > 0;
             }
+        }
+        public async Task<DataTable> GetTableFields(string tableName, string connStr, DataEmun dbType)
+        {
+            string sql = $"select LOWER(column_name)as column_name from information_schema.columns where table_name='{tableName}' order by column_name;";
+            return await GetDataTableAsync(sql, connStr, dbType);
+        }
+
+        /// <summary>
+        /// 将DataTable数据批量插入到数据库中。
+        /// </summary>
+        /// <param name="dbm">相关参数实体</param>
+        /// <param name="dataTable">插入的数据源</param>
+        /// <param name="batchSize">批量大小</param>
+        public void InsertBulk(DataBaseModel dbm, DataTable dataTable, int batchSize = 10000)
+        {
+            using (var conn = Connect.GetConn(dbm.TargetDBType.ToString(), dbm.TargetDBConnStr))
+            {
+                conn.Open();
+                using (SqlBulkCopy bulk = new SqlBulkCopy((SqlConnection)conn, SqlBulkCopyOptions.Default, null))
+                {
+                    bulk.BatchSize = batchSize;
+                    bulk.DestinationTableName = dbm.TargetTable;
+                    bulk.ColumnMappings.Clear();
+                    var dict = GetSameFields(dbm);
+                    foreach (var item in dict)
+                    {
+                        bulk.ColumnMappings.Add(item.Key, item.Value);
+                    }
+                    foreach (var item in dbm.TableFields)
+                    {
+                        bulk.ColumnMappings.Add(item.Split(',')[0], item.Split(',')[1]);
+                    }
+                    bulk.NotifyAfter = 100;
+                    bulk.WriteToServer(dataTable);
+                }
+                dataTable.Dispose();
+            }
+        }
+
+        private Dictionary<string, string> GetSameFields(DataBaseModel dbm)
+        {
+            Dictionary<string, string> res = new Dictionary<string, string>();
+            if (dbm.SourceTable.HasValue())//原表可能没有设定指定的来源表（有多个数据表来源）
+            {
+                var dtSource = GetTableFields(dbm.SourceTable, dbm.SourceDBConnStr, dbm.SourceDBType).Result;
+                var dtTarget = GetTableFields(dbm.TargetTable, dbm.TargetDBConnStr, dbm.TargetDBType).Result;
+                for (var i = 0; i < dtSource.Rows.Count; i++)
+                {
+                    var drs = dtTarget.Select($"column_name = '{dtSource.Rows[i]["column_name"].ToString().ToLower()}'");
+                    if (drs.Length > 0)
+                    {
+                        res.Add(dtSource.Rows[i][0].ToString(), dtTarget.Rows[i][0].ToString());
+                    }
+                }
+            }
+            return res;
         }
     }
 }

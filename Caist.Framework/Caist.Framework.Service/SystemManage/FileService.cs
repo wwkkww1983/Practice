@@ -35,7 +35,10 @@ namespace Caist.Framework.Service.SystemManage
             {
                 //先根据模块ID来删除对应的文件列表
                 await DeleteFileByModuleId(entitys[0].ModuleId.Value);
-                entitys.ForEach(p => p.Create());
+                foreach (var entity in entitys)
+                {
+                    await entity.Create();
+                }
                 await this.BaseRepository().Insert<FileEntity>(entitys);
             }
         }

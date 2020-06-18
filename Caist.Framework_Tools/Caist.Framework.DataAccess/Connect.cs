@@ -41,32 +41,34 @@ namespace Caist.Framework.DataAccess
             return connection;
         }
 
+        static IDbConnection _connection = null;
         public static IDbConnection GetConn(string dbType, string connStr)
         {
-            IDbConnection connection = null;
             GetEnumDic<DataEmun>().Where(v => v.Key == dbType).ToList().ForEach(x =>
             {
-
-                switch ((DataEmun)Enum.Parse(typeof(DataEmun), x.Key))
+                if (_connection == null)
                 {
-                    case DataEmun.SQLServer:
-                        connection = new SqlConnection(connStr);
-                        break;
-                    case DataEmun.MySQL:
-                        connection = new MySqlConnection(connStr);
-                        break;
-                    case DataEmun.Oracle:
-                        connection = new OracleConnection(connStr);
-                        break;
-                    case DataEmun.SQLite:
-                        connection = new SQLiteConnection(connStr);
-                        break;
-                    case DataEmun.Npgsql:
-                        connection = new NpgsqlConnection(connStr);
-                        break;
+                    switch ((DataEmun)Enum.Parse(typeof(DataEmun), x.Key))
+                    {
+                        case DataEmun.SQLServer:
+                            _connection = new SqlConnection(connStr);
+                            break;
+                        case DataEmun.MySQL:
+                            _connection = new MySqlConnection(connStr);
+                            break;
+                        case DataEmun.Oracle:
+                            _connection = new OracleConnection(connStr);
+                            break;
+                        case DataEmun.SQLite:
+                            _connection = new SQLiteConnection(connStr);
+                            break;
+                        case DataEmun.Npgsql:
+                            _connection = new NpgsqlConnection(connStr);
+                            break;
+                    }
                 }
             });
-            return connection;
+            return _connection;
         }
 
         /// <summary>

@@ -52,7 +52,14 @@ namespace Caist.Framework.Enum
         News = 2,
 
         [Description("3D模型")]
-        Model = 3
+        Model = 3,
+
+        [Description("其它附件")]
+        Files = 4,
+
+        [Description("路线图")]
+        RoadMap = 5
+
     }
 
     public enum PlatformEnum

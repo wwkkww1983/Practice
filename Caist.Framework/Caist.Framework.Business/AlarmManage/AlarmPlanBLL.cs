@@ -1,6 +1,7 @@
 ﻿using Caist.Framework.Business.SystemManage;
 using Caist.Framework.Entity.AlarmManage;
 using Caist.Framework.Entity.SystemManage;
+using Caist.Framework.Enum;
 using Caist.Framework.Model.Param.OrganizationManage;
 using Caist.Framework.Model.Param.SystemManage;
 using Caist.Framework.Service.AlarmManage;
@@ -40,7 +41,7 @@ namespace Caist.Framework.Business.AlarmManage
                 });
                 foreach (var file in files.Result)
                 {
-                    if (file.FileName.Length > 35)
+                    if (file.ModuleType == UploadFileType.RoadMap.ToString())
                     {
                         item.Img = file;
                     }

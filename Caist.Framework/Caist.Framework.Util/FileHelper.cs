@@ -84,12 +84,18 @@ namespace Caist.Framework.Util
                     break;
 
                 case (int)UploadFileType.Model:
-                    if (file.Length > 28 * 1024 * 1024) // 28MB
+                    //模型上传不用限制文件大小
+                    objCheck = CheckFileExtension(Path.GetExtension(file.FileName), ".gltf|.fbx|.FBX");
+                    if (objCheck.Tag != 1)
                     {
-                        obj.Message = "文件最大限制为 28MB";
+                        obj.Message = objCheck.Message;
                         return obj;
                     }
-                    dirModule = UploadFileType.News.ToString();
+                    dirModule = UploadFileType.Model.ToString();
+                    break;
+
+                case (int)UploadFileType.Files:
+                    dirModule = UploadFileType.Files.ToString();
                     break;
 
                 default:

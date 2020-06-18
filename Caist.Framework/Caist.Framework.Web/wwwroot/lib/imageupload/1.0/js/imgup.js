@@ -5,8 +5,8 @@
     var deleteParent;
     var deleteDisplay = 'none';
     var defaults = {
-        fileType: ["jpg", "png", "bmp", "jpeg", "fbx","FBX"],   // 上传文件的类型
-        fileSize: 1024 * 1024 * 20                // 上传文件的大小 20M
+        fileType: ["jpg", "png", "bmp", "jpeg", "fbx","FBX","gltf"],   // 上传文件的类型
+        fileSize: 1024 * 1024 * 28                // 上传文件的大小 20M
     };
 
     $.fn.imageUpload = function (option, param) {

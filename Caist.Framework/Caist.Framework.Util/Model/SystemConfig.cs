@@ -57,5 +57,10 @@ namespace Caist.Framework.Util.Model
         public string PayKey { get; set; }
         public string NotifyUrl { get; set; }
 
+        /// <summary>
+        /// 配置的后端站点URL
+        /// </summary>
+        public string WebUrI { get; set; }
+
     }
 }

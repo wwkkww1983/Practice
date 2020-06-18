@@ -54,9 +54,19 @@
     "targetDB": "caist_mk_db",
     "targetTable": "mk_people_position",
     "targetDBConnStr": "Server = 192.168.200.34;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
-    "syncPartial": false,
+    "syncPartial": true,
     "flagField": "",
     "tableFields": [
+      "people_id,people_id",
+      "People_name,people_name",
+      "Worktype_Name,worktype_name",
+      "Rank_name,rank_name",
+      "sender_id,sender_id",
+      "Branch_id,branch_id",
+      "Receiver_id,receiver_id",
+      "Position_id,position_id",
+      "position_desc,position_desc",
+      "Report_time,report_time"
     ],
     "sourceTableFields": [
     ],
