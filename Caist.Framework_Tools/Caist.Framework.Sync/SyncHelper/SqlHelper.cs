@@ -107,7 +107,7 @@ namespace SyncDataAccess
                     {
                         bulk.ColumnMappings.Add(item.Key, item.Value);
                     }
-                    foreach (var item in dbm.TableFields)
+                    foreach (var item in dbm.TableFields)//添加配置的不同字段集合
                     {
                         bulk.ColumnMappings.Add(item.Split(',')[0], item.Split(',')[1]);
                     }
@@ -121,7 +121,7 @@ namespace SyncDataAccess
         private Dictionary<string, string> GetSameFields(DataBaseModel dbm)
         {
             Dictionary<string, string> res = new Dictionary<string, string>();
-            if (dbm.SourceTable.HasValue())//原表可能没有设定指定的来源表（有多个数据表来源）
+            if (dbm.SourceTable.HasValue())//源表可能没有设定指定的来源表（有多个数据表来源）
             {
                 var dtSource = GetTableFields(dbm.SourceTable, dbm.SourceDBConnStr, dbm.SourceDBType).Result;
                 var dtTarget = GetTableFields(dbm.TargetTable, dbm.TargetDBConnStr, dbm.TargetDBType).Result;

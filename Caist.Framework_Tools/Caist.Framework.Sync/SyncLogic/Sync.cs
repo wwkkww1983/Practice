@@ -90,14 +90,6 @@ namespace SyncLogic
                 flag = await ExcuteInsertSqlAsync(sql, dt, item);
 
             }
-            //    var dt = await QueryAsync(sql, item.SourceDBConnStr, item.SourceDBType);
-            //sql = ToInsertSql(item);
-            //if (item.SourceSql.HasValue())
-            //{
-            //    sameFields = FindSameFieldsForMultiple(dt);
-            //}
-            //sql = sql.Replace("(placeholder)", sameFields);
-            //flag = await ExcuteInsertSqlAsync(sql, dt, item);
             return flag;
         }
 
@@ -222,38 +214,38 @@ namespace SyncLogic
                     flag = true;
                 }
                 else
-                { 
-                StringBuilder sb = new StringBuilder();
-                StringBuilder sbValues = new StringBuilder();
-                for (var i = 0; i < dt.Rows.Count; i++)
                 {
-                    for (int j = 0; j < dt.Columns.Count; j++)
+                    StringBuilder sb = new StringBuilder();
+                    StringBuilder sbValues = new StringBuilder();
+                    for (var i = 0; i < dt.Rows.Count; i++)
                     {
-                        sbValues.Append($"'{dt.Rows[i][j]}',");
-                    }
-                    var strsql = string.Format(sql, sbValues.ToString().TrimEnd(','));
-                    sbValues.Clear();
-                    sb.Append(strsql + ";");
-                    if ((i > _count - 1 && i % _count == 0) || (i == dt.Rows.Count - 1))
-                    {
-                        if (sb.ToString().HasValue())
+                        for (int j = 0; j < dt.Columns.Count; j++)
                         {
-                            flag = await ExcuteSQLAsync(sb.ToString(), item.TargetDBConnStr, item.TargetDBType);
-                            sb.Clear();
-                            if (!flag)
+                            sbValues.Append($"'{dt.Rows[i][j]}',");
+                        }
+                        var strsql = string.Format(sql, sbValues.ToString().TrimEnd(','));
+                        sbValues.Clear();
+                        sb.Append(strsql + ";");
+                        if ((i > _count - 1 && i % _count == 0) || (i == dt.Rows.Count - 1))
+                        {
+                            if (sb.ToString().HasValue())
                             {
-                                return flag;
+                                flag = await ExcuteSQLAsync(sb.ToString(), item.TargetDBConnStr, item.TargetDBType);
+                                sb.Clear();
+                                if (!flag)
+                                {
+                                    return flag;
+                                }
                             }
                         }
                     }
+                    if (item.SyncPartial && item.FlagField.HasValue())
+                    {
+                        SavePoint(item, dt);
+                    }
+                    sb.Clear();
+                    sbValues.Clear();
                 }
-                if (item.SyncPartial && item.FlagField.HasValue())
-                {
-                    SavePoint(item, dt);
-                }
-                sb.Clear();
-                sbValues.Clear();
-            }
             }
             return flag;
         }

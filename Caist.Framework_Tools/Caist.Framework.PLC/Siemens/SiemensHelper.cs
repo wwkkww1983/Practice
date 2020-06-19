@@ -33,23 +33,17 @@ namespace Caist.Framework.PLC.Siemens
         /// <summary>
         /// 设置IP地址
         /// </summary>
-        public string IP//设置IP地址
+        public void SetIP(string value)
         {
-            set
-            {
-                this.Link.SettingIP(value);
-            }
+            this.Link.SettingIP(value);
         }
 
         /// <summary>
         /// 设置端口
         /// </summary>
-        public string Port
+        public void SetPort(string value)
         {
-            set
-            {
-                this.Link.SettingPort(int.Parse(value));
-            }
+            this.Link.SettingPort(int.Parse(value));
         }
 
         public SiemensHelper() : base()
@@ -62,18 +56,18 @@ namespace Caist.Framework.PLC.Siemens
         public bool Init()
         {
             int num = 0;
-            this.Link.GetDevice().Clear();
-            this.Link.GetDevice().CPUSlotNO = this.DeviceEntity.CPU_SlotNO;
-            this.Link.GetDevice().LocalTASP = this.DeviceEntity.LocalTASP;
-            this.Link.GetDevice().PLCtype = this.DeviceEntity.PLCType;
-            this.Link.GetDevice().RemoteTASP = this.DeviceEntity.RemoteTASP;
+            GetDevice().Clear();
+            GetDevice().CPUSlotNO = this.DeviceEntity.CPU_SlotNO;
+            GetDevice().LocalTASP = this.DeviceEntity.LocalTASP;
+            GetDevice().PLCtype = this.DeviceEntity.PLCType;
+            GetDevice().RemoteTASP = this.DeviceEntity.RemoteTASP;
 
             PublicEntity.TagGroupsEntities.Where(p => p.DeviceId == this.DeviceEntity.Id).ToList().ForEach(v =>
             {
-                this.Link.GetDevice().ValuePairs.Add(v.Id, new InstructGroupEntity(v.Id, v.Name, v.MMType, int.Parse(v.Block), int.Parse(v.BeginAddress), int.Parse(v.ReadCount)));
+                GetDevice().ValuePairs.Add(v.Id, new InstructGroupEntity(v.Id, v.Name, v.MMType, int.Parse(v.Block), int.Parse(v.BeginAddress), int.Parse(v.ReadCount)));
                 PublicEntity.TagEntities.Where(s => s.TagGroup == v.Id).ToList().ForEach(x =>
                 {
-                    InstructGroupEntity tagGroup = this.Link.GetDevice().ValuePairs[v.Id];
+                    InstructGroupEntity tagGroup = GetDevice().ValuePairs[v.Id];
                     string DataType = Entity.Enum.Extensions.ConvertDataEnum(int.Parse(x.DataType));
                     tagGroup.InstructPairs.Add(x.Id, new InstructEntity(tagGroup, x.Id, x.Name, x.Address, DataType, x.Desc, x.Output));
                     num++;

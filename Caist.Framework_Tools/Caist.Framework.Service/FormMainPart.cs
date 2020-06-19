@@ -41,26 +41,26 @@ namespace Caist.Framework.Service
         {
             try
             {
-                //Task.Run(async () =>
-                //{
-                //    var tp = await sc.SyncDataAsync();
-                //    _res = tp.Item1;
-                //    if (_res.HasValue())
-                //    {
-                //        ShowErrorLog(_res);
-                //    }
-                //});
-                var tp = sc.SyncDataAsync();
-                if (tp.IsCompleted)
+                Task.Run(async () =>
                 {
-                    _res = tp.Result.Item1;
+                    var tp = await sc.SyncDataAsync();
+                    _res = tp.Item1;
                     if (_res.HasValue())
                     {
                         ShowErrorLog(_res);
                     }
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                }
+                });
+                //var tp = sc.SyncDataAsync();
+                //if (tp.IsCompleted)
+                //{
+                //    _res = tp.Result.Item1;
+                //    if (_res.HasValue())
+                //    {
+                //        ShowErrorLog(_res);
+                //    }
+                //    GC.Collect();
+                //    GC.WaitForPendingFinalizers();
+                //}
             }
             catch (Exception ex)
             {

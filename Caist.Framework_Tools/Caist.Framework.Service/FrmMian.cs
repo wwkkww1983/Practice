@@ -102,6 +102,8 @@ namespace Caist.Framework.Service
             {
                 SiemensHelper siemensHelper = new SiemensHelper();
                 siemensHelper.DeviceEntity = d;
+                siemensHelper.SetIP(d.Host);
+                siemensHelper.SetPort(d.Port);
                 siemensHelper.Init();
                 _siemensHelpers.Add(siemensHelper);
             });
@@ -171,13 +173,11 @@ namespace Caist.Framework.Service
 
         private void PlcStart()
         {
-            //StartInfo info = new StartInfo { Timeout = 1, MinWorkerThreads = PublicEntity.DeviceEntities.Count() };
-            //IThreadPool pool = ThreadPoolFactory.Create(info, "PLC线程池");
+            StartInfo info = new StartInfo { Timeout = 1, MinWorkerThreads = PublicEntity.DeviceEntities.Count() };
+            IThreadPool pool = ThreadPoolFactory.Create(info, "PLC线程池");
             //PublicEntity.DeviceEntities.ForEach(v =>
             _siemensHelpers.ForEach(v =>
             {
-                v.IP = v.DeviceEntity.Host;
-                v.Port = v.DeviceEntity.Port;
                 var result = v.Start();
                 if (!result)
                 {
@@ -202,12 +202,12 @@ namespace Caist.Framework.Service
                         TimerMessage.Start();
 
                     });
-                    //IWorkItem item = pool.QueueUserWorkItem(Print, v);
+                    IWorkItem item = pool.QueueUserWorkItem(Print, v);
 
                 }
             });
             webStart_Click(null, null);
-            //pool.WaitAll();
+            pool.WaitAll();
         }
 
         /// <summary>
