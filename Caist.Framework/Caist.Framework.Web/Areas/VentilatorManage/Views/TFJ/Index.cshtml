@@ -53,7 +53,6 @@
             url: '/VentilatorManage/TFJ/GettongfengTempLists',
             type: 'post',
             data: {
-                   //AreaName: ""
                    StartDate: "",
                    EndDate: ""
             },
@@ -71,9 +70,6 @@
 
         var lineChart = echarts.init(document.getElementById("echarts-line-chart"));
         var lineoption = {
-            //title: {
-            //    text: '通风机变化'
-            //},
             tooltip: {
                 trigger: 'axis'
             },
@@ -83,14 +79,14 @@
             grid: {
                 x: 40,
                 x2: 40,
-                y2: 24
+                y2: 17
             },
             calculable: true,
             xAxis: [
                 {
                     type: 'category',
                     boundaryGap: false,
-                    //data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                    data: ['05/21', '05/22', '05/23', '05/24', '05/25', '05/26', '05/27', '05/28', '05/29', '05/30', '05/31']
                 }
             ],
             yAxis: [
@@ -131,7 +127,6 @@
         if (datas != null && datas.length > 0) {
             for (var i = 0; i < datas.length; i++) {
                 low_global.push(datas[i].dictValue);
-               
             }
         }
     }

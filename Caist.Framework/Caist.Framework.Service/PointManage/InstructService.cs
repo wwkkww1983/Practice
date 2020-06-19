@@ -24,11 +24,11 @@ namespace Caist.Framework.Service.PointManage
             return list.ToList();
         }
 
-        public async Task<List<InstructEntity>> GetPageList(InstructListParam param, Pagination pagination)
+        public async Task<List<InstructReturnEntity>> GetPageList(InstructListParam param, Pagination pagination)
         {
             var strSql = new StringBuilder();
             List<DbParameter> filter = ListFilter(param, strSql);
-            var list = await this.BaseRepository().FindList<InstructEntity>(strSql.ToString(), filter.ToArray(), pagination);
+            var list = await this.BaseRepository().FindList<InstructReturnEntity>(strSql.ToString(), filter.ToArray(), pagination);
             return list.ToList();
         }
 
@@ -95,7 +95,8 @@ namespace Caist.Framework.Service.PointManage
                                     a.output as Output,
                                     a.remark as Remark,
                                     a.instruct_group_id as InstructGroupId,
-                                    b.name as InstructGroupName ");
+                                    b.name as InstructGroupName,
+                                    b.group_name as GroupName");
             if (bSystemSettingContent)
             {
                 strSql.Append("");

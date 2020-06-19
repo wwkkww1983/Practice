@@ -15,7 +15,7 @@
             <div class="col-sm-4">
                 <div id="deviceId" col="DeviceId"></div>
             </div>
-            
+
             <label class="col-sm-2 control-label">寄存器名称</label>
             <div class="col-sm-4">
                 <input id="modularType" col="ModularType" type="text" class="form-control" />
@@ -33,10 +33,15 @@
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">DB块地址</label>
-            <div class="col-sm-10">
+            <div class="col-sm-4">
                 <input id="beginBlock" col="BeginBlock" type="text" class="form-control" />
             </div>
+            <label class="col-sm-2 control-label">寄存标识<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="groupname" col="GroupName" type="text" class="form-control" />
+            </div>
         </div>
+        
     </form>
 </div>
 <script type="text/javascript">
@@ -57,6 +62,24 @@
             }
         });
     });
+        //唯一标识
+    @*var id = ys.request("id");
+    var groupname = ys.request("groupname");
+    $(function () {
+        getForm();
+        $("#groupname").ysComboBox({
+            url: '@Url.Content("~/PointManage/InstructGroup/GetListJson")',
+            key: "Id",
+            value: "GroupName",
+            class: "form-control",
+        });
+        $("#form").validate({
+            rules: {
+                groupname: { required: true },
+                manipulateModelName: { required: true }
+            }
+        });
+    });*@
     function getForm() {
         if (id > 0) {
             ys.ajax({
@@ -65,13 +88,11 @@
                 success: function (obj) {
                     if (obj.Tag == 1) {
                         $("#form").setWebControls(obj.Result);
-                        //$("#deviceId").ysComboBox('setValue', obj.Result.DeviceId);
                     }
                 }
             });
         }
     }
-
     function saveForm(index) {
         if ($("#form").validate().form()) {
             var postData = $("#form").getWebControls({ Id: id });

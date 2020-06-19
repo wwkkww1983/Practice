@@ -143,12 +143,14 @@
     }
 
     function uploadThumbModel(file, callback) {
+        debugger;
         var formdata = new FormData();
         formdata.append("file", file);
         ys.ajaxUploadFile({
             url: '@GlobalContext.SystemConfig.ApiSite' + '/File/UploadFile?fileModule=@UploadFileType.Model.ParseToInt()',
             data: formdata,
             success: function (obj) {
+                debugger;
                 if (obj.Tag == 1) {
                     if (callback) {
                         callback('@GlobalContext.SystemConfig.ApiSite' + obj.Result);

@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Caist.Framework.Business.SystemManage;
+using Caist.Framework.Entity.SystemManage;
+using Caist.Framework.Model.Param.SystemManage;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
-using Caist.Framework.Entity.SystemManage;
-using Caist.Framework.Business.SystemManage;
-using Caist.Framework.Model.Param.SystemManage;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Caist.Framework.Web.Controllers
 {
@@ -20,35 +18,12 @@ namespace Caist.Framework.Web.Controllers
         readonly FileBLL fileBLL = new FileBLL();
         #region 上传单个文件
         [HttpPost]
-        [DisableRequestSizeLimit]
         public async Task<IActionResult> UploadFile(int fileModule, IFormCollection files)
         {
             TData<string> obj = await FileHelper.UploadFile(fileModule, files.Files);
             return Json(obj);
         }
-
-        public async Task<IActionResult> OnPostUploadAsync(List<IFormFile> files)
-        {
-            long size = files.Sum(f => f.Length);
-
-            foreach (var formFile in files)
-            {
-                if (formFile.Length > 0)
-                {
-                    var filePath = Path.GetTempFileName();
-
-                    using (var stream = System.IO.File.Create(filePath))
-                    {
-                        await formFile.CopyToAsync(stream);
-                    }
-                }
-            }
-
-            // Process uploaded files
-            // Don't rely on or trust the FileName property without validation.
-
-            return Ok(new { count = files.Count, size });
-        }
+        
         #endregion
 
         #region 删除单个文件

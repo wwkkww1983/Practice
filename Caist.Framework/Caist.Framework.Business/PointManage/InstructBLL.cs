@@ -20,15 +20,17 @@ namespace Caist.Framework.Business.PointManage
             obj.Tag = 1;
             return obj;
         }
-
-        public async Task<TData<List<InstructEntity>>> GetPageList(InstructListParam param, Pagination pagination)
+       
+        public async Task<TData<List<InstructReturnEntity>>> GetPageList(InstructListParam param, Pagination pagination)
         {
-            TData<List<InstructEntity>> obj = new TData<List<InstructEntity>>();
+            TData<List<InstructReturnEntity>> obj = new TData<List<InstructReturnEntity>>();
             obj.Result = await instructService.GetPageList(param, pagination);
             obj.TotalCount = pagination.TotalCount;
             obj.Tag = 1;
             return obj;
         }
+
+
 
         public async Task<TData<List<InstructEntity>>> GetPageContentList(InstructListParam param, Pagination pagination)
         {

@@ -33,6 +33,10 @@
             <div class="col-sm-10">
                 <input id="remark" col="Remark" type="text" class="form-control" />
             </div>
+            @*<label class="col-sm-2 control-label">寄存标识<font class="red"> *</font></label>
+                <div class="col-sm-4">
+                    <div id="groupname" col="GroupName"></div>
+                </div>*@
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">输入输出</label>
@@ -55,7 +59,7 @@
         $("#instructGroupId").ysComboBox({
             url: '@Url.Content("~/PointManage/InstructGroup/GetListJson")',
             key: "Id",
-            value: "ModularType",
+            value: "GroupName",
             class: "form-control",
         });
         $("#form").validate({
@@ -67,7 +71,24 @@
             }
         });
     });
-
+    //寄存标识
+    @*var id = ys.request("id");
+    var groupname = ys.request("groupname");
+    $(function () {
+        getForm();
+        $("#groupname").ysComboBox({
+            url: '@Url.Content("~/PointManage/InstructGroup/GetListJson")',
+            key: "Id",
+            value: "GroupName",
+            class: "form-control",
+        });
+        $("#form").validate({
+            rules: {
+                groupname: { required: true },
+                manipulateModelName: { required: true }
+            }
+        });
+    });*@
     function getForm() {
         if (id > 0) {
             ys.ajax({

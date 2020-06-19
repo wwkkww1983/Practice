@@ -85,10 +85,6 @@
             dataType: 'json',
             contentType: 'application/json; charset=UTF-8',
             success: function (res) {
-                //提供拼装数据方法体，将获取到的json数据组装为
-                // 参数1格式：['通风机', '压风机', '皮带', '水泵', '瓦斯抽采', '光纤测温']
-                //参数2格式：[{ value: 2, name: '通风机' },{ value: 1, name: '压风机' },{ value: 6, name: '皮带' }]
-
                 //获取到res后台数据，调用图表加载方法显示数据到图表中
                 BaoJingChart(filterDataBaoJing(res), res.result);
             }
@@ -278,7 +274,7 @@
         $(window).resize(lineChart.resize);
     }
     //人员柱状图
-    function Ryjs(personArry,timeArry) {
+   // function Ryjs(personArry,timeArry) {
 
         var barChart = echarts.init(document.getElementById("echarts-bar-chart"));
         var baroption = {
@@ -345,7 +341,6 @@
         };
         barChart.setOption(baroption);
         window.onresize = barChart.resize;
-
-    }
+    //}
 </script>
 

@@ -15,6 +15,22 @@ namespace Caist.Framework.Entity.PointManage
         [JsonConverter(typeof(StringJsonConverter))]
         public long? InstructGroupId { get; set; }
         public string InstructGroupName { get; set; }
+        //public string GroupName { get; set; }
+
+    }
+
+    public class InstructReturnEntity : BaseExtensionEntity
+    {
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public string DataType { get; set; }
+        public string Output { get; set; }
+        public string Remark { get; set; }
+        [JsonConverter(typeof(StringJsonConverter))]
+        public long? InstructGroupId { get; set; }
+        public string InstructGroupName { get; set; }
+
+        public string GroupName { get; set; }
 
     }
 }

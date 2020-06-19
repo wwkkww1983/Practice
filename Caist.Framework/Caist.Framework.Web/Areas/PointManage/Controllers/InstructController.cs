@@ -41,8 +41,8 @@ namespace Caist.Framework.Web.Areas.PointManage.Controllers
         [HttpGet]
         [AuthorizeFilter("instruct:instruct:search")]
         public async Task<IActionResult> GetPageListJson(InstructListParam param, Pagination pagination)
-        {
-            TData<List<InstructEntity>> obj = await instructBLL.GetPageList(param, pagination);
+        {//InstructReturnEntity
+            TData<List <InstructReturnEntity>> obj = await instructBLL.GetPageList(param, pagination);
             return Json(obj);
         }
 

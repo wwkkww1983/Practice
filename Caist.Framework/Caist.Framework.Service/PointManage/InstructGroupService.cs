@@ -97,7 +97,8 @@ namespace Caist.Framework.Service.PointManage
                                     a.begin_address as BeginAddress,
                                     a.begin_block as BeginBlock,
                                     a.device_id as DeviceId,
-                                    b.device_name as DeviceName ");
+                                    b.device_name as DeviceName,
+                                    a.group_name as GroupName");
             if (bSystemSettingContent)
             {
                 strSql.Append("");

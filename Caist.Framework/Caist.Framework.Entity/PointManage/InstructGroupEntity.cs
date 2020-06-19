@@ -15,5 +15,6 @@ namespace Caist.Framework.Entity.PointManage
         public string ReadCount { get; set; }
         public string BeginAddress { get; set; }
         public string BeginBlock { get; set; }
+        public string GroupName { get; set; }
     }
 }
