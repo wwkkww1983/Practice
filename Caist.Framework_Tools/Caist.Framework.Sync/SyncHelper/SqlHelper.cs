@@ -61,7 +61,7 @@ namespace SyncDataAccess
         {
             using (var conn = Connect.GetConn(dbType.ToString(), connStr))
             {
-                return await conn.GetDataTableAsync(sql);
+                return await conn.GetDataTableAsync(sql, null, null, 60);
             }
         }
 

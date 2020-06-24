@@ -1,0 +1,187 @@
+/*
+  *配置须知：
+  * 1、源数据为多表的情况：sourceTable、tableField不用填；反之这个sourceSql字段不用填。
+  * 2、同步大批量数据的时候，必须声明tableFields的映射！格式："源表字段,目标表字段"
+*/
+[
+  //{
+  //  /*光纤测温*/
+  //  "sourceDBType": "sqlserver",
+  //  "sourceDB": "testScadaHis",
+  //  "sourceTable": "",
+  //  "sourceDBConnStr": "server=192.168.20.5;uid=mchy;pwd=Mchy123456;database=testScadaHis;",
+  //  "sourceSql": "select AreaName,MaxValue,MaxValuePos,MinValue,MinValuePos,AverageValue from FiberAreaRtDataTbl;", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+  //  "targetDBType": "sqlserver",
+  //  "targetDB": "caist_mk_db",
+  //  "targetTable": "mk_cable_thermometry",
+  //  "targetDBConnStr": "Server = 192.168.20.184;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+  //  "syncPartial": false,
+  //  "flagField": "",
+  //  "tableFields": [
+  //    "AreaName ,Area_Name",
+  //    "MaxValue ,Max_Value",
+  //    "MaxValuePos ,Max_Value_Pos",
+  //    "MinValue ,Min_Value",
+  //    "MinValuePos ,Min_Value_Pos",
+  //    "AverageValue ,Average_Value"
+  //  ],
+  //  "sourceTableFields": [
+  //    "id,int"
+  //  ],
+  //  "targetTableFields": [
+  //    "id,int"
+  //  ]
+  //},
+  {
+    /*人员信息*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "newpd",
+    "sourceTable": "",
+    "sourceDBConnStr": "Server = 192.168.20.120;Database = newpd;User ID = sa;Password = sa;Trusted_Connection = False;",
+    "sourceSql": "select  ID as ID,PepoleNumber as Pepole_Number,PepoleExNumber as Pepole_Ex_Number,TypeOfWorkNumber as Type_Of_Work_Number,JobNumber as Job_Number,PepoleName as Pepole_Name from StaffInformation; ", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "mk_staff_information",
+    "targetDBConnStr": "Server = 192.168.20.184;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+    ],
+    "sourceTableFields": [
+    ],
+    "targetTableFields": [
+    ]
+  },
+  {
+    /*部门*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "newpd",
+    "sourceTable": "",
+    "sourceDBConnStr": "Server = 192.168.20.120;Database = newpd;User ID = sa;Password = sa;Trusted_Connection = False;",
+    "sourceSql": "select DepartmentName as Department_Name,DepartmentNumber as Department_Number from department;", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "mk_department",
+    "targetDBConnStr": "Server = 192.168.20.184;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+    ],
+    "sourceTableFields": [
+      "id,int"
+    ],
+    "targetTableFields": [
+      "id,int"
+    ]
+  },
+  {
+    /*打卡机信息*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "newpd",
+    "sourceTable": "",
+    "sourceDBConnStr": "Server = 192.168.20.120;Database = newpd;User ID = sa;Password = sa;Trusted_Connection = False;",
+    "sourceSql": "select StationNumber as Station_Number,StationAddress as Station_Address,StationStatus as Station_Status,IpAddress as Ip_Address from Deviceinformation;", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "mk_device_information",
+    "targetDBConnStr": "Server = 192.168.20.184;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+    ],
+    "sourceTableFields": [
+      "id,int"
+    ],
+    "targetTableFields": [
+      "id,int"
+    ]
+  },
+  {
+    /*工种信息*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "newpd",
+    "sourceTable": "",
+    "sourceDBConnStr": "Server = 192.168.20.120;Database = newpd;User ID = sa;Password = sa;Trusted_Connection = False;",
+    "sourceSql": "select TypeOfWorkName as Type_Of_Work_Name,typeofworkNumber as type_of_work_Number from TypeOfWork;", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "mk_type_of_work",
+    "targetDBConnStr": "Server = 192.168.20.184;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+    ],
+    "sourceTableFields": [
+      "id,int"
+    ],
+    "targetTableFields": [
+      "id,int"
+    ]
+  },
+  {
+    /*职务信息*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "newpd",
+    "sourceTable": "",
+    "sourceDBConnStr": "Server = 192.168.20.120;Database = newpd;User ID = sa;Password = sa;Trusted_Connection = False;",
+    "sourceSql": "select PositionName as Position_Name,PositionNumber as Position_Number from JobPosition;", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "mk_job_position",
+    "targetDBConnStr": "Server = 192.168.20.184;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+    ],
+    "sourceTableFields": [
+      "id,int"
+    ],
+    "targetTableFields": [
+      "id,int"
+    ]
+  },
+  {
+    /*实时人员位置信息*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "newpd",
+    "sourceTable": "",
+    "sourceDBConnStr": "Server = 192.168.20.120;Database = newpd;User ID = sa;Password = sa;Trusted_Connection = False;",
+    "sourceSql": "select ID as ID,PepoleNumber as Pepole_Number,CurrentStation as Current_Station,OriginStation as Origin_Station,DownWellTime as Down_Well_Time,OriginTime as Origin_Time,CurrentTime as Current_Time,RemarkFirst as Remark_First,RemarkSecond as Remark_Second,TR_LastUpdateTime as TR_Last_Update_Time from RealData;", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "mk_real_data",
+    "targetDBConnStr": "Server = 192.168.20.184;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+    ],
+    "sourceTableFields": [
+      "id,int"
+    ],
+    "targetTableFields": [
+      "id,int"
+    ]
+  },
+  {
+    /*安全监测实时信息*/
+    "sourceDBType": "sqlserver",
+    "sourceDB": "KJ90N",
+    "sourceTable": "",
+    "sourceDBConnStr": "Server = 192.168.20.121;Database = newpd;User ID = sa;Password = sa;Trusted_Connection = False;",
+    "sourceSql": "select id as id,point as point,Address as Address,lc as lc,lx as lx,dw as dw,ssz as ssz,StatName as Stat_Name,UpdatDateTime as Updat_Date_Time from realdata_kj90 where point <>'';", /*源数据为多表的情况：sourceTable、tableField不用填；反之这个字段不用填。*/
+    "targetDBType": "sqlserver",
+    "targetDB": "caist_mk_db",
+    "targetTable": "security_monitor_ingreal_time_data",
+    "targetDBConnStr": "Server = 192.168.20.184;Database = caist_mk_db;User ID = sa;Password = Mchy123456;Trusted_Connection = False;",
+    "syncPartial": false,
+    "flagField": "",
+    "tableFields": [
+    ],
+    "sourceTableFields": [
+      "id,int"
+    ],
+    "targetTableFields": [
+      "id,int"
+    ]
+  }
+]

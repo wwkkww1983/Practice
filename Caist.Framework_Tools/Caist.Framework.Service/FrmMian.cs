@@ -621,12 +621,12 @@ namespace Caist.Framework.Service
         {
             //处理错误：DIctionary：集合已修改，可能无法执行枚举操作
             //解决：另外创建一个数组来循环修改集合值
-            //var New_Sockets = dic_Sockets.Values.ToList<IWebSocketConnection>();
-            foreach (var socket in dic_Sockets.Values)
+            var New_Sockets = dic_Sockets.Values.ToList<IWebSocketConnection>();
+            foreach (var socket in New_Sockets)
             {
                 socket.Send(val);
             }
-            //New_Sockets.Clear();
+            New_Sockets.Clear();
         }
 
         /// <summary>

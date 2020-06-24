@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 
 namespace SyncUtil
 {
@@ -12,7 +13,7 @@ namespace SyncUtil
             {
                 if (File.Exists(path))
                 {
-                    sr = new StreamReader(path);
+                    sr = new StreamReader(path, Encoding.UTF8);
                     str = sr.ReadToEnd();
                 }
 

@@ -6,6 +6,9 @@ obj
 packages
 *.log
 .svn
+*.rar
+*.7z
+*.iso
 Resource
 /WebApplication1/.vs/WebApplication1
 /WebSocketDemo/.vs/WebSocketDemo

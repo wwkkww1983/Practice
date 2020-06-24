@@ -79,17 +79,14 @@ namespace SyncLogic
                     await DeleteTargetTableDataAsync(item);
                 }
             }
-            using (var dt = await QueryAsync(sql, item.SourceDBConnStr, item.SourceDBType))
+            var dt = await QueryAsync(sql, item.SourceDBConnStr, item.SourceDBType);
+            sql = ToInsertSql(item);
+            if (item.SourceSql.HasValue())
             {
-                sql = ToInsertSql(item);
-                if (item.SourceSql.HasValue())
-                {
-                    sameFields = FindSameFieldsForMultiple(dt);
-                }
-                sql = sql.Replace("(placeholder)", sameFields);
-                flag = await ExcuteInsertSqlAsync(sql, dt, item);
-
+                sameFields = FindSameFieldsForMultiple(dt);
             }
+            sql = sql.Replace("(placeholder)", sameFields);
+            flag = await ExcuteInsertSqlAsync(sql, dt, item);
             return flag;
         }
 

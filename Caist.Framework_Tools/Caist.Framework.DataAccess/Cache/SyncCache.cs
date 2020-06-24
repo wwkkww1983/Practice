@@ -3,6 +3,7 @@ using SyncModel;
 using SyncUtil;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Caist.Framework.DataAccess.Cache
 {
@@ -11,24 +12,48 @@ namespace Caist.Framework.DataAccess.Cache
         /// <summary>
         /// Cache
         /// </summary>
-        private static readonly ConcurrentDictionary<string, List<DataBaseModel>> keyValueDict = new ConcurrentDictionary<string, List<DataBaseModel>>();
+        private static readonly ConcurrentDictionary<string, List<DataBaseModel>> _keyValueDict = new ConcurrentDictionary<string, List<DataBaseModel>>();
+        private static readonly ConcurrentDictionary<string, string> _sqlDict = new ConcurrentDictionary<string, string>();
         private static readonly object _locker = new object();
+        private static readonly object _locker1 = new object();
         public static List<DataBaseModel> GetConfigDataTable(string key)
         {
-            if (!keyValueDict.Keys.Contains(key))
+            if (!_keyValueDict.Keys.Contains(key))
             {
                 lock (_locker)
                 {
-                    string txt = FileOperation.ReadText(Common.GetConfigValue("ConfigPath"));
+                    var path = Path.Combine(System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase, Common.GetConfigValue("ConfigPath"));
+                    string txt = FileOperation.ReadText(path);
                     if (txt.HasValue())
                     {
                         var models = JsonConvert.DeserializeObject<List<DataBaseModel>>(txt);
-                        keyValueDict[key] = models;
+                        _keyValueDict[key] = models;
                     }
                 }
             }
 
-            return keyValueDict[key];
+            return _keyValueDict[key];
+        }
+
+        /// <summary>
+        /// 缓存配置的SQL语句
+        /// </summary>
+        public static string GetConfigSQL(string key)
+        {
+            if (!_sqlDict.Keys.Contains(key))
+            {
+                lock (_locker1)
+                {
+                    var path = Path.Combine(System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase, Common.GetConfigValue("PeoplePosition"));
+                    string txt = FileOperation.ReadText(path);
+                    if (txt.HasValue())
+                    {
+                        _sqlDict[key] = txt;
+                    }
+                }
+            }
+
+            return _sqlDict[key];
         }
     }
 }

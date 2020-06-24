@@ -191,6 +191,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\PeoplePositionSql.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Config\Interval.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
