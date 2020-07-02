@@ -205,7 +205,7 @@ namespace SyncLogic
             bool flag = false;
             if (dt.HasData())
             {
-                if (dt.Rows.Count > 5000)
+                if (dt.Rows.Count > 2000)
                 {
                     _helper.InsertBulk(item, dt);
                     flag = true;

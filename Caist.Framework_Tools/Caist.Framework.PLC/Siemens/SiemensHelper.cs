@@ -123,6 +123,14 @@ namespace Caist.Framework.PLC.Siemens
             return this.Link.GetDevice();
         }
 
+        public void SendIntruct(string instructId, string groupId, double value)
+        {
+            if (this.ValuTs(value.ToString()))
+            {
+                this.Link.WriteData(instructId, groupId, value);
+            }
+        }
+
         public void Write(string name, double value)
         {
             if (this.ValuTs(value.ToString()))

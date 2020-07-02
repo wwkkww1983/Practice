@@ -2,6 +2,7 @@
 using Caist.Framework.PLC.Siemens.CheckType;
 using Caist.Framework.PLC.Siemens.Model;
 using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using static Caist.Framework.PLC.Siemens.Enum.ModularType;
@@ -279,7 +280,18 @@ namespace Caist.Framework.PLC.Siemens.Common
 			DataTypeEnum DataType = Entity.CheckDataType();
 			if (this.BackTrue(ModularType, DataType))
 			{
-				new WriteDataEntity(GroupEntity, Entity, value);
+				this._Device.WriteData(GroupEntity, Entity, value);
+			}
+		}
+
+		public void WriteData(string instructId, string groupId, double value)//写数据
+		{
+			InstructGroupEntity GroupEntity = this._Device.ValuePairs[groupId];
+			InstructEntity Entity = GroupEntity.InstructPairs[instructId];
+			ModularTypeEnum ModularType = GroupEntity.GetModularType();
+			DataTypeEnum DataType = Entity.CheckDataType();
+			if (this.BackTrue(ModularType, DataType))
+			{
 				this._Device.WriteData(GroupEntity, Entity, value);
 			}
 		}
