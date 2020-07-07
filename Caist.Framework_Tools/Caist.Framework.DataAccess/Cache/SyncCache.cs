@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Caist.Framework.ThreadPool;
+using Newtonsoft.Json;
 using SyncModel;
 using SyncUtil;
 using System.Collections.Concurrent;

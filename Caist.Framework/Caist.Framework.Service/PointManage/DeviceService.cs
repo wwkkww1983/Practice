@@ -105,6 +105,7 @@ namespace Caist.Framework.Service.PointManage
                                     a.Local as Local,
                                     a.Remote as Remote,
                                     a.parent_id as ParentId,
+                                    a.system_id as SystemId,
                                     a.tab_name as TabName");
             if (bSystemSettingContent)
             {

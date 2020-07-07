@@ -45,6 +45,14 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// 端口
         /// </summary>
         public string ParamenterPort { get; set; }
+        /// <summary>
+        /// 控制模块值得类型  如:bool  int  real
+        /// </summary>
+        public string ParamenterValueType { get; set; }
+        /// <summary>
+        /// 控制模块的值
+        /// </summary>
+        public string ParamenterValue { get; set; }
 
         /// <summary>
         /// 控制模块

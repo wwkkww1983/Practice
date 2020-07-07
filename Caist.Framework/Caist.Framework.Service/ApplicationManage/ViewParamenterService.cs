@@ -21,7 +21,7 @@ namespace Caist.Framework.Service.ApplicationManage
             var strSql = new StringBuilder();
             List<DbParameter> filter = ListFilter(param, strSql);
             var list = await this.BaseRepository().FindList<ViewParamenterEntity>(strSql.ToString(), filter.ToArray());
-            return list.ToList();
+            return list.OrderBy(n=>n.ParamenterSort).ToList();
         }
 
         public async Task<List<ViewParamenterEntity>> GetPageList(ViewParamenterListParam param, Pagination pagination)
@@ -29,7 +29,7 @@ namespace Caist.Framework.Service.ApplicationManage
             var strSql = new StringBuilder();
             List<DbParameter> filter = ListFilter(param, strSql);
             var list = await this.BaseRepository().FindList<ViewParamenterEntity>(strSql.ToString(), filter.ToArray(), pagination);
-            return list.ToList();
+            return list.OrderBy(n => n.ParamenterSort).ToList();
         }
 
         public async Task<List<ViewParamenterEntity>> GetPageContentList(ViewParamenterListParam param, Pagination pagination)
@@ -92,12 +92,15 @@ namespace Caist.Framework.Service.ApplicationManage
                                     a.paramenter_sort as ParamenterSort,
                                     a.paramenter_ip as ParamenterIp,
                                     a.paramenter_port as ParamenterPort,
-                                    b.control_name as ControlName");
+                                    b.control_name as ControlName,
+                                    a.paramenter_value_type as ParamenterValueType,
+                                    a.paramenter_value as ParamenterValue");
             if (bSystemSettingContent)
             {
                 strSql.Append("");
             }
             strSql.Append(@" FROM mk_view_paramenter a left join mk_view_control_model b on a.view_control_model_id = b.id 
+                            left join mk_view_function c on b.view_function_id = c.id left join mk_system_setting d on c.system_setting_id = d.id
                             WHERE   a.base_is_delete = 0 ");
             var parameter = new List<DbParameter>();
             if (param != null)
@@ -111,6 +114,12 @@ namespace Caist.Framework.Service.ApplicationManage
                 {
                     strSql.Append(" AND a.paramenter_status = @ParamenterStatus");
                     parameter.Add(DbParameterExtension.CreateDbParameter("@ParamenterStatus", param.ParamenterStatus));
+                }
+                //系统模块ID
+                if (param.SystemId > 0)
+                {
+                    strSql.Append(" AND d.id = @SystemId");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemId", param.SystemId));
                 }
             }
             return parameter;

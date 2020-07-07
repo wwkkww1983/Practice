@@ -98,6 +98,7 @@
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -121,6 +122,7 @@
     <Compile Include="DapperExtension.cs" />
     <Compile Include="DapperExtensionAsync.cs" />
     <Compile Include="Connect.cs" />
+    <Compile Include="DataServices.cs" />
     <Compile Include="Entity\PageEntity.cs" />
     <Compile Include="Entity\TableEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -138,6 +140,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Caist.Framework.Entity\Caist.Framework.Entity.csproj">
+      <Project>{6BC0FCEB-56F5-404F-BE7C-5E1A374B5ACC}</Project>
+      <Name>Caist.Framework.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Caist.Framework.IdGenerator\Caist.Framework.IdGenerator.csproj">
+      <Project>{9253DAA6-0DA1-40CC-820F-85479F2DE8A3}</Project>
+      <Name>Caist.Framework.IdGenerator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Caist.Framework.Sync\SyncModel\SyncModel.csproj">
       <Project>{BC2EE129-80B5-4329-9854-F2203EB93502}</Project>
       <Name>SyncModel</Name>
@@ -145,6 +155,10 @@
     <ProjectReference Include="..\Caist.Framework.Sync\SyncUtil\SyncUtil.csproj">
       <Project>{74CB20A4-A37D-45B1-990F-37A66F3F2A1A}</Project>
       <Name>SyncUtil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Caist.Framework.ThreadPool\Caist.Framework.ThreadPool.csproj">
+      <Project>{ef33bfdd-d536-4a41-8d8d-86cd1c89cb0a}</Project>
+      <Name>Caist.Framework.ThreadPool</Name>
     </ProjectReference>
     <ProjectReference Include="..\Caist.Framework.Util\Caist.Framework.Util.csproj">
       <Project>{09457767-DD6C-43CE-8460-946CC2E71021}</Project>

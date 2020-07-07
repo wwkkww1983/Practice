@@ -62,6 +62,7 @@ namespace Caist.Framework.Service
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.tabDataBase = new System.Windows.Forms.TabPage();
+            this.lvSyncLog = new System.Windows.Forms.RichTextBox();
             this.lblwarn = new System.Windows.Forms.Label();
             this.lblWaring = new System.Windows.Forms.Label();
             this.lblHint = new System.Windows.Forms.Label();
@@ -103,7 +104,6 @@ namespace Caist.Framework.Service
             this.timing = new System.Windows.Forms.Timer(this.components);
             this.timerWebSocket = new System.Windows.Forms.Timer(this.components);
             this.timerSyncData = new System.Windows.Forms.Timer(this.components);
-            this.lvSyncLog = new System.Windows.Forms.RichTextBox();
             this.SystemMenu.SuspendLayout();
             this.SystemStatus.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -434,6 +434,14 @@ namespace Caist.Framework.Service
             this.tabDataBase.Text = "数据同步";
             this.tabDataBase.UseVisualStyleBackColor = true;
             // 
+            // lvSyncLog
+            // 
+            this.lvSyncLog.Location = new System.Drawing.Point(8, 138);
+            this.lvSyncLog.Name = "lvSyncLog";
+            this.lvSyncLog.Size = new System.Drawing.Size(982, 348);
+            this.lvSyncLog.TabIndex = 13;
+            this.lvSyncLog.Text = "";
+            // 
             // lblwarn
             // 
             this.lblwarn.AutoSize = true;
@@ -565,6 +573,7 @@ namespace Caist.Framework.Service
             // 
             // tsTbMqName
             // 
+            this.tsTbMqName.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.tsTbMqName.Name = "tsTbMqName";
             this.tsTbMqName.Size = new System.Drawing.Size(150, 25);
             this.tsTbMqName.Text = "贵阳瓮安县陡山煤矿";
@@ -577,6 +586,7 @@ namespace Caist.Framework.Service
             // 
             // tsTbServer
             // 
+            this.tsTbServer.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.tsTbServer.Name = "tsTbServer";
             this.tsTbServer.Size = new System.Drawing.Size(100, 25);
             this.tsTbServer.Text = "127.0.0.1";
@@ -589,6 +599,7 @@ namespace Caist.Framework.Service
             // 
             // tsTbMqPort
             // 
+            this.tsTbMqPort.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.tsTbMqPort.Name = "tsTbMqPort";
             this.tsTbMqPort.Size = new System.Drawing.Size(50, 25);
             this.tsTbMqPort.Text = "8000";
@@ -601,6 +612,7 @@ namespace Caist.Framework.Service
             // 
             // tsTbMqUserName
             // 
+            this.tsTbMqUserName.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.tsTbMqUserName.Name = "tsTbMqUserName";
             this.tsTbMqUserName.Size = new System.Drawing.Size(100, 25);
             this.tsTbMqUserName.Text = "admin";
@@ -661,7 +673,7 @@ namespace Caist.Framework.Service
             // 
             this.splitContainer3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer3.Location = new System.Drawing.Point(3, 4);
+            this.splitContainer3.Location = new System.Drawing.Point(3, 29);
             this.splitContainer3.Name = "splitContainer3";
             this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -674,8 +686,8 @@ namespace Caist.Framework.Service
             // 
             this.splitContainer3.Panel2.Controls.Add(this.webContent);
             this.splitContainer3.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.splitContainer3.Size = new System.Drawing.Size(990, 483);
-            this.splitContainer3.SplitterDistance = 312;
+            this.splitContainer3.Size = new System.Drawing.Size(990, 458);
+            this.splitContainer3.SplitterDistance = 295;
             this.splitContainer3.TabIndex = 1;
             // 
             // webMessage
@@ -685,7 +697,7 @@ namespace Caist.Framework.Service
             this.webMessage.Location = new System.Drawing.Point(0, 0);
             this.webMessage.Name = "webMessage";
             this.webMessage.ReadOnly = true;
-            this.webMessage.Size = new System.Drawing.Size(988, 310);
+            this.webMessage.Size = new System.Drawing.Size(988, 293);
             this.webMessage.TabIndex = 1;
             this.webMessage.Text = "";
             // 
@@ -696,7 +708,7 @@ namespace Caist.Framework.Service
             this.webContent.Location = new System.Drawing.Point(0, 0);
             this.webContent.Name = "webContent";
             this.webContent.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.webContent.Size = new System.Drawing.Size(988, 165);
+            this.webContent.Size = new System.Drawing.Size(988, 157);
             this.webContent.TabIndex = 0;
             this.webContent.Text = "";
             this.webContent.TextChanged += new System.EventHandler(this.webContent_TextChanged);
@@ -730,6 +742,7 @@ namespace Caist.Framework.Service
             // webAddress
             // 
             this.webAddress.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.webAddress.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.webAddress.Name = "webAddress";
             this.webAddress.Size = new System.Drawing.Size(120, 25);
             this.webAddress.Text = "0.0.0.0";
@@ -743,6 +756,7 @@ namespace Caist.Framework.Service
             // webPort
             // 
             this.webPort.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.webPort.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.webPort.Name = "webPort";
             this.webPort.Size = new System.Drawing.Size(60, 25);
             this.webPort.Text = "8000";
@@ -804,14 +818,6 @@ namespace Caist.Framework.Service
             // timerSyncData
             // 
             this.timerSyncData.Interval = 1000;
-            // 
-            // lvSyncLog
-            // 
-            this.lvSyncLog.Location = new System.Drawing.Point(8, 138);
-            this.lvSyncLog.Name = "lvSyncLog";
-            this.lvSyncLog.Size = new System.Drawing.Size(982, 348);
-            this.lvSyncLog.TabIndex = 13;
-            this.lvSyncLog.Text = "";
             // 
             // FrmMian
             // 

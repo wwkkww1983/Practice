@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Text;
 
 namespace Caist.Framework.ThreadPool
@@ -36,6 +37,10 @@ namespace Caist.Framework.ThreadPool
         public static bool HasValue(this string str)
         {
             return !string.IsNullOrWhiteSpace(str);
+        }
+        public static bool HasData(this DataTable dt)
+        {
+            return dt != null && dt.Rows.Count > 0;
         }
         /// <summary>
         /// 根据字符串获取配置文件值

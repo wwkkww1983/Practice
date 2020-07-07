@@ -105,7 +105,6 @@
     <Compile Include="Control\ListViewLoad.Designer.cs">
       <DependentUpon>ListViewLoad.cs</DependentUpon>
     </Compile>
-    <Compile Include="DataServices.cs" />
     <Compile Include="FormMainMqttPart.cs">
       <SubType>Form</SubType>
     </Compile>

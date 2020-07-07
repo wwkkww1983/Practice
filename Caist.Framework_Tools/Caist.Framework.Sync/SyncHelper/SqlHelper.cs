@@ -1,7 +1,6 @@
 ﻿using Caist.Framework.DataAccess;
 using Caist.Framework.IdGenerator;
 using SyncModel;
-using SyncUtil;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -121,7 +120,7 @@ namespace SyncDataAccess
         private Dictionary<string, string> GetSameFields(DataBaseModel dbm)
         {
             Dictionary<string, string> res = new Dictionary<string, string>();
-            if (dbm.SourceTable.HasValue())//源表可能没有设定指定的来源表（有多个数据表来源）
+            if (!string.IsNullOrWhiteSpace(dbm.SourceTable))//源表可能没有设定指定的来源表（有多个数据表来源）
             {
                 var dtSource = GetTableFields(dbm.SourceTable, dbm.SourceDBConnStr, dbm.SourceDBType).Result;
                 var dtTarget = GetTableFields(dbm.TargetTable, dbm.TargetDBConnStr, dbm.TargetDBType).Result;

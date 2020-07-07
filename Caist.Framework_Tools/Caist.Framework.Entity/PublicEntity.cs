@@ -27,6 +27,8 @@ namespace Caist.Framework.Entity
 
         private static List<AlarmEntity> alarmEntities = new List<AlarmEntity>();
         public static List<AlarmEntity> AlarmEntities { get => alarmEntities; set => alarmEntities = value; }
+        private static List<InstructAddrs> instructAddrs = new List<InstructAddrs>();
+        public static List<InstructAddrs> InstructAddrs { get => instructAddrs; set => instructAddrs = value; }
 
         private static List<FiberEntity> fiberEntities = new List<FiberEntity>();
         public static List<FiberEntity> FiberEntities { get => fiberEntities; set => fiberEntities = value; }

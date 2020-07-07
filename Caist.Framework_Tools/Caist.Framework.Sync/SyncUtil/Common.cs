@@ -13,7 +13,7 @@ namespace SyncUtil
         public static string GetConfigValue(string key)
         {
             string str = string.Empty;
-            if (key.HasValue())
+            if (!string.IsNullOrWhiteSpace(key))
             {
                 str = ConfigurationManager.AppSettings[key];
             }

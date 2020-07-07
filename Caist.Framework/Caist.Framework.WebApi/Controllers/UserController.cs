@@ -53,9 +53,13 @@ namespace Caist.Framework.WebApi.Controllers
                 await new UserBLL().UpdateUser(userObj.Result);
                 await Operator.Instance.AddCurrent(userObj.Result.ApiToken);
                 obj.Result = await Operator.Instance.Current(userObj.Result.ApiToken);
+                if (obj.Result!=null)
+                    obj.Result.Portrait = GlobalContext.SystemConfig.WebUrI + obj.Result.Portrait;
+                
             }
             obj.Tag = userObj.Tag;
             obj.Message = userObj.Message;
+          
             return obj;
         }
 

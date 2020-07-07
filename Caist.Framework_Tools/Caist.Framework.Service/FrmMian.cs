@@ -16,7 +16,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Caist.Framework.PLC.Siemens.Enum.ModularType;
@@ -57,16 +56,18 @@ namespace Caist.Framework.Service
         /// <param name="e"></param>
         private void FrmMian_Load(object sender, EventArgs e)
         {
+            InitWebsocketSend();
+
             //底部程序运时间
             this.sw.Start();
             this.timing.Start();
 
             //加载plc列表
-            this.LoadDataDevice(TreeDevice.Nodes);
+            DataServices.LoadDataDevice(TreeDevice.Nodes);
             //加载PLC内存块长度配置信息列表
-            this.LoadDataTagGroup();
+            DataServices.LoadDataTagGroup();
             //加载PLC后台配置内存地址指向表
-            this.LoadDataTag();
+            DataServices.LoadDataTag();
             //初始化SiemensHelpers
             SiemensInit();
             //初始化plc 指令列表
@@ -89,6 +90,21 @@ namespace Caist.Framework.Service
             Init();
             //初始化mqtt配置信息
             LoadMqtt();
+        }
+
+        private void InitWebsocketSend()
+        {
+            var flag = "ShowWebSocketSend".GetConfigrationStr();
+            if (flag == "1")
+            {
+                toolStrip1.Visible = true;
+                var ip = "WebSocketAddress".GetConfigrationStr();
+                if (ip.HasValue())
+                {
+                    webAddress.Text = ip.Substring(0, ip.IndexOf(":"));
+                    webPort.Text = ip.Substring(ip.IndexOf(":") + 1);
+                }
+            }
         }
 
         //socket 推送plc数据
@@ -166,6 +182,7 @@ namespace Caist.Framework.Service
         /// <param name="e"></param>
         private void btnPLCStrats_Click(object sender, EventArgs e)
         {
+            btnPLCStrats.Enabled = false;
             Task.Run(() =>
             {
                 PlcStart();
@@ -421,7 +438,7 @@ namespace Caist.Framework.Service
             }
         }
 
-        private async Task PushSpecifiedMsg(string message)
+        public async Task PushSpecifiedMsg(string message)
         {
             if (message.Contains("人员定位"))
             {
@@ -435,9 +452,13 @@ namespace Caist.Framework.Service
             {
                 await SendSubStationData(true);
             }
-            else if (message.HasValue() && message.ToLower().Contains("instructmodel"))
+            else if (message.HasValue() && message.ToLower().Contains("remotecontrol"))
             {
                 FrontSwitchControl(message);
+            }
+            else
+            {
+                SendMsg("未知命令！");
             }
         }
 
@@ -456,10 +477,11 @@ namespace Caist.Framework.Service
                 string port;
                 string instruct;
                 SiemensHelper helper;
-                if (reciveModel.RemoteControl.RequestType.ToLower() == "getcommandvalues")//获取当前系统所有开关的状态
+                var requesType = reciveModel.RemoteControl.RequestType.ToLower();
+                if (requesType == "getcommandvalues")//获取当前系统所有开关的状态
                 {
                     List<InstructReturn> instructModelReturns = new List<InstructReturn>();
-                    var dtCommands = GetSwitcCommands(reciveModel);//获取当前系统命令集合
+                    var dtCommands = DataServices.GetSwitcCommands(reciveModel);//获取当前系统命令集合
                     if (dtCommands != null && dtCommands.Rows.Count > 0)
                     {
                         foreach (DataRow dr in dtCommands.Rows)
@@ -490,36 +512,108 @@ namespace Caist.Framework.Service
                 }
                 else
                 {
+                    List<InstructReturn> instructModelReturns;
                     ip = reciveModel.RemoteControl.Ip;
                     port = reciveModel.RemoteControl.Port;
                     instruct = reciveModel.RemoteControl.Instruct;
                     helper = _siemensHelpers.Find(p => p.DeviceEntity.Host == ip && p.DeviceEntity.Port == port);
-                    var dt = GetGroupInfo(ip, port, instruct.Split('.')[1]);
-                    if (dt != null && dt.Rows.Count > 0)
+                    if (requesType == "getcommandvalue")//增加单个命令状态查询 getCommandValue
                     {
-                        helper.SendIntruct(dt.Rows[0]["instructId"].ToString(), dt.Rows[0]["groupID"].ToString(), double.Parse(reciveModel.RemoteControl.Value));
+                        instructModelReturns = new List<InstructReturn>();
+                        var dtd = DataServices.GetSingleCommandValue(reciveModel);
+                        if (dtd.HasData())
+                        {
+                            var Key = string.Format("{0}.{1}", dtd.Rows[0]["instructId"].ToString(), dtd.Rows[0]["groupID"].ToString());
+                            instructModelReturns.Add(new InstructReturn()
+                            {
+                                ControlName = string.Empty,
+                                ParamenterUnit = string.Empty,
+                                ParamenterInstruct = instruct,
+                                ParamenterInstruct_V = helper.GetValue(Key).ToString(),//从plc获取值
+                                ParamenterName = string.Empty,
+                                Id = string.Empty
+                            });
+                            SendMessage(JsonConvert.SerializeObject(new InstructModelReturns()
+                            {
+                                InstructModelReturn = instructModelReturns
+                            }));
+                        }
+                        else
+                        {
+                            SendMsg("指令配置异常！");
+                        }
+
+                    }
+                    else//发送单个控制命令:setCommandValue;
+                    {
+                        var arrays = GetInstructArray(instruct);
+                        if (arrays != null)
+                        {
+                            var dt = DataServices.GetGroupInfo(ip, port, arrays);
+                            if (dt.HasData())
+                            {
+                                helper.SendIntruct(dt.Rows[0]["instructId"].ToString(), dt.Rows[0]["groupID"].ToString(), double.Parse(reciveModel.RemoteControl.Value));
+                            }
+                            SendMessage("success");
+                        }
+                        else
+                        {
+                            SendMsg("前端发送指令异常！");
+                        }
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                WebSocketMessage("前端发送指令有误！");
+                SendMsg(ex.Message);
             }
         }
 
         private void BuildListToFront(string ip, string port, string instruct, SiemensHelper helper, List<InstructReturn> instructModelReturns, DataRow dr, string unit)
         {
-            var dt = GetGroupInfo(ip, port, instruct.Split('.')[1]);//获取命令对应的命令ID和组ID
-            var Key = string.Format("{0}.{1}", dt.Rows[0]["instructId"].ToString(), dt.Rows[0]["groupID"].ToString());
-            instructModelReturns.Add(new InstructReturn()
+            var arrays = GetInstructArray(instruct);
+            if (arrays != null)
             {
-                ControlName = dr["control_name"].ToString(),
-                ParamenterUnit = unit,
-                ParamenterInstruct = instruct,
-                ParamenterInstruct_V = helper.GetValue(Key).ToString(),
-                ParamenterName = dr["paramenter_name"].ToString(),
-                Id = dr["id"].ToString()
-            });
+                var dt = DataServices.GetGroupInfo(ip, port, arrays);//获取命令对应的命令ID和组ID
+                if (dt.HasData())
+                {
+                    var Key = string.Format("{0}.{1}", dt.Rows[0]["instructId"].ToString(), dt.Rows[0]["groupID"].ToString());
+                    instructModelReturns.Add(new InstructReturn()
+                    {
+                        ControlName = dr["control_name"].ToString(),
+                        ParamenterUnit = unit,
+                        ParamenterInstruct = instruct,
+                        ParamenterInstruct_V = helper.GetValue(Key).ToString(),//从plc获取值
+                        ParamenterName = dr["paramenter_name"].ToString(),
+                        Id = dr["id"].ToString()
+                    });
+                }
+                else
+                {
+                    SendMsg("后台配置指令异常！");
+                }
+            }
+            else
+            {
+                SendMsg("指令异常！");
+            }
+        }
+
+        private void SendMsg(string msg)
+        {
+            WebSocketMessage(msg);
+            SendMessage(msg);
+        }
+        private Tuple<string, string> GetInstructArray(string instruct)
+        {
+            Tuple<string, string> t = null;
+            if (instruct.HasValue())
+            {
+                var front = instruct.Substring(0, instruct.IndexOf("."));
+                var end = instruct.Substring(instruct.IndexOf(".") + 1);
+                t = Tuple.Create(front, end);
+            }
+            return t;
         }
 
         /// <summary>
@@ -555,15 +649,14 @@ namespace Caist.Framework.Service
                 dic_Sockets.Values.Count > 0 || flag)//flag:标识是否略过重复判断发送数据
             {
                 var str = ssm.ToJson();
+                SendMessage(str);
                 if (str.HasValue() && list.Count > 0)
                 {
-                    SendMessage(str);
                     _pepolePostionEntities = pepoleEntities;
                 }
             }
             list.Clear();
         }
-
 
         #region 供配电
         private async Task SendSubStationData(bool flag = false)
@@ -591,9 +684,9 @@ namespace Caist.Framework.Service
                 dic_Sockets.Values.Count > 0 || flag)
             {
                 var str = ssm.ToJson();
+                SendMessage(str);
                 if (str.HasValue() && list.Count > 0)
                 {
-                    SendMessage(str);
                     _stationEntities = stationEntities;
                 }
             }
@@ -626,9 +719,9 @@ namespace Caist.Framework.Service
                     dic_Sockets.Values.Count > 0 || flag)
             {
                 var str = fm.ToJson();
+                SendMessage(str);
                 if (str.HasValue() && list.Count > 0)
                 {
-                    SendMessage(str);
                     _fiberEntities = fibers;
                 }
             }
@@ -692,7 +785,7 @@ namespace Caist.Framework.Service
         private void webSend_Click(object sender, EventArgs e)
         {
             string value = webContent.Text.Trim();
-            if (!string.IsNullOrEmpty(value))
+            if (value.HasValue())
             {
                 SendMessage(value);
             }
@@ -721,7 +814,7 @@ namespace Caist.Framework.Service
         /// <param name="str"></param>
         public void WebSocketMessage(string str, string client = "")
         {
-            if (!string.IsNullOrEmpty(client) && !string.IsNullOrEmpty(str))
+            if (client.HasValue() && str.HasValue())
             {
                 webMessage.Invoke(new Action(() =>
                 {
@@ -733,16 +826,17 @@ namespace Caist.Framework.Service
             }
             else
             {
-                if (!string.IsNullOrEmpty(str) && string.IsNullOrEmpty(client))
+                webMessage.Invoke(new Action(() =>
                 {
-                    webMessage.Invoke(new Action(() =>
-                    {
-                        string value = string.Format("-时间：{0}  内容：{1}\r", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
-                        webMessage.SelectionFont = new Font("宋体", 12, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
+                    string value = string.Format("-时间：{0}  内容：{1}\r", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
+                    webMessage.SelectionFont = new Font("宋体", 12, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
                         webMessage.SelectionColor = System.Drawing.Color.Blue;    //设置SelectionColor属性实现控件中的文本颜色为红色
                         webMessage.AppendText(value);
-                    }));
-                }
+                }));
+            }
+            if (webMessage.TextLength == webMessage.MaxLength)
+            {
+                webMessage.Clear();
             }
         }
 
@@ -766,103 +860,6 @@ namespace Caist.Framework.Service
 
         #endregion
 
-        #region 数据加载
-        private DataTable GetGroupInfo(string ip, string port, string instruct)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append($"select a.id as groupID,i.id as instructId from mk_device d inner join mk_instruct_group a on d.id=a.device_id inner join mk_instruct i on a.id = i.instruct_group_id where d.Device_Host='{ip}' and d.Device_Port='{port}' and i.name = '{instruct}'");
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                return conn.GetDataTable(builder.ToString());
-            }
-        }
-        private DataTable GetSwitcCommands(InstructModel model)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendFormat(@"select m.control_name,m.control_stutas,p.id,p.paramenter_name,p.paramenter_instruct_end,p.paramenter_instruct_start,p.paramenter_instruct,p.paramenter_unit,p.paramenter_ip,p.paramenter_port
-                                    from [dbo].[mk_view_paramenter] p inner join 
-                                    [dbo].[mk_view_control_model] m on p.view_control_model_id = m.id
-                                    where p.base_is_delete=0 and exists(
-                                    select id from mk_view_function v where v.id=m.view_function_id and  exists(
-                                    select id from mk_system_setting s where id={0} and s.id=v.system_setting_id));", model.RemoteControl.SystemId);
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                return conn.GetDataTable(builder.ToString());
-            }
-        }
-
-        private void LoadDataDevice(TreeNodeCollection treeNode)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(@"SELECT  a.tab_name,a.id as Id, a.Device_Name as Name, a.Device_Host as Host, a.Device_Port as Port, a.Slot_No as CPU_SlotNO, a.PLCType as PLCType,
-                            a.Local as LocalTASP,  a.Remote as RemoteTASP, a.parent_id as ParentId,a.tab_name as TabName  FROM mk_device a WHERE a.base_is_delete = 0 and tab_name is not null and tab_name <> ''
-                            ;");//and a.Device_Host in ('192.168.200.53')
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                DataTable dataTable = conn.GetDataTable(builder.ToString());
-                PublicEntity.DeviceEntities = DataConvert.DataTableToList<DeviceEntity>(dataTable).ToList();
-            }
-            PublicEntity.DeviceEntities.ForEach(d =>
-            {
-                TreeNode tree = treeNode.Add(string.Format("{0}-[{1}:{2}]", d.Name, d.Host, d.Port.ToString()));
-                tree.ImageIndex = 0;
-            });
-        }
-
-        public void LoadDataTagGroup(string id = null)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(@"select a.id as Id,a.device_id as DeviceId,a.name as Name,a.modular_type as MMType,a.read_count as ReadCount,a.begin_address as BeginAddress,
-                             a.begin_block as Block from mk_instruct_group a where a.base_is_delete = 0 ");
-            if (!string.IsNullOrEmpty(id))
-            {
-                builder.Append(" and a.device_id = '" + id + "' ");
-            }
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                DataTable dataTable = conn.GetDataTable(builder.ToString());
-                PublicEntity.TagGroupsEntities = DataConvert.DataTableToList<TagGroupsEntity>(dataTable).ToList();
-            }
-        }
-
-        public void LoadDataTag(string id = null)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(@"select a.id as Id,a.Name as Name,a.instruct_group_id as TagGroup,a.address as Address,a.data_type as DataType,a.output as Output,a.remark as [Desc] 
-                             from mk_instruct a where a.base_is_delete = 0 ");
-            if (!string.IsNullOrEmpty(id))
-            {
-                builder.Append(" and a.device_id = '" + id + "' ");
-            }
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                DataTable dataTable = conn.GetDataTable(builder.ToString());
-                PublicEntity.TagEntities = DataConvert.DataTableToList<TagEntity>(dataTable).ToList();
-            }
-        }
-
-        /// <summary>
-        /// 获取报警标准数据
-        /// </summary>
-        /// <param name="id"></param>
-        public void LoadAlarmData(string id = null)
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(@"select s.id,a.id as ModuleId,s.system_name,a.min_value,a.max_value,a.broadcast_content,m.manipulate_model_mark,m.manipulate_model_name
-                from [dbo].[mk_system_setting] s inner join [dbo].[mk_alarm_settings] a  on s.id=a.system_models
-                inner join [dbo].[mk_view_manipulate_model] m on a.view_manipulate_id=m.id where a.base_is_delete = 0 ");
-            if (!string.IsNullOrEmpty(id))
-            {
-                builder.Append(" and a.device_id = '" + id + "' ");
-            }
-            using (var conn = Connect.GetConn("SQLServer"))
-            {
-                DataTable dataTable = conn.GetDataTable(builder.ToString());
-                PublicEntity.AlarmEntities = DataConvert.DataTableToList<AlarmEntity>(dataTable).ToList();
-            }
-        }
-        #endregion
-
         #region 全局窗口事件
 
         private void FrmMian_FormClosed(object sender, FormClosedEventArgs e)
@@ -872,112 +869,4 @@ namespace Caist.Framework.Service
         #endregion
     }
 
-    #region 返回数据模型
-    #region 报警
-    public class AlarmModel
-    {
-        public List<AlarmContent> Alarm { get; set; }
-    }
-
-    public class AlarmContent
-    {
-        public long SysId { get; set; }
-        public long ModuleId { get; set; }
-        public string Name { get; set; }
-        public string Message { get; set; }
-        public bool Type { get; set; }
-    }
-    #endregion
-
-    #region 光纤测温
-    public class FiberModel
-    {
-        public List<FiberContent> Fiber { get; set; }
-    }
-
-    public class FiberContent
-    {
-        public string AreaName { get; set; }
-        public string MaxValue { get; set; }
-        public string MaxValuePos { get; set; }
-        public string MinValue { get; set; }
-        public string MinValuePos { get; set; }
-        public string AverageValue { get; set; }
-    }
-    #endregion
-
-    #region 配电站
-    public class SubStationModel
-    {
-        public List<SubStationContent> SubStation { get; set; }
-    }
-
-    public class SubStationContent
-    {
-        public string Sys_Id { get; set; }
-        public string F { get; set; }
-        public string IA { get; set; }
-        public string P { get; set; }
-        public string Q { get; set; }
-        public string COS { get; set; }
-    }
-    #endregion
-
-    #region 人员定位
-    public class PepolePostionModel
-    {
-        public List<PepolePostionContent> PepolePosition { get; set; }
-    }
-
-    public class PepolePostionContent
-    {
-        public string CurrentStation { get; set; }
-        public string StationAddress { get; set; }
-        public string Nums { get; set; }
-    }
-    #endregion
-    #endregion
-
-    #region 接收数据模型
-    #region 前端命令操作模型
-    public class InstructModel
-    {
-        public InstructInfo RemoteControl { get; set; }
-    }
-
-    public class InstructInfo
-    {
-        public string Instruct { get; set; }
-        public string Value { get; set; }
-        public string Ip { get; set; }
-        public string Port { get; set; }
-        public string SystemId { get; set; }
-        public string RequestType { get; set; }
-    }
-    #endregion
-    #endregion
-
-    #region 接收数据模型
-    #region 前端命令操作模型
-    public class InstructModelReturns
-    {
-        public List<InstructReturn> InstructModelReturn { get; set; }
-    }
-
-    public class InstructReturn
-    {
-        public string ControlName { get; set; }
-        public string ParamenterUnit { get; set; }
-        public string ParamenterInstructStart { get; set; }
-        public string ParamenterInstructStart_V { get; set; }
-        public string ParamenterInstructEnd { get; set; }
-        public string ParamenterInstructEnd_V { get; set; }
-        public string ParamenterInstruct { get; set; }
-        public string ParamenterInstruct_V { get; set; }
-        public string ParamenterName { get; set; }
-        public string Id { get; set; }
-    }
-
-    #endregion
-    #endregion
 }

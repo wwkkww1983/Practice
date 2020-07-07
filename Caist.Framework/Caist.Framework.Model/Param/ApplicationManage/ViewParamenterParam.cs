@@ -15,5 +15,10 @@ namespace Caist.Framework.Model.Param.ApplicationManage
         /// 状态
         /// </summary>
         public int? ParamenterStatus { get; set; }
+
+        /// <summary>
+        /// 系统模块ID
+        /// </summary>
+        public long? SystemId { get; set; }
     }
 }

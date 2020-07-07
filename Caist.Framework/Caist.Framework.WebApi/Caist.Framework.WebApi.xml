@@ -46,6 +46,12 @@
             <param name="param">SecurityMonitorParam</param>
             <returns></returns>
         </member>
+        <member name="T:Caist.Framework.WebApi.Controllers.MockController">
+            <summary>
+            接口说明：前端ant pro 用到的mock数据，如果没有这两个接口的数据前端目前会报错，这种是临时的解决办法，
+            要彻底解决还需要前端调整。
+            </summary>
+        </member>
         <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.PersonnelList(Caist.Framework.Model.PeopleManage.RegionParam)">
             <summary>
             根据点位获取实时人员列表

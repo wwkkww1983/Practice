@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entity\CommonEntity.cs" />
     <Compile Include="Entity\AlarmRecordEntity.cs" />
     <Compile Include="Entity\HistoryEntity.cs" />
     <Compile Include="Entity\MqThemeEntity.cs" />

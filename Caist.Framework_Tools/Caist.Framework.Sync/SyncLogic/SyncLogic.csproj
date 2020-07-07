@@ -56,6 +56,10 @@
       <Project>{0DA701DC-48E9-4CA5-B0EB-3B068F2256E7}</Project>
       <Name>Caist.Framework.DataAccess</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Caist.Framework.ThreadPool\Caist.Framework.ThreadPool.csproj">
+      <Project>{ef33bfdd-d536-4a41-8d8d-86cd1c89cb0a}</Project>
+      <Name>Caist.Framework.ThreadPool</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Caist.Framework.Util\Caist.Framework.Util.csproj">
       <Project>{09457767-DD6C-43CE-8460-946CC2E71021}</Project>
       <Name>Caist.Framework.Util</Name>

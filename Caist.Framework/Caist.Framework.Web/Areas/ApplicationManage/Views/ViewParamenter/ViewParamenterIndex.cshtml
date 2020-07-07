@@ -61,6 +61,8 @@
                     }
                 },
                 { field: 'ParamenterIp', title: 'IP' },
+                { field: 'ParamenterValueType', title: '数据类型' },
+                { field: 'ParamenterValue', title: '值' },
                 { field: 'ParamenterPort', title: '端口' },
                 { field: 'ParamenterSort', title: '排序' }
             ],
@@ -92,7 +94,7 @@
             title: id > 0 ? "编辑控制" : "添加控制",
             content: '@Url.Content("~/ApplicationManage/ViewParamenter/ViewParamenterForm")' + '?id=' + id,
             width: "768px",
-            height: "460px",
+            height: "510px",
             callback: function (index, layero) {
                 var iframeWin = window[layero.find('iframe')[0]['name']];
                 iframeWin.saveForm(index);

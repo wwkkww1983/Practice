@@ -1,5 +1,6 @@
 ﻿using Caist.Framework.DataAccess.Cache;
 using Caist.Framework.IdGenerator;
+using Caist.Framework.ThreadPool;
 using SyncDataAccess;
 using SyncModel;
 using SyncUtil;

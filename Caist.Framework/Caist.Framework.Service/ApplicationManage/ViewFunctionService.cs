@@ -21,7 +21,7 @@ namespace Caist.Framework.Service.ApplicationManage
             var strSql = new StringBuilder();
             List<DbParameter> filter = ListFilter(param, strSql);
             var list = await this.BaseRepository().FindList<ViewFunctionEntity>(strSql.ToString(), filter.ToArray());
-            return list.ToList();
+            return list.OrderBy(n => n.ViewSort).ToList();
         }
 
         public async Task<List<ViewFunctionEntity>> GetPageList(ViewFunctionListParam param, Pagination pagination)
@@ -29,7 +29,7 @@ namespace Caist.Framework.Service.ApplicationManage
             var strSql = new StringBuilder();
             List<DbParameter> filter = ListFilter(param, strSql);
             var list = await this.BaseRepository().FindList<ViewFunctionEntity>(strSql.ToString(), filter.ToArray(), pagination);
-            return list.ToList();
+            return list.OrderBy(n => n.ViewSort).ToList();
         }
 
         public async Task<List<ViewFunctionEntity>> GetPageContentList(ViewFunctionListParam param, Pagination pagination)
