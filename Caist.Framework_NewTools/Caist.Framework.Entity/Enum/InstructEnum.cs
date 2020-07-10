@@ -49,10 +49,18 @@ namespace Caist.Framework.Entity.Enum
     public enum RequestType
     {
         [Description("人员定位")]
-        pepoleposition = 1,
+        PepolePosition = 1,
         [Description("供配电")]
-        substation = 2,
+        SubStation = 2,
         [Description("光纤测温")]
-        fiber = 3
+        Fiber = 3,
+        [Description("获取plc值")]
+        GetPlcValues = 4,
+        [Description("获取当前系统所有开关的状态")]
+        GetCommandValues = 5,
+        [Description("获取单个开关状态值")]
+        GetCommandValue = 6,
+        [Description("设置单个开关状态")]
+        SetCommandValue = 7
     }
 }

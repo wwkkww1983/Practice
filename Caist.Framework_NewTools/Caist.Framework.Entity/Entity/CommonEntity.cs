@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Caist.Framework.Entity.Enum;
+using System.Collections.Generic;
 
 namespace Caist.Framework.Entity.Entity
 {
@@ -83,7 +84,7 @@ namespace Caist.Framework.Entity.Entity
         public string Ip { get; set; }
         public string Port { get; set; }
         public string SystemId { get; set; }
-        public string RequestType { get; set; }
+        public RequestType RequestType { get; set; }
     }
     #endregion
     #endregion
