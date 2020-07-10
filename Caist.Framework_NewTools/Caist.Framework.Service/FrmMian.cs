@@ -534,36 +534,43 @@ namespace Caist.Framework.Service
         {
             if (message.HasValue())
             {
-                var reciveModel = JsonConvert.DeserializeObject<InstructModel>(message);
-                if (reciveModel.RemoteControl.RequestType == RequestType.GetPlcValues)//要发送plc 数据值的关键字集合
+                try
                 {
-                    StopTimers(clientFlag);
-                    //await Task.Run(() =>
-                    // {
-                    await PlcStart(reciveModel.RemoteControl.SystemId, clientFlag);
-                    //});
+                    var reciveModel = JsonConvert.DeserializeObject<InstructModel>(message);
+                    if (reciveModel.RemoteControl.RequestType == RequestType.GetPlcValues)//要发送plc 数据值的关键字集合
+                    {
+                        StopTimers(clientFlag);
+                        //await Task.Run(() =>
+                        // {
+                        await PlcStart(reciveModel.RemoteControl.SystemId, clientFlag);
+                        //});
+                    }
+                    else if (reciveModel.RemoteControl.RequestType == RequestType.PepolePosition)
+                    {
+                        StopTimers(clientFlag);
+                        await SendPepolePostionData(clientFlag, true);
+                        DataBaseTimerInit(RequestType.PepolePosition, clientFlag);
+                    }
+                    else if (reciveModel.RemoteControl.RequestType == RequestType.Fiber)
+                    {
+                        StopTimers(clientFlag);
+                        await SendFiberData(clientFlag, true);
+                        DataBaseTimerInit(RequestType.Fiber, clientFlag);
+                    }
+                    else if (reciveModel.RemoteControl.RequestType == RequestType.SubStation)
+                    {
+                        StopTimers(clientFlag);
+                        await SendSubStationData(clientFlag, true);
+                        DataBaseTimerInit(RequestType.SubStation, clientFlag);
+                    }
+                    else
+                    {
+                        FrontCommands(reciveModel, clientFlag);
+                    }
                 }
-                else if (reciveModel.RemoteControl.RequestType == RequestType.PepolePosition)
+                catch (Exception ex)
                 {
-                    StopTimers(clientFlag);
-                    await SendPepolePostionData(clientFlag, true);
-                    DataBaseTimerInit(RequestType.PepolePosition, clientFlag);
-                }
-                else if (reciveModel.RemoteControl.RequestType == RequestType.Fiber)
-                {
-                    StopTimers(clientFlag);
-                    await SendFiberData(clientFlag, true);
-                    DataBaseTimerInit(RequestType.Fiber, clientFlag);
-                }
-                else if (reciveModel.RemoteControl.RequestType == RequestType.SubStation)
-                {
-                    StopTimers(clientFlag);
-                    await SendSubStationData(clientFlag, true);
-                    DataBaseTimerInit(RequestType.SubStation, clientFlag);
-                }
-                else
-                {
-                    FrontCommands(reciveModel, clientFlag);
+                    SendMsg(ex.Message, clientFlag);
                 }
             }
             else
