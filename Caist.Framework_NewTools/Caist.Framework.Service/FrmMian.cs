@@ -275,47 +275,54 @@ namespace Caist.Framework.Service
 
         private async Task PlcStart(string sysId, string clientFlag)
         {
-            _siemensHelpers.FindAll(p => p.DeviceEntity.SystemId == sysId).ForEach(v =>//只获取系统相关的plc设备
+            if (_siemensHelpers.Any(p => p.DeviceEntity.SystemId == sysId))
             {
-                var result = v.Start();
-                if (!result)
+                _siemensHelpers.FindAll(p => p.DeviceEntity.SystemId == sysId).ForEach(v =>//只获取系统相关的plc设备
                 {
-                    txtMessage.Invoke(new Action(() =>
+                    var result = v.Start();
+                    if (!result)
                     {
-                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
-                    }));
-                    SendMsg(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port), clientFlag);
-                }
-                else
-                {
-                    PlcTool.Invoke(new Action(() =>
-                    {
-                        btnPLCStrats.Enabled = false;
-                        btnPLCStop.Enabled = true;
-                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
-                    }));
-
-                    //Task.Run(() =>
-                    //{
-                    if (_timers.FindIndex(p => p.obj.DeviceEntity.Host == v.DeviceEntity.Host && p.ClientFlag == clientFlag) == -1)
-                    {
-                        CaistTimer timerMessage = new CaistTimer() { Interval = 1000 };
-                        timerMessage.Elapsed += TimerMessage_Elapsed;
-                        timerMessage.obj = v;
-                        timerMessage.ClientFlag = clientFlag;
-                        timerMessage.Start();
-                        _timers.Add(timerMessage);
-                    }
-                    else//存在就启动
-                    {
-                        _timers.FindAll(t => t.obj.DeviceEntity.Host == v.DeviceEntity.Host && t.ClientFlag == clientFlag).ForEach(p =>//找到相关的plc设备把定时器打开
+                        txtMessage.Invoke(new Action(() =>
                         {
-                            p.Start();
-                        });
+                            txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
+                        }));
+                        SendMsg(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port), clientFlag);
                     }
-                    //});
-                }
-            });
+                    else
+                    {
+                        PlcTool.Invoke(new Action(() =>
+                        {
+                            btnPLCStrats.Enabled = false;
+                            btnPLCStop.Enabled = true;
+                            txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, v.DeviceEntity.Name, v.DeviceEntity.Host, v.DeviceEntity.Port));
+                        }));
+
+                        //Task.Run(() =>
+                        //{
+                        if (_timers.FindIndex(p => p.obj.DeviceEntity.Host == v.DeviceEntity.Host && p.ClientFlag == clientFlag) == -1)
+                        {
+                            CaistTimer timerMessage = new CaistTimer() { Interval = 1000 };
+                            timerMessage.Elapsed += TimerMessage_Elapsed;
+                            timerMessage.obj = v;
+                            timerMessage.ClientFlag = clientFlag;
+                            timerMessage.Start();
+                            _timers.Add(timerMessage);
+                        }
+                        else//存在就启动
+                        {
+                            _timers.FindAll(t => t.obj.DeviceEntity.Host == v.DeviceEntity.Host && t.ClientFlag == clientFlag).ForEach(p =>//找到相关的plc设备把定时器打开
+                            {
+                                p.Start();
+                            });
+                        }
+                        //});
+                    }
+                });
+            }
+            else
+            {
+                SendMsg("系统ID不存在！",clientFlag);
+            }
         }
 
         /// <summary>
