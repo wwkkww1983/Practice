@@ -17,8 +17,9 @@ namespace Caist.Framework.DataAccess
         public static IDbConnection GetConn(string connStr)
         {
             IDbConnection connection = null;
-            GetEnumDic<DataEmun>().Where(v => v.Key == connStr).ToList().ForEach(x => {
-                
+            GetEnumDic<DataEmun>().Where(v => v.Key == connStr).ToList().ForEach(x =>
+            {
+
                 switch ((DataEmun)Enum.Parse(typeof(DataEmun), x.Key))
                 {
                     case DataEmun.SQLServer:
@@ -40,13 +41,15 @@ namespace Caist.Framework.DataAccess
             });
             return connection;
         }
+
+        //static Dictionary<string, IDbConnection> _connections = new Dictionary<string, IDbConnection>();
         public static IDbConnection GetConn(string dbType, string connStr)
         {
             IDbConnection _connection = null;
             GetEnumDic<DataEmun>().Where(v => v.Key == dbType).ToList().ForEach(x =>
             {
-                if (_connection == null)
-                {
+                //if (!_connections.Keys.Any(p => p == dbType))
+                //{
                     switch ((DataEmun)Enum.Parse(typeof(DataEmun), x.Key))
                     {
                         case DataEmun.SQLServer:
@@ -65,7 +68,12 @@ namespace Caist.Framework.DataAccess
                             _connection = new NpgsqlConnection(connStr);
                             break;
                     }
-                }
+                    //_connections.Add(dbType, _connection);
+                //}
+                //else
+                //{
+                //    _connection = _connections.FirstOrDefault(p => p.Key == dbType).Value;
+                //}
             });
             return _connection;
         }
