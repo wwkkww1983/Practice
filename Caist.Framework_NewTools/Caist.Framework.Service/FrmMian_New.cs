@@ -10,7 +10,8 @@ namespace Caist.Framework.Service
 {
     public partial class FrmMian_New : Form
     {
-        private List<Plc> _siemensHelpers = new List<Plc>();
+        private Dictionary<string, PlcExtends> _siemensHelpers = new Dictionary<string, PlcExtends>();
+        private List<NewTimer> _newTimers = new List<NewTimer>();
         public FrmMian_New()
         {
             InitializeComponent();
@@ -22,49 +23,86 @@ namespace Caist.Framework.Service
             DataServices.LoadDataDevice(TreeDevice.Nodes);
             //加载PLC内存块长度配置信息列表
             DataServices.LoadAllAddress();
-            //加载PLC后台配置内存地址指向表
+            //实例化绑定的PLC列表对象
+            InitPlc();
             //DataServices.LoadDataTag();
+        }
+
+        private void InitPlc()
+        {
+            PublicEntity.DeviceEntities.ForEach((p) =>
+            {
+                var helper = new PlcExtends(CpuType.S71200, p.Host, Convert.ToInt16(0),
+               Convert.ToInt16(p.CPU_SlotNO));
+                _siemensHelpers.Add(p.Host, helper);
+            });
         }
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            PublicEntity.DeviceEntities.ForEach((p) =>
+            foreach (var p in _siemensHelpers)
             {
-                Task.Run(async () =>
+                Task.Run(() =>
                 {
-                    await Task.Delay(1000);
+                    Task.Delay(1000);
                     try
                     {
-                        var plcHelper = new Plc(CpuType.S71200, p.Host, Convert.ToInt16(0),
-                           Convert.ToInt16(p.CPU_SlotNO));
-
                         //调用S7.NET中的方法连接PLC
-                        await plcHelper.OpenAsync();
-
+                        p.Value.Open();
                         //连接成功后使能操作按钮
-                        if (plcHelper.IsConnected)
+                        if (p.Value.IsConnected)
                         {
-                            var addrs = PublicEntity.InstructAddrs.FindAll(t => t.DeviceHost == p.Host && t.DevicePort == p.Port);
-                            addrs.ForEach(async (s) =>//获取数据库地址
+                            if (_newTimers.FindIndex(t => p.Key.Contains(t.obj.IP)) == -1)
                             {
-                                var v = await plcHelper.ReadAsync(s.Addr);
-                                richTextBox1.Invoke(new Action(() =>//设置文本框值
+                                NewTimer timerMessage = new NewTimer() { Interval = 1000 };
+                                timerMessage.Elapsed += TimerMessage_Elapsed;
+                                timerMessage.obj = p.Value;
+                                timerMessage.Start();
+                                _newTimers.Add(timerMessage);
+                            }
+                            else//存在就启动
+                            {
+                                _newTimers.FindAll(t => p.Key.Contains(t.obj.IP)).ForEach(s =>//找到相关的plc设备把定时器打开
                                 {
-                                    richTextBox1.Text = v.ToString();
-                                }));
-                            });
-                            richTextBox1.Text += "已连接到PLC\n";
+                                    s.Start();
+                                });
+                            }
+
+                            SetContent("已连接到PLC");
                         }
                         else
-                            richTextBox1.Text += "PLC 连接不成功，请检查IP地址、机架、插槽等是否正确\n";
-                        _siemensHelpers.Add(plcHelper);
+                        {
+                            SetContent("PLC 连接不成功，请检查IP地址、机架、插槽等是否正确");
+                        }
                     }
                     catch (Exception ex)
                     {
-                        richTextBox1.Text += "PLC 连接不成功，请检查IP地址、机架、插槽等是否正确\n";
+                        SetContent("PLC 连接不成功，请检查IP地址、机架、插槽等是否正确");
                     }
                 });
+            }
+        }
+
+        private void TimerMessage_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            var timer = (NewTimer)sender;
+            var addrs = PublicEntity.InstructAddrs.FindAll(t => t.DeviceHost == timer.obj.IP && t.DevicePort == timer.obj.Port.ToString());
+            addrs.ForEach((s) =>//获取数据库地址
+            {
+                var v = timer.obj.Read(s.Addr);
+                richTextBox1.Invoke(new Action(() =>//设置文本框值
+                {
+                    richTextBox1.Text += v.ToString() + "\n";
+                }));
             });
+        }
+
+        private void SetContent(string msg)
+        {
+            richTextBox1.Invoke(new Action(() =>//设置文本框值
+            {
+                richTextBox1.Text += msg + "\n";
+            }));
         }
 
         //private void ReadValue()
@@ -97,5 +135,19 @@ namespace Caist.Framework.Service
         //        default: break;
         //    }
         //}
+    }
+    public class NewTimer : System.Timers.Timer
+    {
+        public string State { get; set; }
+        public string ClientFlag { get; set; }
+        public PlcExtends obj { get; set; }
+    }
+    public class PlcExtends : Plc
+    {
+        public PlcExtends(CpuType cpu, string ip, short rack, short slot) : base(cpu, ip, rack, slot)
+        {
+
+        }
+        public DeviceEntity deviceEntity { get; set; }
     }
 }

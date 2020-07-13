@@ -13,7 +13,8 @@ namespace Caist.Framework.Service
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FrmMian());
+            //Application.Run(new FrmMian());
+            Application.Run(new FrmMian_New());
         }
     }
 }
