@@ -544,27 +544,27 @@ namespace Caist.Framework.Service
                 try
                 {
                     var reciveModel = JsonConvert.DeserializeObject<InstructModel>(message);
-                    if (reciveModel.RemoteControl.RequestType == RequestType.GetPlcValues)//要发送plc 数据值的关键字集合
+                    if (reciveModel.RequestType == RequestType.GetPlcValues)//要发送plc 数据值的关键字集合
                     {
                         StopTimers(clientFlag);
                         //await Task.Run(() =>
                         // {
-                        await PlcStart(reciveModel.RemoteControl.SystemId, clientFlag);
+                        await PlcStart(reciveModel.SystemId, clientFlag);
                         //});
                     }
-                    else if (reciveModel.RemoteControl.RequestType == RequestType.PepolePosition)
+                    else if (reciveModel.RequestType == RequestType.PepolePosition)
                     {
                         StopTimers(clientFlag);
                         await SendPepolePostionData(clientFlag, true);
                         DataBaseTimerInit(RequestType.PepolePosition, clientFlag);
                     }
-                    else if (reciveModel.RemoteControl.RequestType == RequestType.Fiber)
+                    else if (reciveModel.RequestType == RequestType.Fiber)
                     {
                         StopTimers(clientFlag);
                         await SendFiberData(clientFlag, true);
                         DataBaseTimerInit(RequestType.Fiber, clientFlag);
                     }
-                    else if (reciveModel.RemoteControl.RequestType == RequestType.SubStation)
+                    else if (reciveModel.RequestType == RequestType.SubStation)
                     {
                         StopTimers(clientFlag);
                         await SendSubStationData(clientFlag, true);
@@ -601,7 +601,7 @@ namespace Caist.Framework.Service
                 string first;
                 string second;
                 SiemensHelper helper;
-                var requesType = reciveModel.RemoteControl.RequestType;
+                var requesType = reciveModel.RequestType;
                 if (requesType == RequestType.GetCommandValues)//获取当前系统所有开关的状态
                 {
                     List<InstructReturn> instructModelReturns = new List<InstructReturn>();
@@ -636,9 +636,9 @@ namespace Caist.Framework.Service
                 else
                 {
                     List<InstructReturn> instructModelReturns;
-                    ip = reciveModel.RemoteControl.Ip;
-                    port = reciveModel.RemoteControl.Port;
-                    instruct = reciveModel.RemoteControl.Instruct;
+                    ip = reciveModel.Ip;
+                    port = reciveModel.Port;
+                    instruct = reciveModel.Instruct;
                     helper = _siemensHelpers.Find(p => p.DeviceEntity.Host == ip && p.DeviceEntity.Port == port);
                     if (requesType == RequestType.GetCommandValue)//单个命令状态查询 getCommandValue
                     {
@@ -681,7 +681,7 @@ namespace Caist.Framework.Service
                             var dt = DataServices.GetGroupInfo(ip, port, arrays);
                             if (dt.HasData())
                             {
-                                helper.SendIntruct(dt.Rows[0]["instructId"].ToString(), dt.Rows[0]["groupID"].ToString(), double.Parse(reciveModel.RemoteControl.Value));
+                                helper.SendIntruct(dt.Rows[0]["instructId"].ToString(), dt.Rows[0]["groupID"].ToString(), double.Parse(reciveModel.Value));
                                 SendMsg("success", clientFlag);
                             }
                             else

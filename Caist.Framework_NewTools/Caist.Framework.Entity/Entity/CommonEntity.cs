@@ -74,11 +74,6 @@ namespace Caist.Framework.Entity.Entity
     #region 前端命令操作模型
     public class InstructModel
     {
-        public InstructInfo RemoteControl { get; set; }
-    }
-
-    public class InstructInfo
-    {
         public string Instruct { get; set; }
         public string Value { get; set; }
         public string Ip { get; set; }
@@ -86,6 +81,7 @@ namespace Caist.Framework.Entity.Entity
         public string SystemId { get; set; }
         public RequestType RequestType { get; set; }
     }
+
     #endregion
     #endregion
 

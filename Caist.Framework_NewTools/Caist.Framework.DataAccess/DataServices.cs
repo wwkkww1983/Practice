@@ -122,7 +122,7 @@ namespace Caist.Framework.DataAccess
                                     [dbo].[mk_view_control_model] m on p.view_control_model_id = m.id
                                     where p.base_is_delete=0 and exists(
                                     select id from mk_view_function v where v.id=m.view_function_id and  exists(
-                                    select id from mk_system_setting s where id={0} and s.id=v.system_setting_id));", model.RemoteControl.SystemId);
+                                    select id from mk_system_setting s where id={0} and s.id=v.system_setting_id));", model.SystemId);
             using (var conn = Connect.GetConn("SQLServer"))
             {
                 return conn.GetDataTable(builder.ToString());
@@ -130,12 +130,12 @@ namespace Caist.Framework.DataAccess
         }
         public static  DataTable GetSingleCommandValue(InstructModel model)
         {
-            var addrs = model.RemoteControl.Instruct.Split('.');
+            var addrs = model.Instruct.Split('.');
             StringBuilder builder = new StringBuilder();
             builder.AppendFormat(@"select i.id as instructId,g.id as groupID from [dbo].[mk_instruct] i inner join [dbo].[mk_instruct_group] g on i.instruct_group_id=g.id where 
                                 i.name='{0}' and g.name ='{1}' and exists
                                 (select id from [dbo].[mk_device] d where d.system_id={2} and d.Device_Host='{3}' 
-                                and d.Device_Port='{4}' and d.id=g.device_id);", addrs[1], addrs[0], model.RemoteControl.SystemId, model.RemoteControl.Ip, model.RemoteControl.Port);
+                                and d.Device_Port='{4}' and d.id=g.device_id);", addrs[1], addrs[0], model.SystemId, model.Ip, model.Port);
             using (var conn = Connect.GetConn("SQLServer"))
             {
                 return conn.GetDataTable(builder.ToString());
