@@ -14,7 +14,7 @@ namespace Caist.Framework.Service
         string _interval;
         Sync sc;
         string _path = Common.GetConfigValue("LogPath");
-        public void Init()
+        public void InitSyncData()
         {
             sc = new Sync();
 

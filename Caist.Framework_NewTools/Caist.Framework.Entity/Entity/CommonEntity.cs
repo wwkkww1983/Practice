@@ -112,6 +112,8 @@ namespace Caist.Framework.Entity.Entity
     #region 地址模型
     public class InstructAddrs
     {
+        [DBColumn(ColName = "id")]
+        public string Id { get; set; }
         [DBColumn(ColName = "Device_Name")]
         public string DeviceName { get; set; }
         [DBColumn(ColName = "Device_Host")]

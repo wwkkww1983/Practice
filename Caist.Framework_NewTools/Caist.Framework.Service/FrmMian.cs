@@ -82,7 +82,7 @@ namespace Caist.Framework.Service
             MappingModel();
 
             //数据同步初始化
-            Init();
+            InitSyncData();
             //初始化mqtt配置信息
             LoadMqtt();
         }

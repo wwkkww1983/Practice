@@ -224,12 +224,12 @@ namespace Caist.Framework.DataAccess
             {
                 str = $" and addr = '{addr}'";
             }
-            builder.AppendFormat(@"select Device_Name,Device_Host,Device_Port,addr from (
-                            select d.Device_Name,d.Device_Host,d.Device_Port,g.name+'.'+i.name as addr  from  [dbo].[mk_device] d inner join 
+            builder.AppendFormat(@"select id,Device_Name,Device_Host,Device_Port,addr from (
+                            select i.id,d.Device_Name,d.Device_Host,d.Device_Port,g.name+'.'+i.name as addr  from  [dbo].[mk_device] d inner join 
                             [dbo].[mk_instruct_group] g  on d.id=g.device_id
                             inner join [dbo].[mk_instruct] i on g.id=i.instruct_group_id where i.base_is_delete=0
                             )res where 1=1 {0}
-                            group by Device_Name,Device_Host,Device_Port,addr ", str);
+                            group by id,Device_Name,Device_Host,Device_Port,addr ", str);
             using (var conn = Connect.GetConn("SQLServer"))
             {
                 DataTable dataTable = conn.GetDataTable(builder.ToString());

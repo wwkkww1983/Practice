@@ -123,9 +123,6 @@
     <Compile Include="FrmMian_New.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FrmMian_New.Designer.cs">
-      <DependentUpon>FrmMian_New.cs</DependentUpon>
-    </Compile>
     <Compile Include="M2Mqtt.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
