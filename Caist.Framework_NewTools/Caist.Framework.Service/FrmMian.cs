@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Caist.Framework.PLC.Siemens.Enum.ModularType;
@@ -797,7 +798,15 @@ namespace Caist.Framework.Service
             {
                 var front = instruct.Substring(0, instruct.IndexOf("."));
                 var end = instruct.Substring(instruct.IndexOf(".") + 1);
-                t = Tuple.Create(front, end);
+                var match = Regex.IsMatch(front, @"^\w{1}\d{1,3}$");
+                if (match)//V200.0 这一类型的命令
+                {
+                    t = Tuple.Create(front.Substring(0, 1), instruct);
+                }
+                else
+                {
+                    t = Tuple.Create(front, end);
+                }
             }
             return t;
         }
