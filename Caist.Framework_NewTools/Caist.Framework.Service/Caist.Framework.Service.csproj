@@ -108,6 +108,12 @@
     <Compile Include="Control\ListViewLoad.Designer.cs">
       <DependentUpon>ListViewLoad.cs</DependentUpon>
     </Compile>
+    <Compile Include="DateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DateForm.Designer.cs">
+      <DependentUpon>DateForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormMainMqttPart.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,6 +132,9 @@
     <Compile Include="M2Mqtt.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="DateForm.resx">
+      <DependentUpon>DateForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmMian.resx">
       <DependentUpon>FrmMian.cs</DependentUpon>
       <SubType>Designer</SubType>

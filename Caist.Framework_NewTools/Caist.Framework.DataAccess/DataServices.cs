@@ -42,6 +42,7 @@ namespace Caist.Framework.DataAccess
                               ,min_value
                               ,min_value_pos
                               ,average_value
+                              ,mk_cable_thermometry
                           FROM dbo.mk_cable_thermometry");
 
             using (var conn = Connect.GetConn("SQLServer"))
