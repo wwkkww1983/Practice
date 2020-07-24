@@ -94,6 +94,7 @@ namespace Caist.Framework.Service.ApplicationManage
                                     a.paramenter_port as ParamenterPort,
                                     b.control_name as ControlName,
                                     a.paramenter_value_type as ParamenterValueType,
+                                    a.Animation as Animation,
                                     a.paramenter_value as ParamenterValue");
             if (bSystemSettingContent)
             {

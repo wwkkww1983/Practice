@@ -26,6 +26,9 @@ namespace Caist.Framework.Business.AutoJob
                         case "数据库备份":
                             obj = await new DatabasesBackupJob().Start();
                             break;
+                        case "信息发布":
+                            obj = await new InformationPublishJob().Start();
+                            break;
                     }
                     #endregion
                 }
@@ -34,7 +37,6 @@ namespace Caist.Framework.Business.AutoJob
                     obj.Message = ex.GetOriginalException().Message;
                     LogHelper.Write(ex);
                 }
-
                 try
                 {
                     #region 更新下次运行时间

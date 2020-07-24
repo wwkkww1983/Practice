@@ -41,5 +41,11 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// </summary>
         [NotMapped]
         public string ViewName { get; set; }
+
+        /// <summary>
+        /// 视图对应PLC点位值  提供给查询某个视图下，的比如  1号皮带-电压-值   ViewName-ManipulateModelName-ViewValue
+        /// </summary>
+        [NotMapped]
+        public string ViewValue { get; set; }
     }
 }

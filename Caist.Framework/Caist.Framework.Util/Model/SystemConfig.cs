@@ -79,6 +79,26 @@ namespace Caist.Framework.Util.Model
         /// 视频外网IP
         /// </summary>
         public string VideoExtranetIP { get; set; }
+        /// <summary>
+        /// 信息发布模板路径
+        /// </summary>
+        public string InformationPublishTemplatePath { get; set; }
+        /// <summary>
+        /// 信息发布路径
+        /// </summary>
+        public string InformationPublishPath { get; set; }
+        /// <summary>
+        /// 上传服务器地址
+        /// </summary>
+        public string FTPServer { get; set; }
+        /// <summary>
+        /// 上传服务器用户名
+        /// </summary>
+        public string FTPUser { get; set; }
+        /// <summary>
+        /// 上传服务器密码
+        /// </summary>
+        public string FTPPwd { get; set; }
 
     }
 }

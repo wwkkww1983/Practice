@@ -9,6 +9,8 @@ namespace Caist.Framework.Model.Param.ApplicationManage
         public int? ManipulateModelStutas { get; set; }
 
         public long? ViewFunctionId { get; set; }
+        
+        public string ViewName { get; set; }
 
         public long? SystemId { get; set; }
     }

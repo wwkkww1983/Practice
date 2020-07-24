@@ -50,6 +50,18 @@ namespace Caist.Framework.Business.ApplicationManage
             return obj;
         }
 
+
+        public async Task<TData<List<ViewManipulateModelEntity>>> GetPublishList(ViewManipulateModelListParam param)
+        {
+            TData<List<ViewManipulateModelEntity>> obj = new TData<List<ViewManipulateModelEntity>>();
+            obj.Result = await viewManipulateModelService.GetPublishList(param);
+            obj.TotalCount = obj.Result.Count;
+            obj.Tag = 1;
+            return obj;
+        }
+
+
+
         public async Task<TData<int>> GetMaxSort()
         {
             TData<int> obj = new TData<int>();

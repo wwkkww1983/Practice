@@ -157,7 +157,7 @@ namespace Caist.Framework.Web.Controllers
         /// <returns></returns>
         public new CustomJsonResult Json(object data)
         {
-            SetTDataMessage(data);
+           SetTDataMessage(data);
 
             return new CustomJsonResult
             {
