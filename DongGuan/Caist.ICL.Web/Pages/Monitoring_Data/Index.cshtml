@@ -1,0 +1,153 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/6/20 17:59:47
+    *说明：			 - Monitoring_Data
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "监测数据管理";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            resize();
+            $(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+            $("#btn_del").on('click', delRow);
+            $("#btn_edit").on('click', editRow);
+            $("#btn_add").on('click', addRow);
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+        }
+        function delRow() {
+            //var row = $('#grid').datagrid('getSelected');
+            //if (row) {
+            //    site.confirm('确定要删除吗?', function (flag) {
+            //        if (flag) {
+            //            site.api('/api/Monitoring_Data/delete/' + row['Id'], function () {
+            //                $('#grid').datagrid('reload');
+            //            });
+            //        }
+            //    });
+            //}
+            //else {
+            //    site.msg('请先选中要删除的行', 1);
+            //}
+            var rows = $('#grid').datagrid('getSelections');
+            var da = rows.length > 0 && rows.map(item => {
+                let Id = ""
+                return {
+                    Id: item.Id
+                }
+
+            })
+            if (da.length > 0) {
+                site.confirm('确定要删除吗?', function (flag) {
+                    if (flag) {
+                        site.api('/api/Monitoring_Data/DeleteBase/' + da, function () {
+                            $('#grid').datagrid('reload');
+                        });
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要删除的行', 1);
+            }
+        }
+        function addRow() {
+            site.open({
+                fit: true,
+                title: '新增' + document.title,
+                content: '/Monitoring_Data/Edit',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function editRow() {
+            var row = $('#grid').datagrid('getSelected');
+            if (row) {
+                site.open({
+                    fit: true,
+                    title: '编辑' + document.title,
+                    content: '/Monitoring_Data/Edit?id=' + row['Id'],
+                    end: function (ret) {
+                        $('#grid').datagrid('reload');
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要编辑的行', 1);
+            }
+        }
+    </script>
+}
+<div class="filter">
+    <div class="item">
+        <input class="easyui-datebox" id="ftime" name="ftime" label="时间：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <select class="easyui-combobox" id="PIndexId" name="PIndexId" style=" width:100%"
+                data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'指标：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'IndexName',
+            labelAlign:'right',
+            loader:site.loader('/api/Base_ParameterIndexTemplet/items')
+            "></select>
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="MonitorPointId" name="MonitorPointId" label="测点: " labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="fdata" name="fdata" label="值: " labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+        <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/Monitoring_Data/Page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:false,
+       pageSize:15,
+       pageList:[15,20,50,100],
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'ftime',width:150,sortable:true">
+                时间
+            </th>
+            <th data-options="field:'IndexName',width:150,sortable:true">
+                指标
+            </th>
+            <th data-options="field:'MonitorPointId',width:150,sortable:true">
+                测点
+            </th>
+            <th data-options="field:'fdata',width:150,sortable:true">
+                值
+            </th>
+            <th data-options="field:'fremark',width:150,sortable:true">
+                备注
+            </th>
+        </tr>
+    </thead>
+</table>

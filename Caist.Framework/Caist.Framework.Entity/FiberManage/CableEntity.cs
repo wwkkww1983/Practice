@@ -60,5 +60,12 @@ namespace Caist.Framework.Entity.FiberManage
         {
             get; set;
         }
+        /// <summary>
+        /// 当前值
+        /// </summary>
+        public string CurrentTemperature
+        {
+            get; set;
+        }
     }
 }

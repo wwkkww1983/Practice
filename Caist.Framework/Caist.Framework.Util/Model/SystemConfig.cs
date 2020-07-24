@@ -61,6 +61,24 @@ namespace Caist.Framework.Util.Model
         /// 配置的后端站点URL
         /// </summary>
         public string WebUrI { get; set; }
+        /// <summary>
+        /// 提供给省平台视频Header 头部Caller
+        /// </summary>
+        public string VideoCaller { get; set; }
+        /// <summary>
+        /// 提供给省平台的加密key
+        /// </summary>
+        public string VideoKey { get; set; }
+
+        /// <summary>
+        /// 配置的煤矿名称
+        /// </summary>
+        public string MkName { get; set; }
+
+        /// <summary>
+        /// 视频外网IP
+        /// </summary>
+        public string VideoExtranetIP { get; set; }
 
     }
 }

@@ -19,5 +19,7 @@ namespace Caist.Framework.Entity
         public string MinValuePos { get; set; }
         [DBColumn(ColName = "average_value")]
         public string AverageValue { get; set; }
+        [DBColumn(ColName = "current_temperature")]
+        public string CurrentTemperature { get; set; }
     }
 }

@@ -137,6 +137,12 @@ namespace Caist.Framework.Service.ApplicationManage
                     strSql.Append(" AND a.view_function_id = @ViewFunctionId");
                     parameter.Add(DbParameterExtension.CreateDbParameter("@ViewFunctionId", param.ViewFunctionId));
                 }
+                //系统模块ID
+                if (param.SystemId > 0)
+                {
+                    strSql.Append(" AND b.system_setting_id = @SystemId");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemId", param.SystemId));
+                }
             }
             return parameter;
         }

@@ -25,6 +25,15 @@ namespace Caist.Framework.Business.PeopleManage
             obj.Tag = 1;
             return obj;
         }
+        public async Task<TData<List<RegionPeopleNumEntity>>> PersonnelListr(RegionParam param)
+        {
+            var obj = new TData<List<RegionPeopleNumEntity>>();
+            var list = await regionService.PersonnelList(param);
+            obj.Result = list;
+            obj.TotalCount = list.Count;
+            obj.Tag = 1;
+            return obj;
+        }
 
 
         public async Task<TData<List<RegionPeopleNumEntity>>> PeopleCounting(RegionParam param)

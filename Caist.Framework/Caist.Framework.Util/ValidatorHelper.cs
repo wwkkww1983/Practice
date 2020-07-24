@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Caist.Framework.Util.Extension;
+using System.Security.Cryptography;
 
 namespace Caist.Framework.Util
 {
@@ -346,5 +348,57 @@ namespace Caist.Framework.Util
             return false;
         }
         #endregion
+
+
+        /// <summary>
+        /// 获取视频播放key
+        /// </summary>
+        /// <returns></returns>
+        public static string GetVideoKey()
+        {
+            string tagKey = GlobalContext.SystemConfig.VideoKey;//煤矿关键字
+            string BeforeKey = tagKey + System.DateTime.Now.ToString("yyyy-MM-dd");//加密前
+            string validKey = "";
+            using (var md5 = MD5.Create())
+            {
+                var result = md5.ComputeHash(Encoding.UTF8.GetBytes(BeforeKey));
+                validKey = BitConverter.ToString(result).Replace("-", "").ToLower();
+            }
+            return validKey;
+        }
+
+        /// <summary>
+        /// 验证key的有效性
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="Caller"></param>
+        /// <returns></returns>
+        public static bool VideoValid(string key, string Caller)
+        {
+            bool val = false;
+            try
+            {
+                string callName = GlobalContext.SystemConfig.VideoCaller;//Header 头部Caller
+                string validKey = GetVideoKey();
+                if (GetVideoKey() != "" && Caller != "")
+                {
+                    if (Caller == callName && key == validKey)
+                    {
+                        val = true;
+                    }
+                }
+                else if (key == validKey)
+                {
+                    val = true;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return val;
+            }
+            return val;
+        }
+
     }
 }

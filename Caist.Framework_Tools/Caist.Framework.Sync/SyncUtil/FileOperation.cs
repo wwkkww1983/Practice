@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SyncUtil
@@ -26,6 +27,31 @@ namespace SyncUtil
                 }
             }
             return str;
+        }
+        public static List<string> ReadTextList(string path)
+        {
+            List<string> listStr = new List<string>();
+            StreamReader sr = null;
+            try
+            {
+                if (File.Exists(path))
+                {
+                    sr = new StreamReader(path, Encoding.UTF8);
+                    while (!sr.EndOfStream)
+                    {
+                        listStr.Add(sr.ReadLine());
+                    }
+                }
+
+            }
+            finally
+            {
+                if (sr != null)
+                {
+                    sr.Close();
+                }
+            }
+            return listStr;
         }
 
         /// <summary>

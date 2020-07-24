@@ -1,0 +1,91 @@
+﻿@****************************************************************************************************
+    *创建人:			Lixz
+    *创建时间:		2019/9/3
+    *说明：			EXCL轨迹数据导入
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "EXCL轨迹数据导入";
+    Layout = "~/Pages/_LayoutEdit.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function onClose() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+        function onSave() {
+            //var files = $('#upfile').prop('files');
+            //var data = new FormData();
+            //data.append('upfile', files[0]);
+           // var data = site.getFormData('.form');
+            var prjId = $("#ProjectId").combobox("getValue");
+            var secId = $("#SectionId").val();
+            //alert(prjId + secId);
+            $.messager.progress({
+                text: "请稍等...",
+                interval:100
+            });
+            $.ajax({
+                url: 'http://localhost:61851/api/Xlsx/FileSave?prjId=' + prjId + '&SecId=' +secId,
+                type: 'POST',
+                data: new FormData($('#uploadForm')[0]),
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function (ret) {
+                    if (ret.Code == 401) {
+                        window.location.href = '/login?returnUrl=' + encodeURIComponent(window.location.href);
+                    }
+                    onClose();
+                    //$("#id").textbox('setValue', ret.id);
+                    site.unload();
+                    $.messager.progress('close');
+                    site.msg("上传文件成功！");
+                },
+                error: function (xhr) {
+                    site.msg("上传文件失败！");
+                }
+
+
+
+            });
+        }
+    </script>
+}
+    <div class="form">
+        <input type="hidden" class="hidden" name="Id" value="">
+        @*<form method="post" id="form1"
+              action="http://localhost:61851/api/Xlsx/FileUpload"
+              enctype="multipart/form-data">
+            <input type="file" name="excelfile" id="file1" />
+            <input type="submit" value="Upload" />
+
+        </form>*@
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="ProjectId" name="ProjectId" style=" width:100%" required="required"
+                    data-options="
+        limitToList:true,
+        panelHeight:150,
+        label:'工程名称：',
+        labelPosition:'left',
+        valueField:'Id',
+        textField:'ProjectName',
+        labelAlign:'right',
+        loader:site.loader('/api/ProjectInfo/items')
+        "></select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="SectionId" name="SectionId" style="width:50%"
+                   data-options="
+                label:'分段：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="upfile" name="upfile" />
+            @*<button id="upload" type="button" onclick="onSave()"  class="easyui-linkbutton" >上传</button>*@
+            <a id="btn_save" onclick="onSave()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">上传</a>
+        </form>
+    </div>

@@ -27,7 +27,21 @@ namespace Caist.Framework.Business.FiberManage
             return obj;
         }
 
-     
+
+        #endregion
+        //实时数据
+        #region 获取数据
+        public async Task<TData<List<CableEntity>>> GetFiberInfoListr(FiberParam param)
+        {
+            var obj = new TData<List<CableEntity>>();
+            var list = await fiberService.GetFiberInfoList(param);
+            obj.Result = list;
+            obj.TotalCount = list.Count;
+            obj.Tag = 1;
+            return obj;
+        }
+
+
         #endregion
 
         #region 提交数据

@@ -42,6 +42,7 @@ namespace Caist.Framework.DataAccess
                               ,min_value
                               ,min_value_pos
                               ,average_value
+                              ,current_temperature
                           FROM dbo.mk_cable_thermometry");
 
             using (var conn = Connect.GetConn("SQLServer"))
@@ -103,9 +104,9 @@ namespace Caist.Framework.DataAccess
             }
         }
 
-        
+
         #region 数据加载
-        public static  DataTable GetGroupInfo(string ip, string port, Tuple<string,string> instruct)
+        public static DataTable GetGroupInfo(string ip, string port, Tuple<string, string> instruct)
         {
             StringBuilder builder = new StringBuilder();
             builder.Append($"select a.id as groupID,i.id as instructId from mk_device d inner join mk_instruct_group a on d.id=a.device_id inner join mk_instruct i on a.id = i.instruct_group_id where d.Device_Host='{ip}' and d.Device_Port='{port}' and a.name = '{instruct.Item1}' and i.name ='{instruct.Item2}'");
@@ -114,7 +115,7 @@ namespace Caist.Framework.DataAccess
                 return conn.GetDataTable(builder.ToString());
             }
         }
-        public static  DataTable GetSwitcCommands(InstructModel model)
+        public static DataTable GetSwitcCommands(InstructModel model)
         {
             StringBuilder builder = new StringBuilder();
             builder.AppendFormat(@"select m.control_name,m.control_stutas,p.id,p.paramenter_name,p.paramenter_instruct_end,p.paramenter_instruct_start,p.paramenter_instruct,p.paramenter_unit,p.paramenter_ip,p.paramenter_port
@@ -128,7 +129,7 @@ namespace Caist.Framework.DataAccess
                 return conn.GetDataTable(builder.ToString());
             }
         }
-        public static  DataTable GetSingleCommandValue(InstructModel model)
+        public static DataTable GetSingleCommandValue(InstructModel model)
         {
             var addrs = model.RemoteControl.Instruct.Split('.');
             StringBuilder builder = new StringBuilder();
@@ -238,5 +239,12 @@ namespace Caist.Framework.DataAccess
         }
         #endregion
 
+        public static bool InsertData<T>(T list)
+        {
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                return conn.Insert<T>(list) > 0;
+            }
+        }
     }
 }

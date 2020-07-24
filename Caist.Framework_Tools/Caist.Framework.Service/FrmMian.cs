@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Caist.Framework.PLC.Siemens.Enum.ModularType;
@@ -476,6 +477,8 @@ namespace Caist.Framework.Service
                 string ip;
                 string port;
                 string instruct;
+                string first;
+                string second;
                 SiemensHelper helper;
                 var requesType = reciveModel.RemoteControl.RequestType.ToLower();
                 if (requesType == "getcommandvalues")//获取当前系统所有开关的状态
@@ -498,10 +501,9 @@ namespace Caist.Framework.Service
                             }
                             else//双控
                             {
-                                instruct = dr["paramenter_instruct_start"].ToString();
-                                BuildListToFront(ip, port, instruct, helper, instructModelReturns, dr, unit);
-                                instruct = dr["paramenter_instruct_end"].ToString();
-                                BuildListToFront(ip, port, instruct, helper, instructModelReturns, dr, unit);
+                                first = dr["paramenter_instruct_start"].ToString();
+                                second = dr["paramenter_instruct_end"].ToString();
+                                BuildListToFront(ip, port, first, second, helper, instructModelReturns, dr, unit);
                             }
                         }
                         SendMessage(JsonConvert.SerializeObject(new InstructModelReturns()
@@ -529,7 +531,14 @@ namespace Caist.Framework.Service
                                 ControlName = string.Empty,
                                 ParamenterUnit = string.Empty,
                                 ParamenterInstruct = instruct,
+
+#if DEBUG
+                                ParamenterInstruct_V = "1",//从plc获取值
+
+#else
                                 ParamenterInstruct_V = helper.GetValue(Key).ToString(),//从plc获取值
+
+#endif
                                 ParamenterName = string.Empty,
                                 Id = string.Empty
                             });
@@ -542,7 +551,6 @@ namespace Caist.Framework.Service
                         {
                             SendMsg("指令配置异常！");
                         }
-
                     }
                     else//发送单个控制命令:setCommandValue;
                     {
@@ -553,8 +561,12 @@ namespace Caist.Framework.Service
                             if (dt.HasData())
                             {
                                 helper.SendIntruct(dt.Rows[0]["instructId"].ToString(), dt.Rows[0]["groupID"].ToString(), double.Parse(reciveModel.RemoteControl.Value));
+                                SendMsg("success");
                             }
-                            SendMessage("success");
+                            else
+                            {
+                                SendMsg("命令有误！");
+                            }
                         }
                         else
                         {
@@ -583,10 +595,60 @@ namespace Caist.Framework.Service
                         ControlName = dr["control_name"].ToString(),
                         ParamenterUnit = unit,
                         ParamenterInstruct = instruct,
+#if DEBUG
+                        ParamenterInstruct_V = "1",//从plc获取值
+
+#else
                         ParamenterInstruct_V = helper.GetValue(Key).ToString(),//从plc获取值
+
+#endif
                         ParamenterName = dr["paramenter_name"].ToString(),
                         Id = dr["id"].ToString()
                     });
+                }
+                else
+                {
+                    SendMsg("后台配置指令异常！");
+                }
+            }
+            else
+            {
+                SendMsg("指令异常！");
+            }
+        }
+
+
+        private void BuildListToFront(string ip, string port, string first, string second, SiemensHelper helper, List<InstructReturn> instructModelReturns, DataRow dr, string unit)
+        {
+            var arrays_f = GetInstructArray(first);
+            var arrays_s = GetInstructArray(second);
+            if (arrays_f != null && arrays_s != null)
+            {
+                var dt_f = DataServices.GetGroupInfo(ip, port, arrays_f);//获取命令对应的命令ID和组ID
+                var dt_s = DataServices.GetGroupInfo(ip, port, arrays_s);//获取命令对应的命令ID和组ID
+                if (dt_f.HasData() && dt_s.HasData())
+                {
+                    var Key_f = string.Format("{0}.{1}", dt_f.Rows[0]["instructId"].ToString(), dt_f.Rows[0]["groupID"].ToString());
+                    var Key_s = string.Format("{0}.{1}", dt_s.Rows[0]["instructId"].ToString(), dt_s.Rows[0]["groupID"].ToString());
+                    instructModelReturns.Add(new InstructReturn()
+                    {
+                        ControlName = dr["control_name"].ToString(),
+                        ParamenterUnit = unit,
+                        ParamenterInstructStart = first,
+                        ParamenterInstructEnd = second,
+#if DEBUG
+                        ParamenterInstructStart_V = "1",//从plc获取值
+                        ParamenterInstructEnd_V = "0",//从plc获取值
+
+#else
+                        ParamenterInstructStart_V = helper.GetValue(Key_f).ToString(),//从plc获取值
+                        ParamenterInstructEnd_V = helper.GetValue(Key_s).ToString(),//从plc获取值
+
+#endif
+                        ParamenterName = dr["paramenter_name"].ToString(),
+                        Id = dr["id"].ToString()
+                    });
+
                 }
                 else
                 {
@@ -611,7 +673,15 @@ namespace Caist.Framework.Service
             {
                 var front = instruct.Substring(0, instruct.IndexOf("."));
                 var end = instruct.Substring(instruct.IndexOf(".") + 1);
-                t = Tuple.Create(front, end);
+                var match = Regex.IsMatch(front, @"^\w{1}\d{1,3}$");
+                if (match)//V200.0 这一类型的命令
+                {
+                    t = Tuple.Create(front.Substring(0, 1), instruct);
+                }
+                else
+                {
+                    t = Tuple.Create(front, end);
+                }
             }
             return t;
         }
@@ -701,15 +771,15 @@ namespace Caist.Framework.Service
             foreach (var item in fibers)
             {
                 //list.Add(Mapper.Map<FiberEntity, FiberContent>(item));
-                list.Add(new FiberContent()
-                {
-                    AreaName = item.AreaName,
-                    AverageValue = item.AverageValue,
-                    MaxValue = item.MaxValue,
-                    MaxValuePos = item.MaxValuePos,
-                    MinValue = item.MinValue,
-                    MinValuePos = item.MinValuePos
-                });
+                //list.Add(new FiberContent()
+                //{
+                //    AreaName = item.AreaName,
+                //    AverageValue = item.AverageValue,
+                //    MaxValue = item.MaxValue,
+                //    MaxValuePos = item.MaxValuePos,
+                //    MinValue = item.MinValue,
+                //    MinValuePos = item.MinValuePos
+                //});
             }
             var fm = new FiberModel()
             {
@@ -787,7 +857,19 @@ namespace Caist.Framework.Service
             string value = webContent.Text.Trim();
             if (value.HasValue())
             {
-                SendMessage(value);
+                int c = 0;
+                int.TryParse(txtSendCount.Text.Trim(), out c);
+                if (c == 0)
+                {
+                    MessageBox.Show("推送次数必须大于0");
+                }
+                else
+                {
+                    for (int i = 0; i < c; i++)
+                    {
+                        SendMessage(value);
+                    }
+                }
             }
             else
             {
@@ -830,14 +912,14 @@ namespace Caist.Framework.Service
                 {
                     string value = string.Format("-时间：{0}  内容：{1}\r", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
                     webMessage.SelectionFont = new Font("宋体", 12, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
-                        webMessage.SelectionColor = System.Drawing.Color.Blue;    //设置SelectionColor属性实现控件中的文本颜色为红色
-                        webMessage.AppendText(value);
+                    webMessage.SelectionColor = System.Drawing.Color.Blue;    //设置SelectionColor属性实现控件中的文本颜色为红色
+                    webMessage.AppendText(value);
                 }));
             }
-            if (webMessage.TextLength == webMessage.MaxLength)
-            {
-                webMessage.Clear();
-            }
+            //if (webMessage.TextLength == webMessage.MaxLength)
+            //{
+            //    webMessage.Clear();
+            //}
         }
 
         private void webContent_TextChanged(object sender, EventArgs e)

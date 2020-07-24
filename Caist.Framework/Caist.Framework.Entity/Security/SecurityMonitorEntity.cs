@@ -7,7 +7,7 @@ namespace Caist.Framework.Entity.Security
     [Table("security_monitor_ingreal_time_data")]
     public class SecurityMonitorEntity
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
         public string Point { get; set; }
         public string Address { get; set; }
         public string lc { get; set; }

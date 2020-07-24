@@ -1,0 +1,259 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/6/26
+    *说明：			 - 路径信息管理
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "路径信息管理";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            resize();
+
+            $(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+            $("#btn_del").on('click', delRow);
+            $("#btn_edit").on('click', editRow);
+            $("#btn_add").on('click', addRow);
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+        }
+        function delRow() {
+            //var row = $('#grid').datagrid('getSelected');
+            //if (row) {
+            //    site.confirm('确定要删除吗?', function (flag) {
+            //        if (flag) {
+            //            site.api('/api/LayingPath/delete/' + row['Id'], function () {
+            //                $('#grid').datagrid('reload');
+            //            });
+            //        }
+            //    });
+            //}
+            //else {
+            //    site.msg('请先选中要删除的行', 1);
+            //}
+            var rows = $('#grid').datagrid('getSelections');
+            var da = rows.length > 0 && rows.map(item => {
+                let Id = ""
+                return {
+                    Id: item.Id
+                }
+
+            })
+            if (da.length > 0) {
+                site.confirm('确定要删除吗?', function (flag) {
+                    if (flag) {
+                        site.api('/api/LayingPath/DeleteBase/' + da, function () {
+                            $('#grid').datagrid('reload');
+                        });
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要删除的行', 1);
+            }
+        }
+        function addRow() {
+            site.open({
+                fit: true,
+                title: '新增' + document.title,
+                content: '/LayingPath/Edit',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function editRow() {
+            var row = $('#grid').datagrid('getSelected');
+            if (row) {
+                site.open({
+                    fit: true,
+                    title: '编辑' + document.title,
+                    content: '/LayingPath/Edit?id=' + row['Id'],
+                    end: function (ret) {
+                        $('#grid').datagrid('reload');
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要编辑的行', 1);
+            }
+        }
+    </script>
+}
+<div class="filter">
+    <div class="item">
+        <input class="easyui-textbox" id="SName" name="SName" style="width:100%"
+               data-options="
+                label:'敷设路径名称：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="item">
+        <select class="easyui-combobox" id="ProjectId" name="ProjectId" style=" width:100%"
+                data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'工程名称：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'ProjectName',
+            labelAlign:'right',
+            loader:site.loader('/api/ProjectInfo/items')
+            "></select>
+    </div>
+    <div class="item">
+        <select class="easyui-combobox" id="SectionId" name="SectionId" style=" width:100%"
+                data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'工段：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'SectionCode',
+            labelAlign:'right',
+            loader:site.loader('/api/Section/items')
+            "></select>
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="CableType" name="CableType" style="width:100%"
+               data-options="
+                label:'电缆类型：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="flength" name="flength" style="width:100%"
+               data-options="
+                label:'敷设长度：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Laying_Type" name="Laying_Type" style="width:100%"
+               data-options="
+                label:'敷设方式：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="StartAddress" name="StartAddress" style="width:100%"
+               data-options="
+                label:'起点地名：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="EndAddress" name="StartAddress" style="width:100%"
+               data-options="
+                label:'终点名称：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+        <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/LayingPath/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:false,
+       pageSize:15,
+       pageList:[15,20,50,100],
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'SName',width:150,sortable:true">
+                敷设路径名称
+            </th>
+            <th data-options="field:'ProjectName',width:150,sortable:true">
+                工程名称
+            </th>
+            <th data-options="field:'SectionCode',width:150,sortable:true">
+                工段
+            </th>
+            <th data-options="field:'CableType',width:150,sortable:true">
+                电缆类型
+            </th>
+            <th data-options="field:'flength',width:150,sortable:true">
+                敷设长度
+            </th>
+            <th data-options="field:'StartAddress',width:150,sortable:true">
+                起点地名
+            </th>
+            <th data-options="field:'StartPoint_X',width:150,sortable:true">
+                起点经度
+            </th>
+            <th data-options="field:'StartPoint_Y',width:150,sortable:true">
+                起点纬度
+            </th>
+            <th data-options="field:'StartPoint_Z',width:150,sortable:true">
+                起点高度
+            </th>
+            <th data-options="field:'EndAddress',width:150,sortable:true">
+                终点名称
+            </th>
+            <th data-options="field:'EndPoint_X',width:150,sortable:true">
+                终点经度
+            </th>
+            <th data-options="field:'EndPoint_Y',width:150,sortable:true">
+                终点纬度
+            </th>
+            <th data-options="field:'EndPoint_Z',width:150,sortable:true">
+                终点高程
+            </th>
+            <th data-options="field:'Radius',width:150,sortable:true">
+                弯曲半径
+            </th>
+            <th data-options="field:'PullValue',width:150,sortable:true">
+                牵引力值
+            </th>
+            <th data-options="field:'SideValue',width:150,sortable:true">
+                侧压力值
+            </th>
+            <th data-options="field:'IsQualified',width:150,sortable:true">
+                是否合格
+            </th>
+            <th data-options="field:'Solutions',width:150,sortable:true">
+                建议措施
+            </th>
+            <th data-options="field:'fremark',width:150,sortable:true">
+                备注
+            </th>
+            <th data-options="field:'CreateUser',width:150,sortable:true">
+                创建人
+            </th>
+            <th data-options="field:'CreateTime',width:150,sortable:true,formatter:formatDate">
+                创建时间
+            </th>
+            <th data-options="field:'UpdateUser',width:150,sortable:true">
+                修改人用户名
+            </th>
+            <th data-options="field:'UpdateTime',width:150,sortable:true,formatter:formatDate">
+                修改时间
+            </th>
+        </tr>
+    </thead>
+</table>

@@ -104,6 +104,8 @@ namespace Caist.Framework.Service
             this.timing = new System.Windows.Forms.Timer(this.components);
             this.timerWebSocket = new System.Windows.Forms.Timer(this.components);
             this.timerSyncData = new System.Windows.Forms.Timer(this.components);
+            this.txtSendCount = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripLabel7 = new System.Windows.Forms.ToolStripLabel();
             this.SystemMenu.SuspendLayout();
             this.SystemStatus.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -721,6 +723,8 @@ namespace Caist.Framework.Service
             this.webAddress,
             this.toolStripLabel2,
             this.webPort,
+            this.toolStripLabel7,
+            this.txtSendCount,
             this.toolStripSeparator2,
             this.webStart,
             this.webStop,
@@ -731,7 +735,6 @@ namespace Caist.Framework.Service
             this.toolStrip1.Size = new System.Drawing.Size(990, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
-            this.toolStrip1.Visible = false;
             // 
             // toolStripLabel1
             // 
@@ -818,6 +821,20 @@ namespace Caist.Framework.Service
             // timerSyncData
             // 
             this.timerSyncData.Interval = 1000;
+            // 
+            // txtSendCount
+            // 
+            this.txtSendCount.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtSendCount.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.txtSendCount.Name = "txtSendCount";
+            this.txtSendCount.Size = new System.Drawing.Size(100, 25);
+            this.txtSendCount.Text = "500";
+            // 
+            // toolStripLabel7
+            // 
+            this.toolStripLabel7.Name = "toolStripLabel7";
+            this.toolStripLabel7.Size = new System.Drawing.Size(72, 22);
+            this.toolStripLabel7.Text = "推送次数：";
             // 
             // FrmMian
             // 
@@ -947,6 +964,8 @@ namespace Caist.Framework.Service
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Button btnStart;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel7;
+        private System.Windows.Forms.ToolStripTextBox txtSendCount;
     }
 }
 

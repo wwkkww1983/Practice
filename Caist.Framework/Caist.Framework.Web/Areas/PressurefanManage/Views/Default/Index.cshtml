@@ -25,6 +25,9 @@
             <li>
                 <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
             </li>
+            <li>
+                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class=" fa-search"></i>&nbsp;打印</a>
+            </li>
         </ul>
     </div>
 </div>
@@ -33,7 +36,7 @@
         <div class="col-sm-16">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>压风记录</h5>
+                    <h5>历史压风记录</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="echarts" id="echarts-line-chart"></div>
@@ -42,7 +45,21 @@
         </div>
     </div>
 </div>
-
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-16">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>压风实时记录</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-line-chartr"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*历史数据*@
 <script type="text/javascript">
     var high_global;
     $(function () {
@@ -85,6 +102,162 @@
                     type: 'category',
                     boundaryGap: false,
                     data: ['05/21', '05/22', '05/23', '05/24', '05/25', '05/26', '05/27', '05/28', '05/29', '05/30', '05/31']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}ka'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '压力',
+                    type: 'line',
+                    data: high_global,
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+            ]
+        };
+        lineChart.setOption(lineoption);
+        $(window).resize(lineChart.resize);
+    }
+    function filterData(result) {
+        high_global = new Array();
+        var res = eval(result);
+        var datas = res.Result;
+        if (datas != null && datas.length > 0) {
+            for (var i = 0; i < datas.length; i++) {
+                high_global.push(datas[i].dictValue);
+            }
+        }
+    }
+</script>
+
+@*实时数据*@
+@*<script type="text/javascript">
+    var high_global;
+    function quxianshow1(data1, data2, data3, data4) {
+        var chart = Highcharts.chart('container', {
+            chart: {
+                type: 'spline',
+                marginRight: 10,
+                events: {
+                    load: function () {
+                        var series1 = this.series[0],
+                            series2 = this.series[1],
+                            chart = this;
+                        activeLastPointToolip(chart);
+                        setInterval(function () {
+                            $.ajax({
+                                type: "get",
+                                contentType: "application/json;utf-8",
+                                url: '/PressurefanManage/Default/GetyafengTempLists',
+                                data: {},
+                                dataType: "jsonp",
+                                success: function (data) {
+                                    var jsonobj = eval("(" + data.result + ")");
+                                    var code = jsonobj.code;
+                                    var datalist = jsonobj.ds;
+                                    if (code != 100) {
+                                        var x = (new Date()).getTime(),
+                                            high_global = parseFloat(datalist[0].environmentOfGasG); //
+                                        series1.addPoint([x, high_global], true, true);
+                                    }
+                                }
+                            });
+                        }, 1000);
+                    },
+                }
+            },
+            title: {
+                text: '压风实时曲线'
+            },
+            xAxis: {
+                type: 'datetime',
+                tickPixelInterval: 150
+            },
+            yAxis: {
+                title: {
+                    text: ""
+                }
+            },
+            tooltip: {
+                formatter: function () {
+                    return '<b>' + this.series.name + '</b><br/>' +
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                        Highcharts.numberFormat(this.y, 2);
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            series: [{
+                name: '高压风',
+                data: (function () {
+                    // 生成随机值
+                    var data = [],
+                        time = (new Date()).getTime(),
+                        i;
+                    for (i = -19; i <= 0; i += 1) {
+                        data.push({
+                            x: time + i * 1000,
+                            y: parseFloat(parseFloat(data1[i + 19]).toFixed(2))
+                        });
+                    }
+                    return data;
+                }())
+            },
+            ]
+        });
+</script>*@
+<script type="text/javascript">
+    var high_global;
+    $(function () {
+
+        $.ajax({
+            url: '/PressurefanManage/Default/GetyafengTempListsr',
+            type: 'post',
+            data: {
+                StartDate: "",
+                EndDate: ""
+            },
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function (res) {
+                filterData(res);
+                initChartr();
+            }
+        });
+
+    });
+
+    function initChartr() {
+
+        var lineChart = echarts.init(document.getElementById("echarts-line-chartr"));
+        var lineoption = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['压力']
+            },
+            grid: {
+                x: 40,
+                x2: 40,
+                y2: 24
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
                 }
             ],
             yAxis: [

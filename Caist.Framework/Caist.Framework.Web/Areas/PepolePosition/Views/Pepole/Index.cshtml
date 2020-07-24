@@ -7,35 +7,36 @@
     @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/report/echarts/echarts.min.js"))
 }
 @*人员定位*@
-    <div id="searchDiv" class="col-sm-12 search-collapse">
-        <div class="select-list">
-            <ul>
-                <li>
-                    请选择：<span id="roleStatus" col="RoleStatus"></span>
-                    <select style="height: 28px;" id="xiala">
-                        <option value="Voltage" selected="selected">历史数据</option>
-                    </select>
-                </li>
-                <li class="select-time">
-                    <label>查询时间： </label>
-                    <input id="startTime" col="StartTime" type="text" class="time-input" placeholder="开始时间" />
-                    <span>-</span>
-                    <input id="endTime" col="EndTime" type="text" class="time-input" placeholder="结束时间" />
-                </li>
-                <li>
-                    <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                </li>
-            </ul>
-        </div>
+<div id="searchDiv" class="col-sm-12 search-collapse">
+    <div class="select-list">
+        <ul>
+            <li>
+                请选择：<span id="roleStatus" col="RoleStatus"></span>
+                <select style="height: 28px;" id="xiala">
+                    <option value="Voltage" selected="selected">历史数据</option>
+                </select>
+            </li>
+            <li class="select-time">
+                <label>查询时间： </label>
+                <input id="startTime" col="StartTime" type="text" class="time-input" placeholder="开始时间" />
+                <span>-</span>
+                <input id="endTime" col="EndTime" type="text" class="time-input" placeholder="结束时间" />
+            </li>
+            <li>
+                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+            </li>
+            <li>
+                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class=" fa-search"></i>&nbsp;打印</a>
+            </li>
+        </ul>
     </div>
-    <div class="wrapper wrapper-content">
-
-
+</div>
+<div class="wrapper wrapper-content">
     <div class="row">
-        <div class="col-sm-16"> 
+        <div class="col-sm-16">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>定位记录</h5>
+                    <h5>历史人员定位记录</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="echarts" id="echarts-line-chart"></div>
@@ -44,9 +45,25 @@
         </div>
     </div>
 </div>
+@*<div class="wrapper wrapper-content">*@
 
+
+@*<div class="row">
+            <div class="col-sm-16">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>实时人员定位记录</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="echarts" id="echarts-line-chartr"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>*@
+@*历史数据*@
 <script type="text/javascript">
-    var position_global;
+    var Nums;
     $(function () {
 
         $.ajax({
@@ -103,7 +120,7 @@
                 {
                     name: '位置',
                     type: 'line',
-                    data: position_global,
+                    data: Nums,
                     markPoint: {
                         data: [
                             { type: 'max', name: '最大值' },
@@ -117,13 +134,87 @@
     }
 
     function filterData(result) {
-        position_global = new Array();
+        Nums = new Array();
         var res = eval(result);
         var datas = res.Result;
         if (datas != null && datas.length > 0) {
             for (var i = 0; i < datas.length; i++) {
-                position_global.push(datas[i].CurrentStation);//CurrentStation
+                Nums.push(datas[i].CurrentStation);//CurrentStation
             }
         }
     }
+</script>
+
+@*实时数据*@
+<script src="https://code.highcharts.com.cn/highcharts/highcharts.js"></script>
+<script src="https://code.highcharts.com.cn/highcharts/themes/sand-signika.js"></script>
+<div id="container" style="min-width:40px;height:320px"></div>
+<script>
+    // JS加载曲线代码
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
+    function activeLastPointToolip(chart) {
+        var points = chart.series[0].points;
+        chart.tooltip.refresh(points[points.length - 1]);
+    }
+    var chart = Highcharts.chart('container', {
+        chart: {
+            type: 'spline',
+            marginRight: 10,
+            events: {
+                load: function () {
+                    var series = this.series[0],
+                        chart = this;
+                    activeLastPointToolip(chart);
+                    setInterval(function () {
+                        var x = (new Date()).getTime(), // 当前时间
+                            y = Math.random();          // 随机值
+                        series.addPoint([x, y], true, true);
+                        activeLastPointToolip(chart);
+                    }, 1000);
+                }
+            }
+        },
+        title: {
+            text: '动态模拟实时数据'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150
+        },
+        yAxis: {
+            title: {
+                text: null
+            }
+        },
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.series.name + '</b><br/>' +
+                    Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
+                    Highcharts.numberFormat(this.y, 2);
+            }
+        },
+        legend: {
+            enabled: false
+        },
+        series: [{
+            name: '测试数据',
+            data: (function () {
+                // 生成随机值
+                var data = [],
+                    time = (new Date()).getTime(),
+                    i;
+                for (i = -19; i <= 0; i += 1) {
+                    data.push({
+                        x: time + i * 1000,
+                        y: Math.random()
+                    });
+                }
+                return data;
+            }())
+        }]
+    });
 </script>

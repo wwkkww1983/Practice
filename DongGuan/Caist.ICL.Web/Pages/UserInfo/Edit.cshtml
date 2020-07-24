@@ -1,0 +1,124 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/7/18
+    *说明：			用户信息表 - System_UserInfo
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "用户信息表";
+    Layout = "~/Pages/_LayoutEdit.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function onClose() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+        function onSave() {
+            var data = site.getFormData('.form');
+            if (data) {
+                site.load('保存中');
+                site.api('/api/UserInfo/save', data, function (ret) {
+                    site.unload();
+                    //alert(JSON.stringify(data));
+                    if (!ret.Code) {
+                        var url = $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src");
+                        $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src", url);
+                        onClose();
+                    }
+                });
+            }
+        }
+@if (Request.Query.ContainsKey("id")) {
+<text>
+        $(function () {
+            site.load('加载中');
+            var id = '@Request.Query["id"]';
+            site.api('/api/UserInfo/get/' + id, function (ret) {
+                site.unload();
+                if (!ret.Code) {
+                    site.setFormData('.form', ret.Data);
+                }
+                return true;
+            });
+        });
+</text>
+}
+    </script>
+}
+<div class="form">
+    <input type="hidden" class="hidden" name="Id" value="">
+    <div class="col-xs-6 form-item">
+        <input class="easyui-textbox" id="UserName" name="UserName" style="width:100%" required="required"
+               data-options="
+                label:'用户名：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="col-xs-6 form-item">
+        <input class="easyui-textbox" id="Phone" name="Phone" style="width:100%"
+               data-options="
+                label:'联系电话：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="col-xs-6 form-item">
+        <input class="easyui-textbox" id="Email" name="Email" style="width:100%"
+               data-options="
+                label:'邮箱：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    @if (Request.Query.ContainsKey("id"))
+    {
+        <div class="br col-xs-6 form-item">
+            <input class="easyui-textbox" id="CreateUser" name="CreateUser" style="width:100%"
+                   data-options="
+                    disabled:true,
+                    label:'创建人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-datebox" id="CreateTime" name="CreateTime" style="width:100%"
+                   data-options="
+                    disabled:true,
+                    label:'创建时间：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="UpdateUser" name="UpdateUser" style="width:100%"
+                   data-options="
+                    disabled:true,
+                    label:'修改人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-datebox" id="UpdateTime" name="UpdateTime" style="width:100%"
+                   data-options="
+                    disabled:true,
+                    label:'修改人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+        </div>
+    }
+
+    <div class="col-xs-12 form-item" style="margin-top:20px;margin-bottom:10px;">
+        <label class="form-title"></label>
+        <div class="form-control">
+            <a id="btn_save" onclick="onSave()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">保存</a>
+            <a id="btn_close" onclick="onClose()" class="easyui-linkbutton" data-options="iconCls:'icon-no'">关闭</a>
+        </div>
+    </div>
+    <div class="br"></div>
+</div>

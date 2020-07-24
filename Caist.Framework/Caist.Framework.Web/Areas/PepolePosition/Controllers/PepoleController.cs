@@ -24,5 +24,10 @@ namespace Caist.Framework.Web.Areas.PepolePosition.Controllers
             var obj = await regionBLL.PersonnelList(param);
             return obj.RemoveNullValue();
         }
+        public async Task<string> PersonnelListr([FromBody]RegionParam param)
+        {
+            var obj = await regionBLL.PersonnelList(param);
+            return obj.RemoveNullValue();
+        }
     }
 }

@@ -25,5 +25,10 @@ namespace Caist.Framework.Web.Areas.PDDemo.Controllers
             var obj = await pidaiMonitorBLL.GetSecurityInfoList(param);
             return obj.RemoveNullValue();
         }
+        public async Task<string> GetpidaiTempListsr([FromBody]PidaiMonitorParam param)
+        {
+            var obj = await pidaiMonitorBLL.GetSecurityInfoList(param);
+            return obj.RemoveNullValue();
+        }
     }
 }

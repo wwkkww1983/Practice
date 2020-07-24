@@ -1,0 +1,206 @@
+﻿@****************************************************************************************************
+    *创建人:			Lixz
+    *创建时间:		2019/5/21 17:59:47
+    *说明：			电缆型号信息 - Cable_Info
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "电缆型号信息";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            resize();
+
+            $(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+            $("#btn_del").on('click', delRow);
+            $("#btn_edit").on('click', editRow);
+            $("#btn_add").on('click', addRow);
+            $("#btn_Up").on('click', Upload);
+            $("#btn_Down").on('click', Down);
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+        }
+        function delRow() {
+            var rows = $('#grid').datagrid('getSelections');
+            var da = rows.length > 0 && rows.map(item => {
+                let Id = ""
+                return {
+                    Id: item.Id
+                }
+
+            })
+            if (da.length > 0) {
+                site.confirm('确定要删除吗?', function (flag) {
+                    if (flag) {
+                        site.api('/api/CableType/DeleteBase/', da, function () {
+                            $('#grid').datagrid('reload');
+                        });
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要删除的行', 1);
+            }
+        }
+        function addRow() {
+            site.open({
+                fit: true,
+                title: '新增' + document.title,
+                content: '/Cable_Type/Edit',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function editRow() {
+            var row = $('#grid').datagrid('getSelected');
+            if (row) {
+                site.open({
+                    fit: true,
+                    title: '编辑' + document.title,
+                    content: '/Cable_Type/Edit?id=' + row['Id'],
+                    end: function (ret) {
+                        $('#grid').datagrid('reload');
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要编辑的行', 1);
+            }
+        }
+        function Upload() {
+            site.open({
+                fit: true,
+                title: '导入' + document.title,
+                content: '/Cable_Type/UpLoad',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function Down() {
+            $.messager.progress({
+                text: "请稍等...",
+                interval: 100
+            });
+            var data = {};
+            $.ajax({
+                url: 'http://localhost:61851/api/CableUp/Export',
+                type: 'POST',
+                data: JSON.stringify(data),
+                cache: false,
+                processData: false,
+                contentType: 'application/json;charser=UTF-8',
+                success: function (ret) {
+                    //if (ret.Code == 401) {
+                    //    window.location.href = '/login?returnUrl=' + encodeURIComponent(window.location.href);
+                    //}
+                    //onClose();
+                    //$("#id").textbox('setValue', ret.id);
+                    //site.unload();
+                    //alert(ret.Data);
+                    location.href = ret.Data;
+                    $.messager.progress('close');
+                },
+                error: function (xhr) {
+                    site.msg("下载文件失败！");
+                }
+
+
+
+            });
+        }
+    </script>
+}
+<div class="filter">
+    <div class="item">
+        <input class="easyui-textbox" id="CableType" name="CableType" label="电缆类型：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Voltage_Type" name="Voltage_Type" label="电压等级：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Sheath_Type" name="Sheath_Type" label="护套类型：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Fsection" name="Fsection" label="电缆截面：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Max_Traction" name="Max_Traction" label="最大牵引力：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Max_Lateral_Pressure" name="Max_Lateral_Pressure" label="最大侧压力：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Factory" name="Factory" label="厂家：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="IsBreak" name="IsBreak" label="型号：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+        <a id="btn_Up" class="easyui-linkbutton" data-options="iconCls:'icon-redo'">数据导入</a>
+        <a id="btn_Down" class="easyui-linkbutton" data-options="iconCls:'icon-undo'">数据导出</a>
+        <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/CableType/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:false,
+       pageSize:15,
+       pageList:[15,20,50,100],
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'CableType',width:150,align:'right',sortable:true">
+                电缆型号
+            </th>
+            <th data-options="field:'Voltage_Type',width:150,align:'right',sortable:true">
+                电压等级/kV
+            </th>
+            <th data-options="field:'Sheath_Type',width:150,align:'right',sortable:true">
+                护套类型
+            </th>
+            <th data-options="field:'Fsection',width:150,align:'right',sortable:true">
+                截面/mm2
+            </th>
+            <th data-options="field:'CableOd',width:150,align:'right',sortable:true">
+                电缆外径/mm
+            </th>
+            <th data-options="field:'CableWeight',width:150,align:'right',sortable:true">
+                电缆重量/kg/m
+            </th>
+            <th data-options="field:'CableRadius',width:150,align:'right',sortable:true">
+                转弯半径/m
+            </th>
+            <th data-options="field:'Max_Traction',width:150,align:'right',sortable:true">
+                允许最大侧压力/kN/m
+            </th>
+            <th data-options="field:'Max_Lateral_Pressure',width:150,align:'right',sortable:true">
+                允许最大牵引力/kN
+            </th>
+            <th data-options="field:'Factory',width:150,align:'right',sortable:true">
+                生产厂家
+            </th>
+            <th data-options="field:'IsBreak',width:150,align:'right',sortable:true">
+                分裂情况
+            </th>
+        </tr>
+    </thead>
+</table>

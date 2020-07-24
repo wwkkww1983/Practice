@@ -25,6 +25,11 @@ namespace Caist.Framework.Web.Areas.YFJDemo.Controllers
             var obj = await yafengMonitorBLL.GetSecurityInfoList(param);
             return obj.RemoveNullValue();
         }
+        public async Task<string> GetyafengTempListsr([FromBody]yafengMonitorParam param)
+        {
+            var obj = await yafengMonitorBLL.GetSecurityInfoListr(param);
+            return obj.RemoveNullValue();
+        }
     }
 }
   

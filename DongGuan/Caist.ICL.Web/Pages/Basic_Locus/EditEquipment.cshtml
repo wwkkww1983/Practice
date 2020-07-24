@@ -1,0 +1,105 @@
+﻿@****************************************************************************************************
+    *创建人:			Lixz
+    *创建时间:		2020/6/8
+    *说明：			选择设备页面
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "设备页面";
+    Layout = "~/Pages/_LayoutEdit.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function onClose() {
+            //var index = parent.layer.getFrameIndex(window.name);
+            //parent.layer.close(index);
+            site.close("ok");
+        }
+        function onSave() {
+            var data = site.getFormData('.form');
+            if (data) {
+                site.load('保存中');
+                setTimeout(
+                    site.api('/api/Basic_Locus/save', data, function (ret) {
+                        site.unload();
+                        if (!ret.Code) {
+                            //var url = "/Basic_Locus/LocusChart";
+                            //$(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src", url);
+                            onClose();
+                            //site.close("ok");
+                        }
+                    }), 3000);
+            }
+        }
+@if (Request.Query.ContainsKey("x")) {
+<text>
+        $(function () {
+            site.load('加载中');
+            var section = '@Request.Query["section"]';
+            var x = '@Request.Query["x"]';
+            var y = '@Request.Query["y"]';
+            var data = {
+                SectionId: section,
+                Point_X: x,
+                Point_Y: y
+            };
+            site.api('/api/Basic_Locus/getEquipment',
+                data
+                , function (ret) {
+                site.unload();
+                if (!ret.Code) {
+                    site.setFormData('.form', ret.Data[0]);
+                }
+                return true;
+            });
+        });
+</text>
+}
+    </script>
+}
+<div class="form">
+    <input type="hidden" class="hidden" name="Id" value="">
+    <div class="col-xs-6 form-item">
+        <input class="easyui-textbox" id="Point_X" name="Point_X" style="width:50%" disabled="disabled"
+               data-options="
+                label:'坐标X：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="col-xs-6 form-item">
+        <input class="easyui-textbox" id="Point_Y" name="Point_Y" style="width:50%" disabled="disabled"
+               data-options="
+                label:'坐标Y：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="col-xs-6 form-item">
+        <input class="easyui-textbox" id="Point_Z" name="Point_Z" style="width:50%" disabled="disabled"
+               data-options="
+                label:'埋深：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="col-xs-6 form-item">
+        <select class="easyui-combobox" id="EquipmentTypeId" name="EquipmentTypeId" style=" width:100%" required="required"
+                data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'请选择设备：',
+            labelPosition:'left',
+            labelAlign:'right'
+            ">
+            <option value="无">无</option>
+            <option value="0">滑轮</option>
+            <option value="1">输送机</option>
+        </select>
+    </div>
+    <div class="col-xs-12 form-item" style="margin-top:20px;margin-bottom:10px;">
+        <label class="form-title"></label>
+        <div class="form-control">
+            <a id="btn_save" onclick="onSave()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">保存</a>
+            <a id="btn_close" onclick="onClose()" class="easyui-linkbutton" data-options="iconCls:'icon-no'">关闭</a>
+        </div>
+    </div>
+</div>

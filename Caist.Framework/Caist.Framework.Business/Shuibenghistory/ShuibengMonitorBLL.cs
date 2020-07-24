@@ -22,5 +22,15 @@ namespace Caist.Framework.Business.Shuibenghistory
             return obj;
         }
         #endregion
+        #region 实时获取数据
+        public async Task<TData<List<ShuibengMonitorEntity>>> GetSecurityInfoListr(ShuibengMonitorParam param)
+        {
+            var obj = new TData<List<ShuibengMonitorEntity>>();
+            var list = await ShuibengMonitorService.GetSecurityInfoList(param);
+            obj.Result = list;
+            obj.Tag = 1;
+            return obj;
+        }
+        #endregion
     }
 }

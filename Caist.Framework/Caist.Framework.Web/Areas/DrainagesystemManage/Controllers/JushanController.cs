@@ -25,5 +25,10 @@ namespace Caist.Framework.Web.Areas.PSDemo.Controllers
             var obj = await jushanMonitorBLL.GetSecurityInfoList(param);
             return obj.RemoveNullValue();
         }
+        public async Task<string> GetjushanTempListsr([FromBody]JushanMonitorParam param)
+        {
+            var obj = await jushanMonitorBLL.GetSecurityInfoList(param);
+            return obj.RemoveNullValue();
+        }
     }
 }

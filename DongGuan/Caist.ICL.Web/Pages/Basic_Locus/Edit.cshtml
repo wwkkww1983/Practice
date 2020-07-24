@@ -1,0 +1,165 @@
+﻿@****************************************************************************************************
+    *创建人:			Lixz
+    *创建时间:		2019/9/3
+    *说明：			EXCL轨迹数据导入
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "EXCL轨迹数据";
+    Layout = "~/Pages/_LayoutEdit.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function onClose() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+               function onSave() {
+            var data = site.getFormData('.form');
+            if (data) {
+                site.load('保存中');
+                setTimeout(
+                    site.api('/api/Basic_Locus/save', data, function (ret) {
+                        site.unload();
+                        //alert(JSON.stringify(data));
+                        if (!ret.Code) {
+                            var url = $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src");
+                            $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src", url);
+                            onClose();
+                        }
+                    }), 3000);
+            }
+        }
+@if (Request.Query.ContainsKey("id")) {
+<text>
+        $(function () {
+            site.load('加载中');
+            var id = '@Request.Query["id"]';
+            site.api('/api/Basic_Locus/get/' + id, function (ret) {
+                site.unload();
+                alert(ret.Data);
+                if (!ret.Code) {
+                    site.setFormData('.form', ret.Data);
+                }
+                return true;
+            });
+        });
+</text>
+}
+    </script>
+}
+    <div class="form">
+        <input type="hidden" class="hidden" name="Id" value="">
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="ProjectId" name="ProjectId" style=" width:100%" required="required"
+                    data-options="
+        limitToList:true,
+        panelHeight:150,
+        label:'工程名称：',
+        labelPosition:'left',
+        valueField:'Id',
+        textField:'ProjectName',
+        labelAlign:'right',
+        loader:site.loader('/api/ProjectInfo/items')
+        "></select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="SectionId" name="SectionId" style="width:50%"
+                   data-options="
+                label:'分段：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="GisPoint" name="GisPoint" style="width:50%"
+                   data-options="
+                label:'物探点号：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="LinkPoint" name="LinkPoint" style="width:50%"
+                   data-options="
+                label:'连接点号：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="PointFeature" name="PointFeature" style="width:50%"
+                   data-options="
+                label:'点特征：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Point_X" name="Point_X" style="width:50%"
+                   data-options="
+                label:'坐标X：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Point_Y" name="Point_Y" style="width:50%"
+                   data-options="
+                label:'坐标Y：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Point_Z" name="Point_Z" style="width:50%"
+                   data-options="
+                label:'埋深：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="GroundHeight" name="GroundHeight" style="width:50%"
+                   data-options="
+                label:'地面高程：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="LineHeight" name="LineHeight" style="width:50%"
+                   data-options="
+                label:'管线高程：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="SectionSize" name="SectionSize" style="width:50%"
+                   data-options="
+                label:'管径或断面尺寸：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Material" name="Material" style="width:50%"
+                   data-options="
+                label:'材质：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="BuryType" name="BuryType" style="width:50%"
+                   data-options="
+                label:'埋设方式：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="remark" name="remark" style="width:50%"
+                   data-options="
+                label:'备注：',labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-12 form-item" style="margin-top:20px;margin-bottom:10px;">
+            <label class="form-title"></label>
+            <div class="form-control">
+                <a id="btn_save" onclick="onSave()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">保存</a>
+                <a id="btn_close" onclick="onClose()" class="easyui-linkbutton" data-options="iconCls:'icon-no'">关闭</a>
+            </div>
+        </div>
+    </div>

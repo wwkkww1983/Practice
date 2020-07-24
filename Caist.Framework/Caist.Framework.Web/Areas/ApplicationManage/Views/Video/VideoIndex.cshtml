@@ -13,6 +13,14 @@
                             <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                         </li>
                     </ul>
+                    <ul>
+                        <li>
+                            省平台key：<input id="VideoKey" col="VideoKey" type="text" value="@ViewBag.VideoKey" disabled="disabled" />
+                        </li>
+                        <li>
+                            <a id="openUrl" href="/Video/Index?key=@ViewBag.VideoKey" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-internet-explorer"></i>&nbsp;打开连接</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
             <div class="btn-group-sm hidden-xs" id="toolbar">

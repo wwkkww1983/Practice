@@ -55,6 +55,11 @@ namespace Caist.Framework.Entity.ApplicationManage
         public string ParamenterValue { get; set; }
 
         /// <summary>
+        /// 控制模块指定对应的模型动画索引值  按照0,1 格式组成
+        /// </summary>
+        public string Animation { get; set; }
+
+        /// <summary>
         /// 控制模块
         /// </summary>
         [NotMapped]

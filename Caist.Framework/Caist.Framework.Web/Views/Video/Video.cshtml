@@ -1,0 +1,142 @@
+﻿@{
+    Layout = null;
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href='@Url.Content("~/Video/css/video-js.css")' rel="stylesheet" />
+    <script src='@Url.Content("~/Video/js/video.min.js")' type="text/javascript"></script>
+    <script src='@Url.Content("~/Video/js/videojs-contrib-hls.js")' type="text/javascript"></script>
+    <script src='@Url.Content("~/lib/jquery/1.10.2/jquery.js")' type="text/javascript"></script>
+    <style>
+
+        .vjs-paused .vjs-big-play-button,
+        .vjs-paused.vjs-has-started .vjs-big-play-button {
+            display: block;
+        }
+
+        .video-js .vjs-big-play-button {
+            font-size: 2.5em;
+            line-height: 2.3em;
+            height: 2.5em;
+            width: 2.5em;
+            -webkit-border-radius: 2.5em;
+            -moz-border-radius: 2.5em;
+            border-radius: 2.5em;
+            background-color: #73859f;
+            background-color: rgba(115,133,159,.5);
+            border-width: 0.15em;
+            margin-top: -1.25em;
+            margin-left: -1.75em;
+        }
+        /* 中间的播放箭头 */
+        .vjs-big-play-button .vjs-icon-placeholder {
+            font-size: 1.63em;
+        }
+        /* 加载圆圈 */
+        .vjs-loading-spinner {
+            font-size: 2.5em;
+            width: 2em;
+            height: 2em;
+            border-radius: 1em;
+            margin-top: -1em;
+            margin-left: -1.5em;
+        }
+
+        .video-js.vjs-playing .vjs-tech {
+            pointer-events: auto;
+        }
+    </style>
+    <script type="text/javascript">
+        var Key = "";
+        $(function () {
+            var cameraid = $_GET['cameraid'];
+            Key = $_GET['key'];
+            if (!Key) {
+                alert("错误，请输入Key！");
+            }
+            if (cameraid) {
+                ShowHLS(cameraid);
+            } else {
+                alert("请输入正确cameraid！");
+            }
+        });
+        var $_GET = (function () {
+            var url = window.document.location.href.toString();
+            var u = url.split("?");
+            if (typeof (u[1]) == "string") {
+                u = u[1].split("&");
+                var get = {};
+                for (var i in u) {
+                    var j = u[i].split("=");
+                    get[j[0]] = j[1];
+                }
+                return get;
+            } else {
+                return {};
+            }
+        })();
+        function ShowHLS(cameraid) {
+            cameraid = cameraid || "1";
+            $("#cameraid").html(cameraid);
+            var videoId = "videojs";
+            //根据cameraid 查询到videoUrl
+            var videoUrl = "";
+            $.ajax({
+                url: "/video/GetVideoList",
+                data: { "Key": Key, "Number": cameraid },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Caller", "GzCloud");
+                },
+                success: function (data) {
+                    var videoUrl = data.result[0].url;
+                    SetShow(videoUrl);
+                },
+                error: function () {
+                    console.log("error");
+                }
+            });
+            function SetShow(videoUrl) {
+                //尝试播放hls流
+                var videoId = "videojs";
+                $("#" + videoId).find("source").attr("src", videoUrl).attr("type", "application/x-mpegURL");
+                //console.log(videoUrl);
+                var myPlayer = videojs(videoId, {
+                    bigPlayButton: false,
+                    textTrackDisplay: false,
+                    posterImage: true,
+                    errorDisplay: false,
+                    controlBar: false
+                }, function () {
+                    this.on('loadedmetadata', function () {
+                        //加载到元数据后开始播放视频
+                        myPlayer.play();
+                    })
+                });
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="video-wrapper" style="padding-bottom:56.25%;position:relative;margin:0 auto;">
+            <div class="video-inner" style="position:absolute;top:0;bottom:0;left:0;right:0;">
+                <center>
+                    <video id="videojs" class="video-js vjs-default-skin vjs-big-play-centered" x-webkit-airplay="allow" style="width:100%;height:300px" autoplay="autoplay" controls preload="auto">
+                        <source src="" type="">
+                        <p class="vjs-no-js">
+                            To view this video please enable JavaScript, and consider upgrading to a web browser that
+                            <a href="http://videojs.com/html5-video-support/" target="_blank">
+                                supports HTML5 video
+                            </a>
+                        </p>
+                    </video>
+                </center>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

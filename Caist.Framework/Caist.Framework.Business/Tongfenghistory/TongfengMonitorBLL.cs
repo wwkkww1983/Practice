@@ -22,5 +22,15 @@ namespace Caist.Framework.Business.Tongfenghistory
             return obj;
         }
         #endregion
+        #region 实时获取数据
+        public async Task<TData<List<TongfengMonitorEntity>>> GetSecurityInfoListr(TongfengMonitorParam param)
+        {
+            var obj = new TData<List<TongfengMonitorEntity>>();
+            var list = await TongfengMonitorService.GetSecurityInfoList(param);
+            obj.Result = list;
+            obj.Tag = 1;
+            return obj;
+        }
+        #endregion
     }
 }

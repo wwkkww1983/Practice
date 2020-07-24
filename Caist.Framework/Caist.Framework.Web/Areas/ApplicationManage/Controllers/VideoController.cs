@@ -18,6 +18,8 @@ namespace Caist.Framework.Web.Areas.ApplicationManage.Controllers
         [AuthorizeFilter("application:video:view")]
         public IActionResult VideoIndex()
         {
+
+            ViewBag.VideoKey = Util.ValidatorHelper.GetVideoKey();
             return View();
         }
 

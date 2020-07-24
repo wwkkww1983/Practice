@@ -1,0 +1,156 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/7/23
+    *说明：			菜单表 - System_Menu
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "菜单信息管理";
+    Layout = "~/Pages/_Layoutlist.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            resize();
+
+            $(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+            $("#btn_del").on('click', delRow);
+            $("#btn_edit").on('click', editRow);
+            $("#btn_add").on('click', addRow);
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+        }
+        function delRow() {
+            //var row = $('#grid').datagrid('getSelected');
+            //if (row) {
+            //    site.confirm('确定要删除吗?', function (flag) {
+            //        if (flag) {
+            //            site.api('/api/ProjectInfo/delete/' + row['Id'], function () {
+            //                $('#grid').datagrid('reload');
+            //            });
+            //        }
+            //    });
+            //}
+            //else {
+            //    site.msg('请先选中要删除的行', 1);
+            //}
+            var rows = $('#grid').datagrid('getSelections');
+            var da = rows.length > 0 && rows.map(item => {
+                let Id = ""
+                return {
+                    Id: item.Id
+                }
+
+            })
+            if (da.length > 0) {
+                site.confirm('确定要删除吗?', function (flag) {
+                    if (flag) {
+                        site.api('/api/Menu/DeleteBase/',da, function () {
+                            $('#grid').datagrid('reload');
+                        });
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要删除的行', 1);
+            }
+        }
+        function addRow() {
+            site.open({
+                fit: true,
+                title: '新增' + document.title,
+                content: '/Menu/Edit',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function editRow() {
+            var row = $('#grid').datagrid('getSelected');
+            if (row) {
+                site.open({
+                    fit: true,
+                    title: '编辑' + document.title,
+                    content: '/Menu/Edit?id=' + row['Id'],
+                    end: function (ret) {
+                        $('#grid').datagrid('reload');
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要编辑的行', 1);
+            }
+        }
+    </script>
+
+}
+<div class="filter">
+    <div class="item">
+        <input class="easyui-textbox" id="Menu_Name" name="Menu_Name" style="width:100%"
+               data-options="
+               label: '菜单名称:',
+               labelPosition: 'left',
+               labelAlign: 'right',
+               " />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Menu_Url" name="Menu_Url" style="width:100%"
+               data-options="
+               label: '菜单URL:',
+               labelPosition: 'left',
+               labelAlign: 'right',
+               " />
+    </div>
+    <div class="item">
+        <select class="easyui-combobox" id="Menu_Pid" name="Menu_Pid" style=" width:100%"
+                data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'菜单父页面：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'Menu_Name',
+            labelAlign:'right',
+            loader:site.loader('/api/Menu/items')
+            "></select>
+    </div>
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+        <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+           loader:site.loader('/api/Menu/page',function(){return site.filter('.filter')}),
+           pageSize:15,
+           pageList:[15,20,50,100],
+           rownumbers:true,
+           singleSelect:false,
+           pagination:true,
+           ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true">
+            </th>
+            <th data-options="field:'Menu_Name',width:150,sortable:true">
+                菜单名称
+            </th>
+            <th data-options="field:'Menu_Url',width:150,sortable:true">
+                菜单URL
+            </th>
+            <th data-options="field:'Menu_PName',width:150,sortable:true">
+                菜单父页面
+            </th>
+        </tr>
+    </thead>
+</table>

@@ -25,5 +25,10 @@ namespace Caist.Framework.Web.Areas.TFJDemo.Controllers
             var obj = await tongfengMonitorBLL.GetSecurityInfoList(param);
             return obj.RemoveNullValue();
         }
+        public async Task<string> GettongfengTempListsr([FromBody]TongfengMonitorParam param)
+        {
+            var obj = await tongfengMonitorBLL.GetSecurityInfoList(param);
+            return obj.RemoveNullValue();
+        }
     }
 }

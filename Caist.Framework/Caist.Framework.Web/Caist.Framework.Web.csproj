@@ -20,6 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\Video\js\hls.min.js" />
+    <None Include="wwwroot\Video\js\video.min.js" />
+    <None Include="wwwroot\Video\js\videojs-contrib-hls.js" />
+    <None Include="wwwroot\Video\js\videojs-contrib-hls.min.js" />
+    <None Include="wwwroot\Video\js\videojs-ie8.min.js" />
     <None Include="wwwroot\yisha\js\dateTime.css" />
     <None Include="wwwroot\yisha\js\dateTime.min.js" />
   </ItemGroup>

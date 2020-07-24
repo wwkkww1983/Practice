@@ -1,0 +1,310 @@
+﻿
+@page
+@{
+    ViewData["Title"] = "受力计算三维轨迹图";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+<div>
+
+</div>
+<div class="filter">
+    <div class="item">
+        <select class="easyui-combobox" id="ProjectId" name="ProjectId" style=" width:100%"></select>
+    </div>
+    <div class="item">
+        <select class="easyui-combobox" id="SectionId" name="SectionId" style=" width:100%"></select>
+        @*<input class="easyui-textbox" id="SectionId" name="SectionId" label="分段：" labelPosition="left" labelAlign="right" style="width:100%" />*@
+    </div>
+    <div class="btn" style="text-align:left;margin-left:40px;">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+    </div>
+    <div class="layui-fluid">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md2">
+                <div class="layui-card">
+                    <div class="layui-card-header">图标信息</div>
+                    <div class="layui-card-body layui-text">
+                        <table class="layui-table">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        输送机：
+                                        <div class="layui-status-img"><a href="javascript:;"><img src="~/images/12.png"></a></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        滑轮：
+                                        <div class="layui-status-img"><a href="javascript:;"><img src="~/images/13.png"></a></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md10" id="container" style="width:73%;height:800px;">
+            </div>
+            @*<div id="container" class="layui-row layui-col-space15" style="width:800px; height:700px">
+
+            </div>*@
+        </div>
+
+        @section scripts{
+            <script src="~/lib/jquery/jquery.ba-resize.js"></script>
+            <script src="~/js/echarts.v4.min.js"></script>
+            <script src="~/js/echarts-gl.v1.min.js"></script>
+            <script>
+                $(function () {
+                    $("#btn_search").on('click', search);
+                    $('#ProjectId').combobox({
+                        limitToList: true,
+                        panelHeight: 150,
+                        label: '工程名称：',
+                        labelPosition: 'left',
+                        valueField: 'Id',
+                        textField: 'ProjectName',
+                        labelAlign: 'right',
+                        loader: site.loader('/api/ProjectInfo/items'),
+                        onLoadSuccess: function (items) {
+                            if (items.length) {
+                                var opts = $(this).combobox('options');
+                                $(this).combobox('select', items[0][opts.valueField]);
+                            }
+                        },
+                        onSelect: function (record) {
+                            //var data = {};
+                            //site.api('/api/Section/SectionItems/' + record.Id, data, function (rec) {
+                                $('#SectionId').combobox({
+                                    limitToList: true,
+                                    panelHeight: 150,
+                                    label: '分段：',
+                                    labelPosition: 'left',
+                                    valueField: 'SectionId',
+                                    textField: 'SectionText',
+                                    labelAlign: 'right',
+                                    loader: site.loader('/api/Section/SectionItems/' + record.Id),
+                                    onLoadSuccess: function (items) {
+                                        if (items.length) {
+                                            var opts = $(this).combobox('options');
+                                            $(this).combobox('select', items[0][opts.valueField]);
+                                            search();
+                                        }
+                                    }
+                                });
+                            //});
+                        }
+                    });
+                });
+                var myChart = echarts.init(document.getElementById('container'));
+                window.addEventListener("resize", myChart.resize());
+                function OpenSheBei(params) {
+                    var section = $("#SectionId").combobox("getValue");
+                    site.open({
+                        fit: true,
+                        title: '选择要添加的设备',
+                        content: '/Basic_Locus/EditEquipment?section=' + section + '&x=' + params.value[0] + '&y=' + params.value[1],
+                        area: ["500px", "400px"],
+                        end: function (ret) {
+                            search();
+                        }
+                    });
+                }
+                function search() {
+                    site.api('/api/Basic_Locus/GetLocusPint/', site.filter('.filter'), function (rec) {
+                        var allData = rec.Data;
+                        var x = "";
+                        var y = "";
+                        var z = "";
+                        var shebei = "";
+                        document.getElementById('container').innerHTML == "";
+
+                        //埋深
+                        var dataZ = [];
+                        var dataX = [];
+                        var dataY = [];
+                        var vdata = [];
+                        var effectValues = [];
+                        var option = null;
+                        //alert(vdata);
+                        option = {
+                            xAxis3D: [{
+                                type: 'category',
+                                name: '经度',
+                                data: [],
+                                axisLabel: {
+                                    show: true,
+                                    interval: 0
+                                }
+                            }],
+                            yAxis3D: [{
+                                type: 'category',
+                                name: '纬度',
+                                data: [],
+                                axisLabel: {
+                                    show: true,
+                                    interval: 0
+                                }
+                            }],
+                            zAxis3D: {
+                                type: 'value',
+                                name: '埋深'
+                            },
+                            visualMap: [
+                                {
+                                    show: false,
+                                    top: 25,
+                                    right: 10,
+                                    seriesIndex: 1,
+                                    pieces: [{
+                                        formatter: function (params) {
+                                            if (params.data[3] == "0") {
+                                                color: 'red'
+                                            }
+                                            if (params.data[3] == "1") {
+                                                color: 'red'
+                                            }
+                                        }
+                                    }],
+                                    outOfRange: {
+                                        color: 'green'
+                                    }
+                                }
+                            ],
+                            legend: {
+                                orient: 'vertical',
+                                width: 150,
+                                left: 200,
+                                top: 50,
+                                icon: 'line',
+                                formatter: [
+                                    '{a|铺设轨迹}'
+                                ].join('\n'),
+                                textStyle:
+                                {
+                                    rich: {
+                                        a: { color: 'green' }
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                show: true,
+                                //triggerOn: 'click',
+                                trigger: 'item',
+                                //formatter: function (params) {
+                                //    var html = '<div>sdfasdfasdf</div>';
+                                //    return html;
+                                //}
+                            },
+                            grid3D: {
+                                //boxWidth: 1680,
+                                //boxHeight: 1680,
+                                //boxDepth: 400,
+                                //axisLine: {
+                                //    show: true,
+                                //    interval: 0,
+                                //    //lineStyle: {
+                                //    //    color: 'black'
+                                //    //}
+                                //},
+                                //viewControl: {
+                                //    distance: 400
+                                //}
+                                //formatter: function (params) {
+                                //    var html = '<div>sdfasdfasdf</div>';
+                                //    return html;
+                                //}
+                            },
+                            series: [
+                                {
+                                    type: 'scatter3D',
+                                    name: '铺设轨迹',
+                                    itemStyle: {
+                                        color: 'green'
+                                    },
+                                    label: {
+                                        //formatter: [
+                                        //    '{a|这段weia}',
+                                        //    '{b|这段为B}'
+                                        //].join('\n'),
+                                        position: 'top',
+
+                                        formatter: function (params) {
+                                            if (params.data[3] == "无") {
+                                                return params.data[2];
+                                            }
+                                            if (params.data[3] == "0") {
+                                                return '{a|}' + params.data[2];
+                                            }
+                                            if (params.data[3] == "1") {
+                                                return '{b|}' + params.data[2];
+                                            }
+                                        },
+                                        textStyle: {
+                                            rich: {
+                                                a: {
+                                                    height: 40,
+                                                    width: 45,
+                                                    backgroundColor: { image: '/images/13.png' }
+                                                },
+                                                b: {
+                                                    height: 40,
+                                                    width: 45,
+                                                    backgroundColor: { image: '/images/12.png' }
+                                                }
+                                            }
+                                        },
+                                        show: true
+                                    },
+                                    data: []
+                                },
+                                {
+                                    type: 'line3D',
+                                    name: '铺设轨迹',
+                                    lineStyle: {
+                                        color: 'green',
+                                        width: 2
+                                    },
+                                    data: vdata
+                                }
+                            ]
+                        };
+                        for (var i = 0; i < allData.split(';')[0].split(",").length; i++) {
+                            x = allData.split(';')[0].split(",")[i];
+                            option.xAxis3D[0].data.push([x]);
+                        }
+                        for (var i = 0; i < allData.split(';')[1].split(",").length; i++) {
+                            y = allData.split(';')[1].split(",")[i];
+                            option.yAxis3D[0].data.push([y]);
+                        }
+                        //var $imgs = [{ area: '529691.20', url: '~/images/login-img3.png' }];
+                        for (var p = 0; p < allData.split(';')[0].split(",").length; p++) {
+                            z = allData.split(';')[2].split(",")[p];
+                            x = allData.split(';')[0].split(",")[p];
+                            y = allData.split(';')[1].split(",")[p];
+                            shebei = allData.split(';')[3].split(",")[p];
+                            option.series[0].data.push([x, y, z, shebei]);
+                            option.series[1].data.push([x, y, z, shebei]);
+                        }
+                        if (myChart._$handlers.click) {
+                            myChart._$handlers.click.length = 0;
+                        }
+                        //setTimeout(function () {
+                        //    myChart.init({
+                        //        type: 'showTip',
+                        //        seriesIndex: 0,
+                        //        dataIndex: 1
+                        //    })
+                        //}, 500);
+                        if (option && typeof option === "object") {
+                            myChart.setOption(option, true);
+                            //myChart.clear();
+                            //myChart.setOption(option, true);
+                            //window.addEventListener("resize", function () { myChart.resize(); });
+                            myChart.on('click', function (params) { OpenSheBei(params); });
+                        }
+                    })
+                }
+            </script>
+        }
+

@@ -1,0 +1,247 @@
+﻿@****************************************************************************************************
+*创建人:			Lixz
+*创建时间:		2019/5/21 17:59:47
+*说明：			电缆信息 - Cable_Info 
+*****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "电缆信息";
+    Layout = "~/Pages/_LayoutEdit.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function onClose() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+        function onSave() {
+            var data = site.getFormData('.form');
+            if (data) {
+                site.load('保存中');
+                site.api('/api/Cable_Info/save', data, function (ret) {
+                    site.unload();
+                    //alert(JSON.stringify(data));
+                    if (!ret.Code) {
+                        var url = $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src");
+                        $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src", url);
+                        onClose();
+                    }
+                });
+            }
+        }
+        function CableInfo(Id) {
+            site.api('/api/CableType/get/' + Id, function (ret) {
+                if (!ret.Code) {
+                    site.unload();
+                    $("#Voltage_Type").textbox({ "value": ret.Data.Voltage_Type });
+                    $("#Sheath_Type").textbox({ "value": ret.Data.Sheath_Type });
+                    $("#Fsection").textbox({ "value": ret.Data.Fsection });
+                    $("#Max_Traction").textbox({ "value": ret.Data.Max_Traction });
+                    $("#Max_Lateral_Pressure").textbox({ "value": ret.Data.Max_Lateral_Pressure });
+                    ret.data.Msg = "";
+                }
+            });
+        }
+        //$(function () {
+        //    $("#CableType").onSelect(funtion(){
+        //        alert("test");
+        //    });
+        //});
+@if (Request.Query.ContainsKey("id")) {
+<text>
+        $(function () {
+            site.load('加载中');
+            var id = '@Request.Query["id"]';
+            site.api('/api/Cable_Info/get/' + id, function (ret) {
+                site.unload();
+                if (!ret.Code) {
+                    site.setFormData('.form', ret.Data);
+                }
+                return true;
+            });
+        });
+</text>
+}
+    </script>
+}
+    <div class="form">
+        <input type="hidden" class="hidden" name="Id" value="">
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="CLNumber" name="CLNumber" style="width:100%" required="required"
+                   data-options="
+                label:'电缆编号：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="ProjectID" name="ProjectID" style=" width:100%" required="required"
+                    data-options="
+        limitToList:true,
+        panelHeight:150,
+        label:'工程名称：',
+        labelPosition:'left',
+        valueField:'Id',
+        textField:'ProjectName',
+        labelAlign:'right',
+        loader:site.loader('/api/ProjectInfo/items')
+        "></select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="SectionId" name="SectionId" style="width:100%" required="required"
+                   data-options="
+                label:'工段：',
+                labelPosition:'left',
+                labelAlign:'right'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="TotelLenth" name="TotelLenth" style="width:100%" required="required"
+                   data-options="
+                label:'总长度：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="CurrentLenth" name="CurrentLenth" style="width:100%" required="required"
+                   data-options="
+                label:'当前长度：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="CableTypeID" name="CableTypeID" style=" width:100%"
+                    data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'电缆类型：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'CableType',
+            labelAlign:'right',
+            loader:site.loader('/api/CableType/items'),
+            onSelect:function(n){CableInfo(n.Id);}
+            "></select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Voltage_Type" name="Voltage_Type" style="width:100%"
+                   data-options="
+                label:'电压等级：',
+                labelPosition:'left',
+                labelAlign:'right',
+                value: '',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Sheath_Type" name="Sheath_Type" style="width:100%"
+                   data-options="
+                label:'护套类型：',
+                labelPosition:'left',
+                labelAlign:'right',
+                value: '',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Fsection" name="Fsection" style="width:100%"
+                   data-options="
+                label:'电缆截面：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Max_Traction" name="Max_Traction" style="width:100%"
+                   data-options="
+                label:'最大牵引力：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Max_Lateral_Pressure" name="Max_Lateral_Pressure" style="width:100%"
+                   data-options="
+                label:'最大侧压力：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="UserStatus" name="UserStatus" style=" width:100%" required="required"
+                    data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'使用状态：',
+            labelPosition:'left',
+            labelAlign:'right'
+            ">
+                <option value="0">未使用</option>
+                <option value="1">使用中</option>
+            </select>
+        </div>
+        <div class="col-xs-12 form-item">
+            <input class="easyui-textbox" id="Remark" name="Remark" style="height:60px;width:100%"
+                   data-options="
+                multiline:true,
+                label:'备注：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        @if (Request.Query.ContainsKey("id"))
+        {
+            <div class="br col-xs-6 form-item">
+                <input class="easyui-textbox" id="CreateUser" name="CreateUser" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'创建人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+            <div class="col-xs-6 form-item">
+                <input class="easyui-datebox" id="CreateTime" name="CreateTime" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'创建时间：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+            <div class="col-xs-6 form-item">
+                <input class="easyui-textbox" id="UpdateUser" name="UpdateUser" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'修改人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+            <div class="col-xs-6 form-item">
+                <input class="easyui-datebox" id="UpdateTime" name="UpdateTime" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'修改人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+        }
+
+        <div class="col-xs-12 form-item" style="margin-top:20px;margin-bottom:10px;">
+            <label class="form-title"></label>
+            <div class="form-control">
+                <a id="btn_save" onclick="onSave()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">保存</a>
+                <a id="btn_close" onclick="onClose()" class="easyui-linkbutton" data-options="iconCls:'icon-no'">关闭</a>
+            </div>
+        </div>
+        <div class="br"></div>
+    </div>

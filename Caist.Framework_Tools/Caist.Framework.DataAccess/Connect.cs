@@ -45,8 +45,6 @@ namespace Caist.Framework.DataAccess
             IDbConnection _connection = null;
             GetEnumDic<DataEmun>().Where(v => v.Key == dbType).ToList().ForEach(x =>
             {
-                if (_connection == null)
-                {
                     switch ((DataEmun)Enum.Parse(typeof(DataEmun), x.Key))
                     {
                         case DataEmun.SQLServer:
@@ -65,7 +63,6 @@ namespace Caist.Framework.DataAccess
                             _connection = new NpgsqlConnection(connStr);
                             break;
                     }
-                }
             });
             return _connection;
         }

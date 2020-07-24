@@ -1,0 +1,126 @@
+﻿@****************************************************************************************************
+*创建人:			Lixz
+*创建时间:		2019/5/21 17:59:47
+*说明：			指标关联表 - Base_ParameterConn 
+*****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "指标关联表";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+ <script type="text/javascript">
+     $(function () {
+        resize();
+
+        $(window).resize(function () { setTimeout(resize, 30) });
+        $("#btn_search").on('click', search);
+        $("#btn_del").on('click', delRow);
+        $("#btn_edit").on('click', editRow);
+        $("#btn_add").on('click', addRow);
+    });
+    function resize() {
+        var height = $(window).height();
+        height -= $('.filter').outerHeight();
+        $('#grid').datagrid('resize', { height: height });
+    }
+    function search() {
+        $('#grid').datagrid('load');
+    }
+    function delRow() {
+        var row = $('#grid').datagrid('getSelected');
+        if (row) {
+            site.confirm('确定要删除吗?', function (flag) {
+                if (flag) {
+                    site.api('/api/Base_ParameterConn/delete/' + row['Id'], function () { 
+                        $('#grid').datagrid('reload');
+                    });
+                }
+            });
+        }
+        else {
+            site.msg('请先选中要删除的行', 1);
+        }
+    }
+    function addRow() {
+        site.open({
+            fit: true,
+            title: '新增' + document.title,
+            content: '/Base_ParameterConn/Edit',
+            end: function(ret){
+                $('#grid').datagrid('reload');
+            }
+        });
+    }
+    function editRow() {
+        var row = $('#grid').datagrid('getSelected');
+        if (row) {
+            site.open({
+                fit: true,
+                title: '编辑' + document.title,
+                content: '/Base_ParameterConn/Edit?id=' + row['Id'],
+                end: function(ret){
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        else {
+            site.msg('请先选中要编辑的行', 1);
+        }
+    }     
+</script>
+}
+<div class="filter">
+    <div class="item">
+        <select class="easyui-combobox" id="IndexId" name="IndexId" style=" width:100%"
+            data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'指标ID：',
+            labelPosition:'left',
+            labelAlign:'right',
+            loader:site.loader('/api/BaseInfo_Dictype/items')
+            ">
+        </select>
+    </div>
+    <div class="item">
+        <select class="easyui-combobox" id="ConnectIndexId" name="ConnectIndexId" style=" width:100%"
+            data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'引用的指标ID：',
+            labelPosition:'left',
+            labelAlign:'right',
+            loader:site.loader('/api/BaseInfo_Dictype/items')
+            ">
+        </select>
+    </div>
+    
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+        <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/Base_ParameterConn/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:true,
+       pageSize:30,
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'IndexId',width:150,sortable:true">
+                指标ID
+            </th>
+            <th data-options="field:'ConnectIndexId',width:150,sortable:true">
+                引用的指标ID
+            </th>
+        </tr>
+    </thead>
+</table>

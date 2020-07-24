@@ -7,5 +7,6 @@ namespace Caist.Framework.Model.Param.ApplicationManage
 
         public string Area { get; set; }
         public string Name { get; set; }
+        public string Number { get; set; }
     }
 }

@@ -1,0 +1,152 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/7/23
+    *说明：			 - Menu
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "菜单授权";
+    Layout = "~/Pages/_LayoutEdit.cshtml";
+}
+@section scripts{
+    <script type="text/javascript">
+        function onClose() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+        function onSave() {
+            var data = site.getFormData('.form');
+            if (data) {
+                site.load('保存中');
+                site.api('/api/MenuGrant/save', data, function (ret) {
+                    site.unload();
+                    //alert(JSON.stringify(data));
+                    if (!ret.Code) {
+                        var url = $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src");
+                        $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src", url);
+                        onClose();
+                    }
+                });
+            }
+        }
+@if (Request.Query.ContainsKey("id")) {
+<text>
+        $(function () {
+            site.load('加载中');
+            var id = '@Request.Query["id"]';
+            site.api('/api/MenuGrant/get/' + id, function (ret) {
+                site.unload();
+                if (!ret.Code) {
+                    site.setFormData('.form', ret.Data);
+                }
+                if ($('#grant_create').val() == 'true') {
+                    $('#grant_create').find("option[text='是']").attr('selected',true);
+                };
+                return true;
+            });
+        });
+</text>
+}
+    </script>
+}
+    <div class="form">
+        <input type="hidden" class="hidden" name="Id" value="" />
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="RoleId" name="RoleId" style=" width:100%" required="required"
+                    data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'权限名称：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'RoleName',
+            labelAlign:'right',
+            loader:site.loader('/api/Role/items')
+            "></select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="Menu_Id" name="Menu_Id" style=" width:100%" required="required"
+                    data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'菜单名称：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'Menu_Name',
+            labelAlign:'right',
+            loader:site.loader('/api/Menu/items')
+            "></select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="grant_query" name="grant_query" style=" width:100%"
+                    data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'查询：',
+            labelPosition:'left',
+            labelAlign:'right'
+            ">
+                <option value=0>否</option>
+                <option value=1>是</option>
+            </select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="grant_create" name="grant_create" style=" width:100%"
+                    data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'新增：',
+            labelPosition:'left',
+            labelAlign:'right'
+            ">
+                <option value=0>否</option>
+                <option value=1>是</option>
+            </select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="grant_edit" name="grant_edit" style=" width:100%"
+                    data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'修改：',
+            labelPosition:'left',
+            labelAlign:'right'
+            ">
+                <option value=0>否</option>
+                <option value=1>是</option>
+            </select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="grant_delete" name="grant_delete" style=" width:100%"
+                    data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'删除：',
+            labelPosition:'left',
+            labelAlign:'right'
+            ">
+                <option value=0>否</option>
+                <option value=1>是</option>
+            </select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="grant_print" name="grant_print" style=" width:100%"
+                    data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'打印：',
+            labelPosition:'left',
+            labelAlign:'right'
+            ">
+                <option value=0>否</option>
+                <option value=1>是</option>
+            </select>
+        </div>
+        <div class="col-xs-12 form-item" style="margin-top:20px;margin-bottom:10px;">
+            <label class="form-title"></label>
+            <div class="form-control">
+                <a id="btn_save" onclick="onSave()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">保存</a>
+                <a id="btn_close" onclick="onClose()" class="easyui-linkbutton" data-options="iconCls:'icon-no'">关闭</a>
+            </div>
+        </div>
+    </div>

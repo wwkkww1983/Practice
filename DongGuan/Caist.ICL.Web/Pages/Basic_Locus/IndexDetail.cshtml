@@ -1,0 +1,79 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/7/16
+    *说明：			轨迹点表 - Basic_Locus
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "轨迹点表";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {0
+            //resize();
+
+            //$(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+            var id = '@Request.Query["id"]';
+            $("#Section").textbox('setValue',id);
+            $("#gridShouLi").datagrid({ 
+                loader: site.loader('/api/ShowLiJiSuan/page', function () { return site.filter('.filter')  }),
+                rownumbers: true,
+                singleSelect: false,
+                pageSize: 15,
+                pageList: [15, 20, 50, 100],
+                pagination: true,
+                columns: [[
+                    { field: 'ck', checkbox: true },
+                    { field: 'Section', title: '区段', width: 150, sortable: true },
+                    { field: 'Lengths', title: '长度', width: 150, sortable: true },
+                    { field: 'BuryType', title: '敷设方式', width: 150, sortable: true },
+                    { field: 'ForceValue1', title: '侧压力', width: 150, sortable: true },
+                    { field: 'ForceValue2', title: '牵引力', width: 150, sortable: true },
+                    {
+                        field: 'IfQualify', title: '是否合格', width: 150, sortable: true, formatter: function (value, row, index) {
+                            if (value == '0') {
+                                return '<label style="line-height: 24px; color: red;">否</label>';
+                            } else {
+                                return '<label style="line-height: 24px;">是</label>';
+                            }
+                        }
+                    },
+                    {
+                        field: 'ProposedProg', title: '建议控制措施', width: 150, sortable: true, formatter: function (value, row, index) {
+                            if (row.IfQualify == '0') {
+                                return '<label style="line-height: 24px; color: red;">' + value + '</label>';
+                            } else {
+                                return '<label style="line-height: 24px;">' + value + '</label>';
+                            }
+                        }
+                    },
+                    { field: 'Material', title: '材质', width: 150, sortable: true },
+                    { field: 'StartX', title: '起点X', width: 150, sortable: true },
+                    { field: 'StartY', title: '起点Y', width: 150, sortable: true },
+                    { field: 'StartZ', title: '起点Z', width: 150, sortable: true },
+                    { field: 'EndX', title: '终点X', width: 150, sortable: true },
+                    { field: 'EndY', title: '终点Y', width: 150, sortable: true },
+                    { field: 'EndZ', title: '终点Z', width: 150, sortable: true },
+                ]]
+            });
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+        }
+
+    </script>
+}
+<div class="filter">
+    <div class="item" style="display:none">
+        <input class="easyui-textbox" id="Section" name="Section" label="工段：" labelPosition="left" labelAlign="right" style="width:100%;" />
+    </div>
+</div>
+<table id="gridShouLi" class="easyui-datagrid" style="width:100%;height:500px"></table>

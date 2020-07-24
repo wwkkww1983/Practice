@@ -1,0 +1,254 @@
+﻿@****************************************************************************************************
+*创建人:			Lixz
+*创建时间:		2019/5/21 17:59:47
+*说明：			指标模版，包括测点指标和计算指标
+    - Base_ParameterIndexTemplet 
+*****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "指标模版，包括测点指标和计算指标";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+ <script type="text/javascript">
+       $(function () {
+        resize();
+
+        $(window).resize(function () { setTimeout(resize, 30) });
+        $("#btn_search").on('click', search);
+        $("#btn_del").on('click', delRow);
+        $("#btn_edit").on('click', editRow);
+        $("#btn_add").on('click', addRow);
+    });
+    function resize() {
+        var height = $(window).height();
+        height -= $('.filter').outerHeight();
+        $('#grid').datagrid('resize', { height: height });
+    }
+    function search() {
+        $('#grid').datagrid('load');
+    }
+    function delRow() {
+        var rows = $('#grid').datagrid('getSelections');
+        var da = rows.length > 0 && rows.map(item => {
+            let Id = ""
+            return {
+                Id: item.Id
+            }
+
+        })
+        if (da.length > 0) {
+            site.confirm('确定要删除吗?', function (flag) {
+                if (flag) {
+                    site.api('/api/Base_ParameterIndexTemplet/DeleteBase/',da, function () { 
+                        $('#grid').datagrid('reload');
+                    });
+                }
+            });
+        }
+        else {
+            site.msg('请先选中要删除的行', 1);
+        }
+    }
+    function addRow() {
+        site.open({
+            fit: true,
+            title: '新增' + document.title,
+            content: '/Base_ParameterIndexTemplet/Edit',
+            end: function(ret){
+                $('#grid').datagrid('reload');
+            }
+        });
+    }
+    function editRow() {
+        var row = $('#grid').datagrid('getSelected');
+        if (row) {
+            site.open({
+                fit: true,
+                title: '编辑' + document.title,
+                content: '/Base_ParameterIndexTemplet/Edit?id=' + row['Id'],
+                end: function(ret){
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        else {
+            site.msg('请先选中要编辑的行', 1);
+        }
+    }     
+</script>
+}
+<div class="filter">
+    <div class="item">
+        <input class="easyui-textbox" id="IndexCode" name="IndexCode" label="指标编码：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="IndexName" name="IndexName" label="指标名称：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Unit" name="Unit" label="单位：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Min_Value" name="Min_Value" label="最小值：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Max_Value" name="Max_Value" label="最大值：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Default_Value" name="Default_Value" label="默认值：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Local_Var" name="Local_Var" label="内部变量，计算函数用：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Out_Var" name="Out_Var" label="外部变量，计算函数用：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Out_Var_Func" name="Out_Var_Func" label="外部函数变量，计算函数用：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Expression" name="Expression" label="计算公式：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Display_Exp" name="Display_Exp" label="显示公式（包含注释）：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Full_Out_Var_Func" name="Full_Out_Var_Func" label="全局计算公式外部函数变量：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Full_Out_Var" name="Full_Out_Var" label="全局计算公式外部变量：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Full_Local_Var" name="Full_Local_Var" label="全局计算公式内部变量：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Full_Expression" name="Full_Expression" label="全局名计算公式：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Full_Display_Exp" name="Full_Display_Exp" label="全局显示公式：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Exp_Desc" name="Exp_Desc" label="公式描述：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Frequence" name="Frequence" label="采集频率：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="IndexType" name="IndexType" label="1=实时量；2=计算量；3=手工录入量：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="MFlag" name="MFlag" label="指标修改标识(0:正常 1:新增 2:修改 3:删除)：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Is_Clear_Zero" name="Is_Clear_Zero" label="是否清零(0:不清零 1:清零)：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="Is_Write_Back" name="Is_Write_Back" label="是否回写(0:不回写 1:回写)：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+        <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/Base_ParameterIndexTemplet/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:false,
+       pageSize:15,
+       pageList:[15,20,50,100],
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'IndexCode',width:150,sortable:true">
+                指标编码
+            </th>
+            <th data-options="field:'IndexName',width:150,sortable:true">
+                指标名称
+            </th>
+            <th data-options="field:'Unit',width:150,sortable:true">
+                单位
+            </th>
+            <th data-options="field:'Min_Value',width:150,align:'right',sortable:true">
+                最小值
+            </th>
+            <th data-options="field:'Max_Value',width:150,align:'right',sortable:true">
+                最大值
+            </th>
+            <th data-options="field:'Default_Value',width:150,align:'right',sortable:true">
+                默认值
+            </th>
+            <th data-options="field:'Local_Var',width:150,sortable:true">
+                内部变量，计算函数用
+            </th>
+            <th data-options="field:'Out_Var',width:150,sortable:true">
+                外部变量，计算函数用
+            </th>
+            <th data-options="field:'Out_Var_Func',width:150,sortable:true">
+                外部函数变量，计算函数用
+            </th>
+            <th data-options="field:'Expression',width:150,sortable:true">
+                计算公式
+            </th>
+            <th data-options="field:'Display_Exp',width:150,sortable:true">
+                显示公式（包含注释）
+            </th>
+            <th data-options="field:'Full_Out_Var_Func',width:150,sortable:true">
+                全局计算公式外部函数变量
+            </th>
+            <th data-options="field:'Full_Out_Var',width:150,sortable:true">
+                全局计算公式外部变量
+            </th>
+            <th data-options="field:'Full_Local_Var',width:150,sortable:true">
+                全局计算公式内部变量
+            </th>
+            <th data-options="field:'Full_Expression',width:150,sortable:true">
+                全局名计算公式
+            </th>
+            <th data-options="field:'Full_Display_Exp',width:150,sortable:true">
+                全局显示公式
+            </th>
+            <th data-options="field:'Exp_Desc',width:150,sortable:true">
+                公式描述
+            </th>
+            <th data-options="field:'Frequence',width:150,align:'right',sortable:true">
+                采集频率
+            </th>
+            <th data-options="field:'IndexType',width:150,align:'right',sortable:true">
+                1=实时量；2=计算量；3=手工录入量
+            </th>
+            <th data-options="field:'MFlag',width:150,align:'right',sortable:true">
+                指标修改标识(0:正常 1:新增 2:修改 3:删除)
+            </th>
+            <th data-options="field:'Is_Clear_Zero',width:150,align:'center',sortable:true,formatter:formatCheck">
+                是否清零(0:不清零 1:清零)
+            </th>
+            <th data-options="field:'Is_Write_Back',width:150,align:'center',sortable:true,formatter:formatCheck">
+                是否回写(0:不回写 1:回写)
+            </th>
+            <th data-options="field:'Order_No',width:150,align:'right',sortable:true">
+                排序号
+            </th>
+            <th data-options="field:'CreateUser',width:150,sortable:true">
+                创建人
+            </th>
+            <th data-options="field:'CreateTime',width:150,sortable:true,formatter:formatDate">
+                创建时间
+            </th>
+            <th data-options="field:'UpdateUser',width:150,sortable:true">
+                修改人用户名
+            </th>
+            <th data-options="field:'UpdateTime',width:150,sortable:true,formatter:formatDate">
+                修改时间
+            </th>
+            <th data-options="field:'Delteted',width:60,align:'center',sortable:true,formatter:formatCheck">
+                是否删除
+            </th>
+        </tr>
+    </thead>
+</table>

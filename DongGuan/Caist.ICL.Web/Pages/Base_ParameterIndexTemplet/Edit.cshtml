@@ -1,0 +1,285 @@
+﻿@****************************************************************************************************
+*创建人:			Lixz
+*创建时间:		2019/5/21 17:59:47
+*说明：			指标模版，包括测点指标和计算指标
+    - Base_ParameterIndexTemplet 
+*****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "指标模版，包括测点指标和计算指标";
+    Layout = "~/Pages/_LayoutEdit.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function onClose() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+        function onSave() {
+            var data = site.getFormData('.form');
+            if (data) {
+                site.load('保存中');
+                site.api('/api/Base_ParameterIndexTemplet/save', data, function (ret) {
+                    site.unload();
+                    //alert(JSON.stringify(data));
+                    if (!ret.Code) {
+                        var url = $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src");
+                        $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src", url);
+                        onClose();
+                    }
+                });
+            }
+        }
+@if (Request.Query.ContainsKey("id")) {
+<text>
+        $(function () {
+            site.load('加载中');
+            var id = '@Request.Query["id"]';
+            site.api('/api/Base_ParameterIndexTemplet/get/' + id, function (ret) {
+                site.unload();
+                if (!ret.Code) {
+                    site.setFormData('.form', ret.Data);
+                }
+                return true;
+            });
+        });
+</text>
+}
+    </script>
+}
+    <div class="form">
+        <input type="hidden" class="hidden" name="Id" value="">
+
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="IndexCode" name="IndexCode" style="width:100%" required="required"
+                   data-options="
+                label:'指标编码：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="IndexName" name="IndexName" style="width:100%" required="required"
+                   data-options="
+                label:'指标名称：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Unit" name="Unit" style="width:100%"
+                   data-options="
+                label:'单位：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Min_Value" name="Min_Value" style="width:100%"
+                   data-options="
+                label:'最小值：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Max_Value" name="Max_Value" style="width:100%"
+                   data-options="
+                label:'最大值：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Default_Value" name="Default_Value" style="width:100%"
+                   data-options="
+                label:'默认值：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Local_Var" name="Local_Var" style="width:100%"
+                   data-options="
+                label:'内部变量，计算函数用：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Out_Var" name="Out_Var" style="width:100%"
+                   data-options="
+                label:'外部变量，计算函数用：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Out_Var_Func" name="Out_Var_Func" style="width:100%"
+                   data-options="
+                label:'外部函数变量，计算函数用：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Expression" name="Expression" style="width:100%"
+                   data-options="
+                label:'计算公式：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Display_Exp" name="Display_Exp" style="width:100%"
+                   data-options="
+                label:'显示公式（包含注释）：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Full_Out_Var_Func" name="Full_Out_Var_Func" style="width:100%"
+                   data-options="
+                label:'全局计算公式外部函数变量：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Full_Out_Var" name="Full_Out_Var" style="width:100%"
+                   data-options="
+                label:'全局计算公式外部变量：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Full_Local_Var" name="Full_Local_Var" style="width:100%"
+                   data-options="
+                label:'全局计算公式内部变量：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Full_Expression" name="Full_Expression" style="width:100%"
+                   data-options="
+                label:'全局名计算公式：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Full_Display_Exp" name="Full_Display_Exp" style="width:100%"
+                   data-options="
+                label:'全局显示公式：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Exp_Desc" name="Exp_Desc" style="width:100%"
+                   data-options="
+                label:'公式描述：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Frequence" name="Frequence" style="width:100%"
+                   data-options="
+                label:'采集频率：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="IndexType" name="IndexType" style="width:100%"
+                   data-options="
+                label:'1=实时量；2=计算量；3=手工录入量：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="MFlag" name="MFlag" style="width:100%"
+                   data-options="
+                label:'指标修改标识(0:正常 1:新增 2:修改 3:删除)：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Is_Clear_Zero" name="Is_Clear_Zero" style="width:100%"
+                   data-options="
+                label:'是否清零(0:不清零 1:清零)：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Is_Write_Back" name="Is_Write_Back" style="width:100%"
+                   data-options="
+                label:'是否回写(0:不回写 1:回写)：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Order_No" name="Order_No" style="width:100%"
+                   data-options="
+                label:'排序号：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        @if (Request.Query.ContainsKey("id"))
+        {
+            <div class="br col-xs-6 form-item">
+                <input class="easyui-textbox" id="CreateUser" name="CreateUser" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'创建人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+            <div class="col-xs-6 form-item">
+                <input class="easyui-datebox" id="CreateTime" name="CreateTime" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'创建时间：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+            <div class="col-xs-6 form-item">
+                <input class="easyui-textbox" id="UpdateUser" name="UpdateUser" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'修改人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+            <div class="col-xs-6 form-item">
+                <input class="easyui-datebox" id="UpdateTime" name="UpdateTime" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'修改人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+        }
+        <div class="col-xs-12 form-item" style="margin-top:20px;margin-bottom:10px;">
+            <label class="form-title"></label>
+            <div class="form-control">
+                <a id="btn_save" onclick="onSave()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">保存</a>
+                <a id="btn_close" onclick="onClose()" class="easyui-linkbutton" data-options="iconCls:'icon-no'">关闭</a>
+            </div>
+        </div>
+        <div class="br"></div>
+    </div>

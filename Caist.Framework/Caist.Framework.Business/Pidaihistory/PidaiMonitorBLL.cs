@@ -22,6 +22,16 @@ namespace Caist.Framework.Business.Pidaihistory
             return obj;
         }
         #endregion
+        #region 获取数据
+        public async Task<TData<List<PidaiMonitorEntity>>> GetSecurityInfoListr(PidaiMonitorParam param)
+        {
+            var obj = new TData<List<PidaiMonitorEntity>>();
+            var list = await PidaiMonitorService.GetSecurityInfoList(param);
+            obj.Result = list;
+            obj.Tag = 1;
+            return obj;
+        }
+        #endregion
     }
 }
 

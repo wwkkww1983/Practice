@@ -1,0 +1,269 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1E699030-9AF2-48AE-8989-B15EB8CDCA85}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DLClient</RootNamespace>
+    <AssemblyName>DLClient</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="GMap.NET.Core">
+      <HintPath>libs\GMap.NET.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="GMap.NET.WindowsForms">
+      <HintPath>libs\GMap.NET.WindowsForms.dll</HintPath>
+    </Reference>
+    <Reference Include="IrisSkin2">
+      <HintPath>libs\IrisSkin2.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WebKitBrowser, Version=0.5.0.0, Culture=neutral, PublicKeyToken=b967213f6d29a3be, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\WebKitBrowser.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddDevice.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddDevice.Designer.cs">
+      <DependentUpon>AddDevice.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CommandInfo.cs" />
+    <Compile Include="DataMonitor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DataMonitor.Designer.cs">
+      <DependentUpon>DataMonitor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DbHelperSQL.cs" />
+    <Compile Include="ForceCalculation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ForceCalculation.Designer.cs">
+      <DependentUpon>ForceCalculation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MapControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="MapControl.Designer.cs">
+      <DependentUpon>MapControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="ProjectInfoEdit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProjectInfoEdit.Designer.cs">
+      <DependentUpon>ProjectInfoEdit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SectionRoute.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SectionRoute.Designer.cs">
+      <DependentUpon>SectionRoute.cs</DependentUpon>
+    </Compile>
+    <Compile Include="公式配置.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="公式配置.designer.cs">
+      <DependentUpon>公式配置.cs</DependentUpon>
+    </Compile>
+    <Compile Include="电缆信息.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="电缆信息.designer.cs">
+      <DependentUpon>电缆信息.cs</DependentUpon>
+    </Compile>
+    <Compile Include="参数配置.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="参数配置.designer.cs">
+      <DependentUpon>参数配置.cs</DependentUpon>
+    </Compile>
+    <Compile Include="工程信息.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="工程信息.designer.cs">
+      <DependentUpon>工程信息.cs</DependentUpon>
+    </Compile>
+    <Compile Include="操作员管理.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="操作员管理.designer.cs">
+      <DependentUpon>操作员管理.cs</DependentUpon>
+    </Compile>
+    <Compile Include="登录.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="登录.designer.cs">
+      <DependentUpon>登录.cs</DependentUpon>
+    </Compile>
+    <Compile Include="监测点信息.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="监测点信息.designer.cs">
+      <DependentUpon>监测点信息.cs</DependentUpon>
+    </Compile>
+    <Compile Include="区段信息.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="区段信息.designer.cs">
+      <DependentUpon>区段信息.cs</DependentUpon>
+    </Compile>
+    <Compile Include="设备信息.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="设备信息.designer.cs">
+      <DependentUpon>设备信息.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="AddDevice.resx">
+      <DependentUpon>AddDevice.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DataMonitor.resx">
+      <DependentUpon>DataMonitor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ForceCalculation.resx">
+      <DependentUpon>ForceCalculation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MapControl.resx">
+      <DependentUpon>MapControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProjectInfoEdit.resx">
+      <DependentUpon>ProjectInfoEdit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="SectionRoute.resx">
+      <DependentUpon>SectionRoute.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="公式配置.resx">
+      <DependentUpon>公式配置.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="电缆信息.resx">
+      <DependentUpon>电缆信息.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="参数配置.resx">
+      <DependentUpon>参数配置.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="工程信息.resx">
+      <DependentUpon>工程信息.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="操作员管理.resx">
+      <DependentUpon>操作员管理.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="登录.resx">
+      <DependentUpon>登录.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="监测点信息.resx">
+      <DependentUpon>监测点信息.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="区段信息.resx">
+      <DependentUpon>区段信息.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="设备信息.resx">
+      <DependentUpon>设备信息.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

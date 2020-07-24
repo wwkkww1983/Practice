@@ -25,6 +25,9 @@
                 <li>
                     <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                 </li>
+                <li>
+                    <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class=" fa-search"></i>&nbsp;打印</a>
+                </li>
             </ul>
         </div>
     </div>
@@ -33,7 +36,7 @@
         <div class="col-sm-16">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>温度记录</h5>
+                    <h5>历史温度记录</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="echarts" id="echarts-line-chart"></div>
@@ -42,10 +45,25 @@
         </div>
     </div>
 </div>
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-16">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>实时温度记录</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-line-chartr"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*//历史数据信息*@
 
 <script type="text/javascript">
-    var low_global;
-    var high_global;
+    var max_value;
+    var min_value;
     $(function () {
 
         $.ajax({
@@ -61,7 +79,6 @@
                 initChart();
             }
         });
-
     });
 
     function initChart() {
@@ -102,7 +119,7 @@
                 {
                     name: '最高温度',
                     type: 'line',
-                    data: high_global,
+                    data: min_value,
                     markPoint: {
                         data: [
                             { type: 'max', name: '最大值' },
@@ -118,7 +135,7 @@
                 {
                     name: '最低温度',
                     type: 'line',
-                    data: low_global,
+                    data: max_value,
                     markPoint: {
                         data: [
                             { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
@@ -137,14 +154,120 @@
     }
 
     function filterData(result) {
-        low_global = new Array();
-        high_global = new Array();
+        max_value = new Array();
+        min_value = new Array();
         var res = eval(result);
         var datas = res.Result;
         if (datas != null && datas.length > 0) {
             for (var i = 0; i < datas.length; i++) {
-                low_global.push(datas[i].MinValuePos);
-                high_global.push(datas[i].MaxValuePos);
+                max_value.push(datas[i].MinValuePos);
+                min_value.push(datas[i].MaxValuePos);
+            }
+        }
+    }
+</script>
+
+@*实时数据信息*@
+<script type="text/javascript">
+    var max_value;
+    var min_value;
+    $(function () {
+
+        $.ajax({
+            url: '/FiberDemo/Fiber/GetFiberTempListsr',
+            type: 'post',
+            data: {
+                AreaName: ""
+            },
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function (res) {
+                filterData(res);
+                initChartr();
+            }
+        });
+    });
+
+    function initChartr() {
+
+        var lineChart = echarts.init(document.getElementById("echarts-line-chartr"));
+        var lineoption = {
+            title: {
+                text: '一周温度变化'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['最高温度', '最低温度']
+            },
+            grid: {
+                x: 40,
+                x2: 40,
+                y2: 24
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} °C'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '最高温度',
+                    type: 'line',
+                    data: min_value,
+                    markPoint: {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+                {
+                    name: '最低温度',
+                    type: 'line',
+                    data: max_value,
+                    markPoint: {
+                        data: [
+                            { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                }
+            ]
+        };
+        lineChart.setOption(lineoption);
+        $(window).resize(lineChart.resize);
+    }
+
+    function filterData(result) {
+        max_value = new Array();
+        min_value = new Array();
+        var res = eval(result);
+        var datas = res.Result;
+        if (datas != null && datas.length > 0) {
+            for (var i = 0; i < datas.length; i++) {
+                max_value.push(datas[i].MinValuePos);
+                min_value.push(datas[i].MaxValuePos);
             }
         }
     }

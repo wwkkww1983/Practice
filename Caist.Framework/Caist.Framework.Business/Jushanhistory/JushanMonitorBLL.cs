@@ -22,5 +22,15 @@ namespace Caist.Framework.Business.Jushanhistory
             return obj;
         }
         #endregion
+        #region 获取数据
+        public async Task<TData<List<JushanMonitorEntity>>> GetSecurityInfoListr(JushanMonitorParam param)
+        {
+            var obj = new TData<List<JushanMonitorEntity>>();
+            var list = await JushanMonitorService.GetSecurityInfoList(param);
+            obj.Result = list;
+            obj.Tag = 1;
+            return obj;
+        }
+        #endregion
     }
 }

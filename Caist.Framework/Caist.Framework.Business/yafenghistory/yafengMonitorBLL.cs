@@ -23,5 +23,16 @@ namespace Caist.Framework.Business.yafenghistory
             return obj;
         }
         #endregion
+
+        #region 获取数据
+        public async Task<TData<List<yafengMonitorEntity>>> GetSecurityInfoListr(yafengMonitorParam param)
+        {
+            var obj = new TData<List<yafengMonitorEntity>>();
+            var list = await yafengMonitorService.GetSecurityInfoList(param);
+            obj.Result = list;
+            obj.Tag = 1;
+            return obj;
+        }
+        #endregion
     }
 }

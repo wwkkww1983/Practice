@@ -23,5 +23,10 @@ namespace Caist.Framework.Web.Areas.PumpSystemManage.Controllers
             var obj = await shuibengMonitorBLL.GetSecurityInfoList(param);
             return obj.RemoveNullValue();
         }
+        public async Task<string> GetShuibengTempListsr([FromBody]ShuibengMonitorParam param)
+        {
+            var obj = await shuibengMonitorBLL.GetSecurityInfoList(param);
+            return obj.RemoveNullValue();
+        }
     }
 }

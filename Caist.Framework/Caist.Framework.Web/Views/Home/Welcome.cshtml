@@ -22,14 +22,14 @@
         <div class="col-sm-6">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>下井工时统计</h5>
+                    <h5>皮带走势图 </h5>
                 </div>
                 <div class="ibox-content">
-                    <div class="echarts" id="echarts-bar-chart"></div>
+                    <div class="echarts" id="echarts-PD-chart"></div>
                 </div>
             </div>
         </div>
-    </div>
+    
     <div class="row">
         <div class="col-sm-6">
             <div class="ibox float-e-margins">
@@ -104,6 +104,21 @@
                 ShuiBengChart(filterData(res));
             }
         });
+    });
+
+    //ajax皮带异步请求数据
+    $.ajax({
+        url: '/BeltManage/PD/GetpidaiTempLists',
+        type: 'post',
+        data: {
+            StartDate: "",
+            EndDate: ""
+        },
+        dataType: 'json',
+        contentType: 'application/json; charset=UTF-8',
+        success: function (res) {
+            PDChart(filterData(res));
+        }
     });
 
     //数据组合方法
@@ -273,22 +288,21 @@
         lineChart.setOption(lineoption);
         $(window).resize(lineChart.resize);
     }
-    //人员柱状图
-   // function Ryjs(personArry,timeArry) {
-
-        var barChart = echarts.init(document.getElementById("echarts-bar-chart"));
-        var baroption = {
+    //皮带走势图
+    function PDChart(high_global) {
+        var lineChart = echarts.init(document.getElementById("echarts-PD-chart"));
+        var lineoption = {
             title: {
-                text: '人员下井工时统计'
+                text: '皮带走势图'
             },
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['白班', '晚班']
+                data: ['速度']
             },
             grid: {
-                x: 30,
+                x: 40,
                 x2: 40,
                 y2: 24
             },
@@ -296,39 +310,26 @@
             xAxis: [
                 {
                     type: 'category',
-                    data: ['李浩', '曹一凡', '刘宇森', '章江', '李一帆', '李浩生', '丁鹏飞', '杨一帆', '赵军生', '胡雨晨', '曾云', '胡雄']
+                    boundaryGap: false,
+                    data: ['05/21', '05/22', '05/23', '05/24', '05/25', '05/26', '05/27', '05/28', '05/29', '05/30',]
                 }
             ],
             yAxis: [
                 {
-                    type: 'value'
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} m/s'
+                    }
                 }
             ],
             series: [
                 {
-                    name: '白班',
-                    type: 'bar',
-                    data: [8, 8, 6, 8, 8, 8, 6, 8, 8, 8, 4, 8],
+                    name: '速度',
+                    type: 'line',
+                    data: high_global,
                     markPoint: {
                         data: [
-                            { type: 'max', name: '最大值' },
-                            { type: 'min', name: '最小值' }
-                        ]
-                    },
-                    markLine: {
-                        data: [
-                            { type: 'average', name: '平均值' }
-                        ]
-                    }
-                },
-                {
-                    name: '晚班',
-                    type: 'bar',
-                    data: [2, 3, 7, 3, 3, 6, 2, 4, 4, 3, 3, 6],
-                    markPoint: {
-                        data: [
-                            { name: '天最高', value: 182.2, xAxis: 7, yAxis: 183, symbolSize: 18 },
-                            { name: '天最低', value: 2.3, xAxis: 11, yAxis: 3 }
+                            { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
                         ]
                     },
                     markLine: {
@@ -339,8 +340,77 @@
                 }
             ]
         };
-        barChart.setOption(baroption);
-        window.onresize = barChart.resize;
+        lineChart.setOption(lineoption);
+        $(window).resize(lineChart.resize);
+    }
+    //人员柱状图
+   // function Ryjs(personArry,timeArry) {
+
+        //var barChart = echarts.init(document.getElementById("echarts-bar-chart"));
+        //var baroption = {
+        //    title: {
+        //        text: '人员下井工时统计'
+        //    },
+        //    tooltip: {
+        //        trigger: 'axis'
+        //    },
+        //    legend: {
+        //        data: ['白班', '晚班']
+        //    },
+        //    grid: {
+        //        x: 30,
+        //        x2: 40,
+        //        y2: 24
+        //    },
+        //    calculable: true,
+        //    xAxis: [
+        //        {
+        //            type: 'category',
+        //            data: ['李浩', '曹一凡', '刘宇森', '章江', '李一帆', '李浩生', '丁鹏飞', '杨一帆', '赵军生', '胡雨晨', '曾云', '胡雄']
+        //        }
+        //    ],
+        //    yAxis: [
+        //        {
+        //            type: 'value'
+        //        }
+        //    ],
+        //    series: [
+        //        {
+        //            name: '白班',
+        //            type: 'bar',
+        //            data: [8, 8, 6, 8, 8, 8, 6, 8, 8, 8, 4, 8],
+        //            markPoint: {
+        //                data: [
+        //                    { type: 'max', name: '最大值' },
+        //                    { type: 'min', name: '最小值' }
+        //                ]
+        //            },
+        //            markLine: {
+        //                data: [
+        //                    { type: 'average', name: '平均值' }
+        //                ]
+        //            }
+        //        },
+        //        {
+        //            name: '晚班',
+        //            type: 'bar',
+        //            data: [2, 3, 7, 3, 3, 6, 2, 4, 4, 3, 3, 6],
+        //            markPoint: {
+        //                data: [
+        //                    { name: '天最高', value: 182.2, xAxis: 7, yAxis: 183, symbolSize: 18 },
+        //                    { name: '天最低', value: 2.3, xAxis: 11, yAxis: 3 }
+        //                ]
+        //            },
+        //            markLine: {
+        //                data: [
+        //                    { type: 'average', name: '平均值' }
+        //                ]
+        //            }
+        //        }
+        //    ]
+        //};
+        //barChart.setOption(baroption);
+        //window.onresize = barChart.resize;
     //}
 </script>
 

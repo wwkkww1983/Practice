@@ -21,5 +21,10 @@ namespace Caist.Framework.Web.Areas.FiberDemo.Controllers
             var obj = await fiberBLL.GetFiberInfoList(param);
             return obj.RemoveNullValue();
         }
+        public async Task<string> GetFiberTempListsr([FromBody]FiberParam param)
+        {
+            var obj = await fiberBLL.GetFiberInfoList(param);
+            return obj.RemoveNullValue();
+        }
     }
 }

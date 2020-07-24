@@ -1,0 +1,53 @@
+
+.col-xs-6 {
+    width: 50%;
+}
+
+.col-xs-12 {
+    width: 100%;
+}
+
+.col-xs-6, .col-xs-12 {
+    float: left;
+}
+
+.form {
+    margin: 24px 62px 24px 22px;
+}
+
+.form-item {
+    position: relative;
+    padding: 5px 0 5px 120px;
+}
+
+.form-title, .textbox-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120px;
+    height: 100%;
+    line-height: 38px;
+    text-align: right;
+}
+
+.form-control, .easyui-fluid {
+    display: block;
+    width: 100% !important;
+    line-height: 28px;
+    padding-top: 0;
+    padding-bottom: 1px;
+    resize: none;
+}
+
+ul, li {
+    list-style-type: none;
+}
+
+*, :after, :before {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.br {
+    clear: both;
+}

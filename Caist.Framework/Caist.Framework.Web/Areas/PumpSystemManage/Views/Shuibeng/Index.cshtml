@@ -25,6 +25,9 @@
             <li>
                 <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
             </li>
+            <li>
+                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class=" fa-search"></i>&nbsp;打印</a>
+            </li>
         </ul>
     </div>
 </div>
@@ -33,10 +36,24 @@
         <div class="col-sm-16">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>水泵记录</h5>
+                    <h5>历史水泵记录</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="echarts" id="echarts-line-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-16">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>实时水泵记录</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-line-chartr"></div>
                 </div>
             </div>
         </div>
@@ -52,7 +69,7 @@
             type: 'post',
             data: {
                 StartDate: "",
-                EndDate: "" 
+                EndDate: ""
             },
             dataType: 'json',
             contentType: 'application/json; charset=UTF-8',
@@ -76,8 +93,8 @@
             },
             grid: {
                 x: 60,
-                x2:0,
-                y2:20
+                x2: 0,
+                y2: 20
             },
             calculable: true,
             xAxis: [
@@ -91,12 +108,12 @@
                 {
                     type: 'value',
                     axisLabel: {
-                        formatter: '{value} °C'
+                        formatter: '{value}米'
                     }
                 }
             ],
             series: [
-              
+
                 {
                     name: '水深',
                     type: 'line',
@@ -119,7 +136,94 @@
     }
 
     function filterData(result) {
-        
+
+        high_global = new Array();
+        var res = eval(result);
+        var datas = res.Result;
+        if (datas != null && datas.length > 0) {
+            for (var i = 0; i < datas.length; i++) {
+                high_global.push(datas[i].dictValue);
+            }
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    var high_global;
+    $(function () {
+
+        $.ajax({
+            url: '/PumpSystemManage/Shuibeng/GetShuibengTempListsr',
+            type: 'post',
+            data: {
+                StartDate: "",
+                EndDate: ""
+            },
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function (res) {
+                filterData(res);
+                initChartr();
+            }
+        });
+
+    });
+
+    function initChartr() {
+
+        var lineChart = echarts.init(document.getElementById("echarts-line-chartr"));
+        var lineoption = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['水深']
+            },
+            grid: {
+                x: 60,
+                x2: 0,
+                y2: 20
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} 米'
+                    }
+                }
+            ],
+            series: [
+
+                {
+                    name: '水深',
+                    type: 'line',
+                    data: high_global,
+                    markPoint: {
+                        data: [
+                            { name: '最低', value: -2, xAxis: 1, yAxis: -1.5 }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                }
+            ]
+        };
+        lineChart.setOption(lineoption);
+        $(window).resize(lineChart.resize);
+    }
+
+    function filterData(result) {
+
         high_global = new Array();
         var res = eval(result);
         var datas = res.Result;
