@@ -771,15 +771,15 @@ namespace Caist.Framework.Service
             foreach (var item in fibers)
             {
                 //list.Add(Mapper.Map<FiberEntity, FiberContent>(item));
-                //list.Add(new FiberContent()
-                //{
-                //    AreaName = item.AreaName,
-                //    AverageValue = item.AverageValue,
-                //    MaxValue = item.MaxValue,
-                //    MaxValuePos = item.MaxValuePos,
-                //    MinValue = item.MinValue,
-                //    MinValuePos = item.MinValuePos
-                //});
+                list.Add(new FiberContent()
+                {
+                    AreaName = item.AreaName,
+                    AverageValue = item.AverageValue,
+                    MaxValue = item.MaxValue,
+                    MaxValuePos = item.MaxValuePos,
+                    MinValue = item.MinValue,
+                    MinValuePos = item.MinValuePos
+                });
             }
             var fm = new FiberModel()
             {

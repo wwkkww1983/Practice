@@ -2,12 +2,14 @@
 using Caist.Framework.Entity;
 using Caist.Framework.Entity.Entity;
 using Caist.Framework.IdGenerator;
+using Caist.Framework.ThreadPool;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Windows.Forms;
 
 namespace Caist.Framework.DataAccess
@@ -239,12 +241,31 @@ namespace Caist.Framework.DataAccess
         }
         #endregion
 
-        public static bool InsertData<T>(T list)
+        public static bool ExcuteSql(string sql)
         {
             using (var conn = Connect.GetConn("SQLServer"))
             {
-                return conn.Insert<T>(list) > 0;
+                return conn.ExcuteSQL(sql) > 0;
             }
+        }
+
+        public static bool InsertData(List<FiberEntity> list)
+        {
+            bool flag = false;
+            if (list.HasValue())
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("truncate table [dbo].[mk_cable_thermometry];");
+                ExcuteSql(sb.ToString());
+                sb.Clear();
+                foreach (var item in list)
+                {
+                    sb.AppendLine($"INSERT INTO [dbo].[mk_cable_thermometry]([area_name],[max_value],[max_value_pos],[min_value],[min_value_pos],[average_value],[current_temperature])VALUES('{item.AreaName}','{item.MaxValue}','{item.MaxValuePos}','{item.MinValue}','{item.MinValuePos}','{item.AverageValue}','{item.AverageValue}');");
+                    sb.AppendLine($"INSERT INTO [dbo].[mk_plc_cewen_values]([area_name],[max_value],[min_value],[average_value])VALUES('{item.AreaName}','{item.MaxValue}','{item.MinValue}','{item.AverageValue}');");
+                }
+                flag = ExcuteSql(sb.ToString());
+            }
+            return flag;
         }
     }
 }

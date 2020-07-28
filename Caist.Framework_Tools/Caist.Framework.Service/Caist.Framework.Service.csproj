@@ -188,8 +188,15 @@
       <Project>{1C3875B1-0639-4A0F-9CEA-3E35621B59CB}</Project>
       <Name>Caist.Framework.WebSocket</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SyncFiles\SyncFiles.csproj">
+      <Project>{9B6B52E5-3C62-44A4-986E-1BAC6C9A7059}</Project>
+      <Name>SyncFiles</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Config\FiberConfig.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Config\PeoplePositionSql.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

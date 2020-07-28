@@ -1,8 +1,10 @@
 ﻿using Caist.Framework.ThreadPool;
+using SyncFiles;
 using SyncLogic;
 using SyncUtil;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,6 +15,7 @@ namespace Caist.Framework.Service
         readonly int _millSeconds = 60000;
         string _interval;
         Sync sc;
+        FormFiber _formFiber;
         string _path = Common.GetConfigValue("LogPath");
         public void Init()
         {
@@ -88,6 +91,12 @@ namespace Caist.Framework.Service
                             ShowErrorLog(_res);
                         }
                     });
+                    #region 光纤测温数据同步
+                    _formFiber = new FormFiber();
+                    _formFiber.Show();
+                    _formFiber.Hide();
+                    _formFiber.btnSync_Click(null, null); 
+                    #endregion
                 }
                 catch (Exception ex)
                 {
@@ -129,6 +138,7 @@ namespace Caist.Framework.Service
                 timerSyncData.Stop();
                 btnStart.Enabled = true;
                 lblHint.Visible = false;
+                _formFiber._timer.Stop();
             }
             catch (Exception ex)
             {
