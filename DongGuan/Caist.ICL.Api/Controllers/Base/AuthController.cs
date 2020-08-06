@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Security.Claims;
+﻿using Caist.ICL.Core;
+using Caist.ICL.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.IdentityModel.Tokens.Jwt;
-using Caist.ICL.Core;
-using Caist.ICL.Core.Entitys;
-using Caist.ICL.Services;
-using Caist.ICL.Api.Models;
 using System.Security.Cryptography;
 using System.Text;
 

@@ -1,19 +1,17 @@
 ﻿using Caist.ICL.Core.Dao;
-using Caist.ICL.Core.Entitys;
-using System;
+using Caist.ICL.Models;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Caist.ICL.Services
 {
-    public class T_ShouLiFenXiService : BaseService<T_ShouLiFenXi>
+    public class T_ShouLiFenXiService : BaseService<ForceAnalysis>
     {
         public T_ShouLiFenXiService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
         }
         public List<object> GetItem(string orderBy, string where, params object[] args)
         {
-            var sql = "select * from T_ShouLiFenXi ";
+            var sql = "select * from ForceAnalysis ";
             if (!string.IsNullOrEmpty(where))
                 sql += " where " + where;
             if (!string.IsNullOrEmpty(orderBy))
@@ -23,7 +21,7 @@ namespace Caist.ICL.Services
         }
         public List<object> GetPage(int page, int rows, out int total, string orderBy, string where, params object[] args)
         {
-            var sql = "select * from T_ShouLiFenXi ";
+            var sql = "select * from ForceAnalysis ";
             if (!string.IsNullOrEmpty(where))
                 sql += " where " + where;
             if (!string.IsNullOrEmpty(orderBy))

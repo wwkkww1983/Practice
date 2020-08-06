@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using Caist.ICL.Api.Models;
-using Caist.ICL.Core.Entitys;
+﻿using Caist.ICL.Api.Models;
 using Caist.ICL.Core.Models;
+using Caist.ICL.Library;
+using Caist.ICL.Models;
 using Caist.ICL.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Caist.ICL.Api.Controllers
 {
@@ -44,12 +42,9 @@ namespace Caist.ICL.Api.Controllers
 
                 if (data.Count > 0)
                 {
-                    double diffX = 0;
-                    double diffY = 0;
-                    string ifhege = "1";
-                    double totalqianyingli = 0;
-                    var sql = "delete from T_ShouLiFenXi";
+                    var sql = "delete from ForceAnalysis";
                     UnitOfWork.Execute(sql, "");
+                    List<ForceAnalysis> list = new List<ForceAnalysis>();
                     for (int i = 0; i < data.Count - 1; i++)
                     {
                         // new System.Collections.Generic.Mscorlib_DictionaryValueCollectionDebugView<string, object>(((NPoco.PocoExpando)(new System.Collections.Generic.Mscorlib_CollectionDebugView<object>(data).Items[9])).Values).Items[6]
@@ -75,92 +70,25 @@ namespace Caist.ICL.Api.Controllers
                         //    //string startz = dr["Zvaules"].ToString();
                         //}
                         //ListItem dr = data[i];
-                        diffX = Convert.ToDouble(endx) - Convert.ToDouble(startx);
-                        diffY = Convert.ToDouble(endy) - Convert.ToDouble(starty);
-                        if (diffX < 0)
-                        {
-                            diffX = 0 - diffX;
-                        }
-                        if (diffY < 0)
-                        {
-                            diffY = 0 - diffY;
-                        }
-                        double angle = Math.Atan2(diffY, diffX) * 180 / Math.PI;  //两个点线的角度
-                        //if (angle > 90 & angle <= 180)
-                        //{
-                        //    angle = 180 - angle;
-                        //}
-                        //else if (angle < 0 & angle >= -90)
-                        //{
-                        //    angle = 0 - angle;
-                        //}
-                        //else if (angle < -90)
-                        //{
-                        //    angle = 180 + angle;
-                        //}
-                        double lenghtss = Math.Sqrt(diffX * diffX + diffY * diffY); //两个点的长度
-                        var T1 = (9.8) * lenghtss * (0.2 * Math.Cos(angle) + Math.Sin(angle)); //起始牵引力 
-                        if (T1 < 0)
-                        {
-                            T1 = 0 - T1;
-                        }
-                        var T2 = (9.8) * (lenghtss) * (0.2 * Math.Cos(angle) - Math.Sin(angle)); //最终牵引力
-                        if (T2 < 0)
-                        {
-                            T2 = 0 - T2;
-                        }
-                        totalqianyingli += T2;
-                        var vT2 = T1 + (9.8) * (lenghtss) / Math.Cos(angle) * (0.2 * Math.Cos(angle) - Math.Sin(angle)); // 最终牵引力比较
-                        if (vT2 < 0)
-                        {
-                            vT2 = 0 - vT2;
-                        }
-                        string jianyi = "";
-                        if (Convert.ToDecimal(vT2) > Convert.ToDecimal(300))
-                        {
-                            ifhege = "0";
-                            jianyi = "建议添加滑轮";
-                            if (i % 2 == 0)
-                            {
-                                jianyi = "建议添加输送机";
-                            }
-                        }
-                        else
-                        {
-                            ifhege = "1";
-                        }
-                        string section = "";
-                        if (values[2] != null && dd[2] != null)
-                        {
-                            section = values[2].ToString() + "-" + dd[2].ToString();
-                        }
 
-                        T_ShouLiFenXi myshouli = new T_ShouLiFenXi();
-                        myshouli.StartX = startx;
-                        myshouli.StartY = starty;
-                        //myshouli.StartZ = startz;
-                        myshouli.Id = Guid.NewGuid().ToString();
-                        myshouli.Section = section;
-                        myshouli.Lengths = lenghtss.ToString();
-                        myshouli.BuryType = "管沟";
-                        myshouli.IfQualify = ifhege;
-                        myshouli.ProposedProg = jianyi;
-                        if (values[8] != null)
+                        list.Add(Tools.CalcStress(new StressEntity()
                         {
-                            myshouli.Material = values[8].ToString();
-                        }
-                        myshouli.ForceValue1 = Convert.ToDecimal(lenghtss).ToString("0.00");
-                        myshouli.ForceValue2 = Convert.ToDecimal(totalqianyingli).ToString("0.00");
-                        myshouli.EndX = endx;
-                        myshouli.EndY = endy;
+                            Index = i,
+                            values = values,
+                            dd = dd,
+                            StartX = startx,
+                            StartY = starty,
+                            EndX = endx,
+                            EndY = endy
+                        }));
                         //myshouli.EndZ = endz;
 
                         ////vT2
                         //string section = dr["PointName"].ToString() + "-" + dr2["PointName"].ToString();
-                        //string insertsql = "insert into T_ShouLiFenXi values(newid()," + i.ToString() + ",'" + section + "','管沟'," + ifhege + ",'" + jianyi + "','" + dr["Materail"].ToString() + "'," + Convert.ToDecimal(lenghtss).ToString("0.00") + ",'" + startx + "','" + starty + "','" + startz + "','" + endx + "','" + endy + "','" + endz + "','" + Convert.ToDecimal(T1).ToString("0.00") + "','" + Convert.ToDecimal(totalqianyingli).ToString("0.00") + "',getdate())";
+                        //string insertsql = "insert into ForceAnalysis values(newid()," + i.ToString() + ",'" + section + "','管沟'," + ifhege + ",'" + jianyi + "','" + dr["Materail"].ToString() + "'," + Convert.ToDecimal(lenghtss).ToString("0.00") + ",'" + startx + "','" + starty + "','" + startz + "','" + endx + "','" + endy + "','" + endz + "','" + Convert.ToDecimal(T1).ToString("0.00") + "','" + Convert.ToDecimal(totalqianyingli).ToString("0.00") + "',getdate())";
                         //DbHelperSQL.ExecuteSql(insertsql);
-                        _service.Insert(myshouli);
                     }
+                    _service.Insert(list);
                     //MessageBox.Show("计算完成");
                     ////加载计算结果数据库表内容
                     //this.ShowResult();
@@ -169,6 +97,8 @@ namespace Caist.ICL.Api.Controllers
             }
             );
         }
+
+
         /// <summary>
         /// 分页查找计算结果信息
         /// </summary>

@@ -1,8 +1,6 @@
+using Caist.ICL.Models;
 using NPoco.FluentMappings;
-using Caist.ICL.Core.Entitys;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 namespace Caist.ICL.Data
 {
     /// <summary>
@@ -43,7 +41,7 @@ namespace Caist.ICL.Data
             For<Basic_Locus>().TableName("Basic_Locus").PrimaryKey(w => w.Id, false);
             For<System_Menu>().TableName("System_Menu").PrimaryKey(w => w.Id, false);
             For<System_MenuGrant>().TableName("Sys_Menu_Grant").PrimaryKey(w => w.Id, false);
-            For<T_ShouLiFenXi>().TableName("T_ShouLiFenXi").PrimaryKey(w => w.Id, false);
+            For<ForceAnalysis>().TableName("ForceAnalysis").PrimaryKey(w => w.Id, false);
         }
     }
 }

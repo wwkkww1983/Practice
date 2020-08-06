@@ -80,7 +80,7 @@ namespace Caist.ICL.Data
         /// <param name="entites"></param>
         public void Insert<TEntity>(IEnumerable<TEntity> entites)
         {
-            Database.Insert(entites);
+            Database.InsertBulk(entites);
         }
 
         /// <summary>

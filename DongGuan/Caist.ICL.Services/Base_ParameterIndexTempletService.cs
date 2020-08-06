@@ -4,11 +4,9 @@
 *说明：			指标模版，包括测点指标和计算指标
     - Base_ParameterIndexTemplet 
 *****************************************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Caist.ICL.Core.Dao;
-using Caist.ICL.Core.Entitys;
+using Caist.ICL.Models;
+using System.Collections.Generic;
 
 namespace Caist.ICL.Services
 {

@@ -3,11 +3,9 @@
 *创建时间:		2019/5/21 17:53:49
 *说明：			指标关联表 - Base_ParameterConn 
 *****************************************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Caist.ICL.Core.Dao;
-using Caist.ICL.Core.Entitys;
+using Caist.ICL.Models;
+using System.Collections.Generic;
 
 namespace Caist.ICL.Services
 {

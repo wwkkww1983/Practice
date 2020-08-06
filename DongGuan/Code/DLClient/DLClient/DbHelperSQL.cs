@@ -12,7 +12,8 @@ namespace DLClient
     public abstract class DbHelperSQL
     {
         //数据库连接字符串(web.config来配置)，可以动态更改connectionString支持多数据库.		
-        public static string connectionString = "server=192.168.5.250;uid=sa;pwd=noya_passw0rd;database=ICLDB;";
+        //public static string connectionString = "server=192.168.5.250;uid=sa;pwd=noya_passw0rd;database=ICLDB;";
+        public static string connectionString = "Data Source=L9OMR435BRH1LVK\\KINGSERVER;Initial Catalog=ICLDB;User Id=sa;Password=123456;MultipleActiveResultSets=True;";
         public DbHelperSQL() { }
 
         #region 公用方法

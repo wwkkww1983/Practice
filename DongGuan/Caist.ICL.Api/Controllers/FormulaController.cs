@@ -3,15 +3,11 @@
 *创建时间:		2019/5/21 17:58:42
 *说明：			力学公式 - Formula 
 *****************************************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Caist.ICL.Core;
-using Caist.ICL.Core.Entitys;
-using Caist.ICL.Services;
 using Caist.ICL.Api.Models;
+using Caist.ICL.Models;
+using Caist.ICL.Services;
+using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Caist.ICL.Api.Controllers
 {

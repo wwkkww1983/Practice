@@ -3,11 +3,9 @@
 *创建时间:		2019/5/21 17:53:50
 *说明：			 - CL_SectionCable 
 *****************************************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Caist.ICL.Core.Dao;
-using Caist.ICL.Core.Entitys;
+using Caist.ICL.Models;
+using System.Collections.Generic;
 
 namespace Caist.ICL.Services
 {

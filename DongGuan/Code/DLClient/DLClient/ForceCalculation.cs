@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Caist.ICL.Library;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -52,7 +53,7 @@ namespace DLClient
 
         private void button1_Click(object sender, EventArgs e)
         {
-            DbHelperSQL.ExecuteSql("delete from T_ShouLiFenXi");
+            DbHelperSQL.ExecuteSql("delete from ForceAnalysis");
             DataTable dt = DbHelperSQL.GetDataTable("select a.*,b.ProjectName from T_Point a inner join Project_Info b on a.ProjectID=b.Id order by a.Codes");
             if (dt.Rows.Count > 0)
             {
@@ -126,7 +127,7 @@ namespace DLClient
                     }
                     //vT2
                     string section = dr["PointName"].ToString() + "-" + dr2["PointName"].ToString();
-                    string insertsql = "insert into T_ShouLiFenXi values(newid()," + i.ToString() + ",'" + section + "','管沟'," + ifhege + ",'" + jianyi + "','" + dr["Materail"].ToString() + "'," + Convert.ToDecimal(lenghtss).ToString("0.00") + ",'" + startx + "','" + starty + "','" + startz + "','" + endx + "','" + endy + "','" + endz + "','" + Convert.ToDecimal(T1).ToString("0.00") + "','" + Convert.ToDecimal(totalqianyingli).ToString("0.00") + "',getdate())";
+                    string insertsql = "insert into ForceAnalysis values(newid()," + i.ToString() + ",'" + section + "','管沟'," + ifhege + ",'" + jianyi + "','" + dr["Materail"].ToString() + "'," + Convert.ToDecimal(lenghtss).ToString("0.00") + ",'" + startx + "','" + starty + "','" + startz + "','" + endx + "','" + endy + "','" + endz + "','" + Convert.ToDecimal(T1).ToString("0.00") + "','" + Convert.ToDecimal(totalqianyingli).ToString("0.00") + "',getdate())";
                     DbHelperSQL.ExecuteSql(insertsql);                   
                 }
                 MessageBox.Show("计算完成");
@@ -138,7 +139,7 @@ namespace DLClient
 
         private void ShowResult()
         {
-            DataTable dt = DbHelperSQL.GetDataTable("select * from T_ShouLiFenXi order by codes");
+            DataTable dt = DbHelperSQL.GetDataTable("select * from ForceAnalysis order by codes");
             if (dt.Rows.Count > 0)
             {
                 for (int i = 0; i < dt.Rows.Count; i++)

@@ -31,6 +31,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Caist.ICL.Core\Caist.ICL.Core.csproj" />
     <ProjectReference Include="..\Caist.ICL.Data\Caist.ICL.Data.csproj" />
+    <ProjectReference Include="..\Caist.ICL.Library\Caist.ICL.Library.csproj" />
+    <ProjectReference Include="..\Caist.ICL.Models\Caist.ICL.Models.csproj" />
     <ProjectReference Include="..\Caist.ICL.Services\Caist.ICL.Services.csproj" />
   </ItemGroup>
 

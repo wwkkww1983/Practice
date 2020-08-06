@@ -24,14 +24,14 @@ namespace DLClient
             skinEngine1.SkinFile = Application.StartupPath + @"\MP10.ssk";
             //this.WindowState = FormWindowState.Maximized;    //最大化窗体 
             //绑定计算结构数据
-            //this.dataGridView1.DataSource = DbHelperSQL.GetDataTable("select * from T_ShouLiFenXi");
+            //this.dataGridView1.DataSource = DbHelperSQL.GetDataTable("select * from ForceAnalysis");
 
             LoadData();
         }
 
         private void LoadData()
         {
-            DataTable dt = DbHelperSQL.GetDataTable("select * from T_ShouLiFenXi order by codes");
+            DataTable dt = DbHelperSQL.GetDataTable("select * from ForceAnalysis order by codes");
             if (dt.Rows.Count > 0)
             {
                 for (int i = 0; i < dt.Rows.Count; i++)

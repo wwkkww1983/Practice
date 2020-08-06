@@ -3,11 +3,9 @@
 *创建时间:		2019/4/30 13:30:04
 *说明：			地理坐标 - Doordinate 
 *****************************************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Caist.ICL.Core.Dao;
-using Caist.ICL.Core.Entitys;
+using Caist.ICL.Models;
+using System.Collections.Generic;
 
 namespace Caist.ICL.Services
 {

@@ -1,11 +1,9 @@
 ﻿using Caist.ICL.Api.Models;
-using Caist.ICL.Core.Entitys;
+using Caist.ICL.Models;
 using Caist.ICL.Services;
 using Microsoft.AspNetCore.Mvc;
-using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 
 namespace Caist.ICL.Api.Controllers
 {
@@ -82,7 +80,7 @@ namespace Caist.ICL.Api.Controllers
             return API("", () =>
              {
                  var q = args.Query();
-                 var data = service.GetPage(args.Page, 10, out int total, "createtime", q.Sql, q.Args);
+                 var data = service.GetPage(args.Page, 100, out int total, "createtime", q.Sql, q.Args);
                  string strPointX = "";
                  string strPointY = "";
                  string strPointZ = "";
@@ -189,7 +187,7 @@ namespace Caist.ICL.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("")]
-        public ApiResult<object> DeleteBase([FromBody] Core.BaseEntity[] sysId)
+        public ApiResult<object> DeleteBase([FromBody] BaseEntity[] sysId)
         {
             return API("删除轨迹点表", () =>
             {

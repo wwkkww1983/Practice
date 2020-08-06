@@ -1,16 +1,13 @@
-﻿using Caist.ICL.Core.Entitys;
+﻿using Caist.ICL.Models;
 using Caist.ICL.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Caist.ICL.Api.Models;
 
 namespace Caist.ICL.Api.Controllers
 {

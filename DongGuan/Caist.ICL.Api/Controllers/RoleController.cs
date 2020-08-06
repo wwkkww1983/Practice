@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Caist.ICL.Api.Models;
-using Caist.ICL.Core.Entitys;
+﻿using Caist.ICL.Api.Models;
 using Caist.ICL.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
+using Caist.ICL.Models;
 
 namespace Caist.ICL.Api.Controllers
 {
@@ -83,7 +81,7 @@ namespace Caist.ICL.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("")]
-        public ApiResult<object> DeleteBase([FromBody]Core.BaseEntity[] sysId)
+        public ApiResult<object> DeleteBase([FromBody]BaseEntity[] sysId)
         {
             return API("删除Section", () =>
             {

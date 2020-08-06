@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Caist.ICL.Core\Caist.ICL.Core.csproj" />
+    <ProjectReference Include="..\Caist.ICL.Models\Caist.ICL.Models.csproj" />
   </ItemGroup>
 
 </Project>

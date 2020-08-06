@@ -3,14 +3,12 @@
 *创建时间:		2019/5/29
 *说明：			设备布署管理 - MonitorPoint 
 *****************************************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Caist.ICL.Api.Models;
-using Caist.ICL.Core.Entitys;
+using Caist.ICL.Models;
 using Caist.ICL.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
 
 namespace Caist.ICL.Api.Controllers
 {

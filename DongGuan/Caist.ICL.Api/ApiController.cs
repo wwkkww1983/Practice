@@ -1,16 +1,11 @@
 ﻿using Caist.ICL.Core;
 using Caist.ICL.Core.Dao;
-using Caist.ICL.Core.Entitys;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Caist.ICL.Api
 {

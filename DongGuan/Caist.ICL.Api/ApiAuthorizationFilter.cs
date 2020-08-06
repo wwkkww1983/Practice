@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Caist.ICL.Library;
 namespace Caist.ICL.Api
 {
     public class ApiAuthorizationFilter : IAuthorizationFilter
@@ -24,7 +25,7 @@ namespace Caist.ICL.Api
             //        Message = "无授权，服务器已阻止访问！"
             //    });
             //}
-
+            "".HasValue();
 
         }
     }
