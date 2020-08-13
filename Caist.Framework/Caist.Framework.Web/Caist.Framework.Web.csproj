@@ -22,6 +22,7 @@
   <ItemGroup>
     <None Include="wwwroot\Video\js\hls.min.js" />
     <None Include="wwwroot\Video\js\video.min.js" />
+    <None Include="wwwroot\Video\js\video.min.js" />
     <None Include="wwwroot\Video\js\videojs-contrib-hls.js" />
     <None Include="wwwroot\Video\js\videojs-contrib-hls.min.js" />
     <None Include="wwwroot\Video\js\videojs-ie8.min.js" />
@@ -31,6 +32,7 @@
 
   <ItemGroup>
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
+    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.4" />

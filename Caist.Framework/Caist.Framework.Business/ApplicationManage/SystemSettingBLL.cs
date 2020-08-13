@@ -1,6 +1,7 @@
 ﻿using Caist.Framework.Entity.ApplicationManage;
 using Caist.Framework.Model.Param.ApplicationManage;
 using Caist.Framework.Service.ApplicationManage;
+using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
 using System.Collections.Generic;
@@ -17,6 +18,19 @@ namespace Caist.Framework.Business.ApplicationManage
         {
             TData<List<SystemSettingEntity>> obj = new TData<List<SystemSettingEntity>>();
             obj.Result = await systemSettingService.GetList(param);
+            if (obj.Result != null)
+            {
+                obj.Result.ForEach(n => {
+                    if (!n.SystemImage.Contains("http"))
+                    {
+                        n.SystemImage = GlobalContext.SystemConfig.WebUrI + n.SystemImage;
+                    }
+                    if (n.SystemModel!=null && !n.SystemModel.Contains("http"))
+                    {
+                        n.SystemModel = GlobalContext.SystemConfig.WebUrI + n.SystemModel;
+                    }
+                });
+            }
             obj.TotalCount = obj.Result.Count;
             obj.Tag = 1;
             return obj;
@@ -26,6 +40,19 @@ namespace Caist.Framework.Business.ApplicationManage
         {
             TData<List<SystemSettingEntity>> obj = new TData<List<SystemSettingEntity>>();
             obj.Result = await systemSettingService.GetPageList(param, pagination);
+            if (obj.Result!=null)
+            {
+                obj.Result.ForEach(n => {
+                    if (!n.SystemImage.Contains("http"))
+                    {
+                        n.SystemImage = GlobalContext.SystemConfig.WebUrI + n.SystemImage;
+                    }
+                    if (n.SystemModel != null && !n.SystemModel.Contains("http"))
+                    {
+                       n.SystemModel = GlobalContext.SystemConfig.WebUrI + n.SystemModel;
+                    }
+                });
+            }
             obj.TotalCount = pagination.TotalCount;
             obj.Tag = 1;
             return obj;
@@ -44,6 +71,18 @@ namespace Caist.Framework.Business.ApplicationManage
         {
             TData<SystemSettingEntity> obj = new TData<SystemSettingEntity>();
             obj.Result = await systemSettingService.GetEntity(id);
+            if (obj.Result!=null)
+            {
+                if (!obj.Result.SystemImage.Contains("http"))
+                {
+                    obj.Result.SystemImage = GlobalContext.SystemConfig.WebUrI + obj.Result.SystemImage;
+                   
+                }
+                if (obj.Result.SystemModel != null && !obj.Result.SystemModel.Contains("http"))
+                {
+                    obj.Result.SystemModel = GlobalContext.SystemConfig.WebUrI + obj.Result.SystemModel;
+                }
+            }
             obj.Tag = 1;
             return obj;
         }

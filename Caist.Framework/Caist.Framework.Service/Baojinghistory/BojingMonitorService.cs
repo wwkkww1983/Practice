@@ -1,5 +1,6 @@
 ﻿using Caist.Framework.Data;
 using Caist.Framework.Data.Repository;
+using Caist.Framework.Entity;
 using Caist.Framework.Entity.AlarmManage;
 using Caist.Framework.Entity.Baojinghistory;
 using Caist.Framework.Enum;
@@ -81,6 +82,23 @@ namespace Caist.Framework.Service.Baojinghistory
                 }
             }
             return Entity;
+        }
+
+        /// <summary>
+        /// 区域告警环境数据
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<AreaAlarmEntity>> GetAreaAlarmInfo()
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(@"select *,CASE WHEN AlarmNum < 1 then '优' when AlarmNum < = 2  then '一般'  else '差' end as State from (
+select mk_system_setting.id,mk_system_setting.system_name as SystemName,count(mk_system_setting.id) as AlarmNum
+ from mk_alarm_record  left join mk_alarm_settings on mk_alarm_record.alarm_id = mk_alarm_settings.id 
+left join  mk_system_setting on mk_alarm_settings.system_models = mk_system_setting.id
+group by mk_system_setting.id,mk_system_setting.system_name) as tb ");
+
+            var list = await this.BaseRepository().FindList<AreaAlarmEntity>(strSql.ToString());
+            return list.ToList();
         }
 
 

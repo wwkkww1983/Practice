@@ -1,0 +1,9 @@
+﻿select count(people_id)as Nums,Current_Station, Station_Address,View_Function_Id 
+                         from
+                         (
+                         select  people_id, position_id as Current_Station, [position_desc] as Station_Address,View_Function_Id from mk_people_position p 
+                         left join mk_region_pepole_count on mk_region_pepole_count.Region_id = p.position_id
+                        where convert(varchar(10),report_time,23) = convert(varchar(10),getdate(),23)
+                         group by position_id,position_desc,people_id,people_name,View_Function_Id
+                         )res
+                         group by Current_Station, Station_Address,View_Function_Id order by Current_Station;

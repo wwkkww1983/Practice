@@ -13,7 +13,8 @@
             <li>
                 请选择：<span id="roleStatus" col="RoleStatus"></span>
                 <select style="height: 28px;" id="xiala">
-                    <option value="Voltage" selected="selected">瓦斯历史</option>
+                    <option value="Voltage" selected="selected">1#瓦斯</option>
+                    <option value="Voltage" selected="selected">2#瓦斯</option>
                 </select>
             </li>
             <li class="select-time">
@@ -24,6 +25,12 @@
             </li>
             <li>
                 <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+            </li>
+            <li>
+                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="print()">打印</a>
+            </li>
+            <li>
+                <a class="btn btn-primary btn-sm" asp-action="Export">导出Excel</a></>
             </li>
         </ul>
     </div>
@@ -42,7 +49,20 @@
         </div>
     </div>
 </div>
-
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-16">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>瓦斯抽采实时记录</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-line-chartr"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
     var low_global;
     $(function () {
@@ -84,7 +104,7 @@
                 {
                     type: 'category',
                     boundaryGap: false,
-                    data: ['05/21', '05/22', '05/23', '05/24', '05/25', '05/26', '05/27', '05/28', '05/29', '05/30', '05/31']
+                    data: ['07/25', '07/26', '07/27', '07/28', '07/29', '07/30', '08/1', '08/2', '08/3', '08/4']
                 }
             ],
             yAxis: [
@@ -128,3 +148,85 @@
         }
     }
 </script>
+
+
+<script type="text/javascript">
+    var high_global;
+    $(function () {
+
+        $.ajax({
+            url: '/GasextractionManage/WSCC/GetChoucaiTempListsr',
+            type: 'post',
+            data: {
+                StartDate: "",
+                EndDate: ""
+            },
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function (res) {
+                filterData(res);
+                initChartr();
+            }
+        });
+
+    });
+
+    function initChartr() {
+
+        var lineChart = echarts.init(document.getElementById("echarts-line-chartr"));
+        var lineoption = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['浓度']
+            },
+            grid: {
+                x: 40,
+                x2: 40,
+                y2: 24
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value}ka'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '浓度',
+                    type: 'line',
+                    data: high_global,
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+            ]
+        };
+        lineChart.setOption(lineoption);
+        $(window).resize(lineChart.resize);
+    }
+    function filterData(result) {
+        high_global = new Array();
+        var res = eval(result);
+        var datas = res.Result;
+        if (datas != null && datas.length > 0) {
+            for (var i = 0; i < datas.length; i++) {
+                high_global.push(datas[i].dictValue);
+            }
+        }
+    }
+</script>
+
+

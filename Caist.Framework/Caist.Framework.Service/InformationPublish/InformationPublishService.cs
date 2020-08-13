@@ -5,9 +5,11 @@ using Caist.Framework.Model.Param.ApplicationManage;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,17 +20,15 @@ namespace Caist.Framework.Service.ApplicationManage
         #region 获取数据
         public async Task<List<InformationPublishEntity>> GetList(InformationPublishParam param)
         {
-            var strSql = new StringBuilder();
-            List<DbParameter> filter = ListFilter(param, strSql);
-            var list = await this.BaseRepository().FindList<InformationPublishEntity>(strSql.ToString(), filter.ToArray());
+            var expression = ListFilter(param);
+            var list = await this.BaseRepository().FindList(expression);
             return list.ToList();
         }
 
         public async Task<List<InformationPublishEntity>> GetPageList(InformationPublishParam param, Pagination pagination)
         {
-            var strSql = new StringBuilder();
-            List<DbParameter> filter = ListFilter(param, strSql);
-            var list = await this.BaseRepository().FindList<InformationPublishEntity>(strSql.ToString(), filter.ToArray(), pagination);
+            var expression = ListFilter(param);
+            var list = await this.BaseRepository().FindList(expression, pagination);
             return list.ToList();
         }
 
@@ -61,29 +61,29 @@ namespace Caist.Framework.Service.ApplicationManage
         #endregion
 
         #region 私有方法
-        private List<DbParameter> ListFilter(InformationPublishParam param, StringBuilder strSql, bool bMqThemeContent = false)
+        private Expression<Func<InformationPublishEntity, bool>> ListFilter(InformationPublishParam param)
         {
-            strSql.Append(@"SELECT  a.id as Id,
-                                    a.base_modify_time as BaseModifyTime,
-                                    a.base_modifier_id as BaseModifierId,
-                                    a.Device_Uid as DeviceUid,
-                                    a.Link_Content as LinkContent");
-            if (bMqThemeContent)
-            {
-                strSql.Append("");
-            }
-            strSql.Append(@" FROM  mk_information_publish a WHERE   a.base_is_delete = 0 ");
-            var parameter = new List<DbParameter>();
+
+
+            var expression = LinqExtensions.True<InformationPublishEntity>();
             if (param != null)
             {
-                if (!string.IsNullOrEmpty(param.DeviceUID))
+                if (!string.IsNullOrEmpty(param.LinkContent))
                 {
-                    strSql.Append(" AND a.Device_UID=@DeviceUID");
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@DeviceUID", param.DeviceUID));
+                    expression = expression.And(t => t.LinkContent.Contains(param.LinkContent));
                 }
-              
+             
+                if (!string.IsNullOrEmpty(param.StartTime.ParseToString()))
+                {
+                    expression = expression.And(t => t.BaseModifyTime >= param.StartTime);
+                }
+                if (!string.IsNullOrEmpty(param.EndTime.ParseToString()))
+                {
+                    param.EndTime = (param.EndTime.Value.ToString("yyyy-MM-dd") + " 23:59:59").ParseToDateTime();
+                    expression = expression.And(t => t.BaseModifyTime <= param.EndTime);
+                }
             }
-            return parameter;
+            return expression;
         }
         #endregion
     }

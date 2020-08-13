@@ -19,7 +19,6 @@ namespace Caist.Framework.Business.ApplicationManage
         {
             var obj = new TData<List<InformationPublishEntity>>();
             List<InformationPublishEntity> list = await informationPublishService.GetList(param);
-            list = ListFilter(param, list);
             obj.Result = list;
             obj.Tag = 1;
             return obj;
@@ -60,20 +59,6 @@ namespace Caist.Framework.Business.ApplicationManage
             await informationPublishService.DeleteForm(ids);
             obj.Tag = 1;
             return obj;
-        }
-        #endregion
-
-        #region 私有方法
-        private List<InformationPublishEntity> ListFilter(InformationPublishParam param, List<InformationPublishEntity> list)
-        {
-            if (param != null)
-            {
-                if (!string.IsNullOrEmpty(param.DeviceUID))
-                {
-                    list = list.Where(p => p.DeviceUid == param.DeviceUID).ToList();
-                }
-            }
-            return list;
         }
         #endregion
     }

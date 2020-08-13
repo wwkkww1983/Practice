@@ -56,7 +56,7 @@ namespace Caist.Framework.Entity.FiberManage
         /// <summary>
         /// 平均值
         /// </summary>
-        public string AverageValue
+        public string AverageValue       
         {
             get; set;
         }

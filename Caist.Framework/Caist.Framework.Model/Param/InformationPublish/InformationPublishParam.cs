@@ -2,8 +2,9 @@
 
 namespace Caist.Framework.Model.Param.ApplicationManage
 {
-    public class InformationPublishParam
+    public class InformationPublishParam: DateTimeParam
     {
-        public string DeviceUID { get; set; }
+        public string DeviceUid { get; set; }
+        public string LinkContent { get; set; }
     }
 }

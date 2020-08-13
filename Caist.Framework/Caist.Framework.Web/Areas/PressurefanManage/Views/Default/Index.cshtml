@@ -13,7 +13,9 @@
             <li>
                 请选择：<span id="roleStatus" col="RoleStatus"></span>
                 <select style="height: 28px;" id="xiala">
-                    <option value="Voltage" selected="selected">压风</option>
+                    <option value="Voltage" selected="selected">1号压风</option>
+                    <option value="Voltage1" selected="selected">2号压风</option>
+                    <option value="Voltage2" selected="selected">3号压风</option>
                 </select>
             </li>
             <li class="select-time">
@@ -26,7 +28,10 @@
                 <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
             </li>
             <li>
-                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class=" fa-search"></i>&nbsp;打印</a>
+                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="print()">打印</a>
+            </li>
+            <li>
+                <a class="btn btn-primary btn-sm" asp-action="Export">导出Excel</a></>
             </li>
         </ul>
     </div>
@@ -59,11 +64,12 @@
         </div>
     </div>
 </div>
+   
 @*历史数据*@
 <script type="text/javascript">
+
     var high_global;
     $(function () {
-
         $.ajax({
             url: '/PressurefanManage/Default/GetyafengTempLists',
             type: 'post',
@@ -78,8 +84,15 @@
                 initChart();
             }
         });
-
     });
+    @*$(function () {
+        initGrid();
+
+        $("#roleStatus").ysComboBox({ data: ys.getJson(@Html.Raw(typeof(Voltage).EnumToDictionaryString())) });
+
+        laydate.render({ elem: '#startTime', format: 'yyyy-MM-dd' });
+        laydate.render({ elem: '#endTime', format: 'yyyy-MM-dd' });
+    });*@
 
     function initChart() {
 
@@ -101,7 +114,7 @@
                 {
                     type: 'category',
                     boundaryGap: false,
-                    data: ['05/21', '05/22', '05/23', '05/24', '05/25', '05/26', '05/27', '05/28', '05/29', '05/30', '05/31']
+                    data: "2020-5-24",
                 }
             ],
             yAxis: [
@@ -141,82 +154,6 @@
 </script>
 
 @*实时数据*@
-@*<script type="text/javascript">
-    var high_global;
-    function quxianshow1(data1, data2, data3, data4) {
-        var chart = Highcharts.chart('container', {
-            chart: {
-                type: 'spline',
-                marginRight: 10,
-                events: {
-                    load: function () {
-                        var series1 = this.series[0],
-                            series2 = this.series[1],
-                            chart = this;
-                        activeLastPointToolip(chart);
-                        setInterval(function () {
-                            $.ajax({
-                                type: "get",
-                                contentType: "application/json;utf-8",
-                                url: '/PressurefanManage/Default/GetyafengTempLists',
-                                data: {},
-                                dataType: "jsonp",
-                                success: function (data) {
-                                    var jsonobj = eval("(" + data.result + ")");
-                                    var code = jsonobj.code;
-                                    var datalist = jsonobj.ds;
-                                    if (code != 100) {
-                                        var x = (new Date()).getTime(),
-                                            high_global = parseFloat(datalist[0].environmentOfGasG); //
-                                        series1.addPoint([x, high_global], true, true);
-                                    }
-                                }
-                            });
-                        }, 1000);
-                    },
-                }
-            },
-            title: {
-                text: '压风实时曲线'
-            },
-            xAxis: {
-                type: 'datetime',
-                tickPixelInterval: 150
-            },
-            yAxis: {
-                title: {
-                    text: ""
-                }
-            },
-            tooltip: {
-                formatter: function () {
-                    return '<b>' + this.series.name + '</b><br/>' +
-                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
-                        Highcharts.numberFormat(this.y, 2);
-                }
-            },
-            legend: {
-                enabled: false
-            },
-            series: [{
-                name: '高压风',
-                data: (function () {
-                    // 生成随机值
-                    var data = [],
-                        time = (new Date()).getTime(),
-                        i;
-                    for (i = -19; i <= 0; i += 1) {
-                        data.push({
-                            x: time + i * 1000,
-                            y: parseFloat(parseFloat(data1[i + 19]).toFixed(2))
-                        });
-                    }
-                    return data;
-                }())
-            },
-            ]
-        });
-</script>*@
 <script type="text/javascript">
     var high_global;
     $(function () {
@@ -295,3 +232,4 @@
         }
     }
 </script>
+

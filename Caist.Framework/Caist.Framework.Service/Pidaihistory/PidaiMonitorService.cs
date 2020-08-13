@@ -17,13 +17,8 @@ namespace Caist.Framework.Service.Pidaihistory
         public async Task<List<PidaiMonitorEntity>> GetSecurityInfoList(PidaiMonitorParam param)
         {
             var expression = ListFilter(param);
-            StringBuilder strSql = new StringBuilder();
-            strSql.Append(@"select top(1000) 
-            dict_Id as dictId,dict_Id as dictId,dict_Value as dictValue,create_Time as createTime
-            from [dbo].[mk_plc_pidai_values]");
-            strSql.Append("where  DATEDIFF(HOUR,getdate(),[create_Time]) <=1");
-            var list = await this.BaseRepository().FindList<PidaiMonitorEntity>(strSql.ToString());
-            return list.OrderBy(p => p.createTime).ToList();
+            var list = await this.BaseRepository().FindList<PidaiMonitorEntity>(expression);
+            return list.OrderBy(p => p.createTime).Take(1000).ToList();
         }
 
         #endregion
@@ -32,6 +27,17 @@ namespace Caist.Framework.Service.Pidaihistory
         private Expression<Func<PidaiMonitorEntity, bool>> ListFilter(PidaiMonitorParam param)
         {
             var expression = LinqExtensions.True<PidaiMonitorEntity>();
+            if (param != null)
+            {
+                if (param.StartDate.HasValue())
+                {
+                    expression = expression.And(t => t.createTime >= param.StartDate);
+                }
+                if (param.EndDate.HasValue())
+                {
+                    expression = expression.And(t => t.createTime <= param.EndDate);
+                }
+            }
             //if (param != null)
             //{
             //}

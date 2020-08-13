@@ -39,6 +39,7 @@ namespace Caist.Framework.Web.Areas.InformationPublish.Controllers
             TData<List<InformationPublishEntity>> obj = await InformationPublishBLL.GetPageList(param,pagination);
             return Json(obj);
         }
+
         #endregion
 
         #region 提交数据

@@ -101,7 +101,9 @@ namespace Caist.Framework.Service.PointManage
             {
                 strSql.Append("");
             }
-            strSql.Append(@" FROM [mk_instruct] a left join [mk_instruct_group] b on a.instruct_group_id = b.id WHERE a.base_is_delete = 0 ");
+            strSql.Append(@" FROM [mk_instruct] a left join [mk_instruct_group] b on a.instruct_group_id = b.id 
+                            left join mk_device c on c.id = b.device_id 
+                            WHERE a.base_is_delete = 0 ");
             var parameter = new List<DbParameter>();
             if (param != null)
             {
@@ -109,6 +111,11 @@ namespace Caist.Framework.Service.PointManage
                 {
                     strSql.Append(" AND a.Name like @Name");
                     parameter.Add(DbParameterExtension.CreateDbParameter("@Name", "%" + param.Name + "%"));
+                }
+                if (!string.IsNullOrEmpty(param.SystemSettingId))
+                {
+                    strSql.Append(" AND c.system_id =@SystemSettingId");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemSettingId", param.SystemSettingId));
                 }
             }
             return parameter;

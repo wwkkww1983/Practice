@@ -15,5 +15,6 @@ namespace Caist.Framework.Model.PeopleManage
         public string PeopleNumber { get; set; }
         public DateTime? MaxTime { get; set; }
         public DateTime? MinTime { get; set; }
+        public string ViewFunctionId { get; set; }
     }
 }

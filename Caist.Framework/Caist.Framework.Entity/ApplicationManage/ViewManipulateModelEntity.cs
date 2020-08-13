@@ -15,6 +15,10 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// </summary>
         [JsonConverter(typeof(StringJsonConverter))]
 		public long? ViewFunctionId { get; set; }
+        [NotMapped]
+        public string SystemId { get; set; }
+
+
         /// <summary>
         /// 控制模块
         /// </summary>
@@ -27,6 +31,10 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// 状态
         /// </summary>
         public int? ManipulateModelStutas { get; set; }
+        /// <summary>
+        /// 是否显示首页
+        /// </summary>
+        public int? ManipulateModelShowHome { get; set; }
         /// <summary>
         /// 标识
         /// </summary>

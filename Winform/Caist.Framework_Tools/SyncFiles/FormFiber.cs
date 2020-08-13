@@ -50,6 +50,7 @@ namespace SyncFiles
         {
             try
             {
+                CtrlBtn(true);
                 Start();
                 _timer.Start();
             }
@@ -57,6 +58,12 @@ namespace SyncFiles
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void CtrlBtn(bool flag)
+        {
+            btnSync.Enabled = !flag;
+            btnStop.Enabled = flag;
         }
 
         private void Start()
@@ -127,6 +134,7 @@ namespace SyncFiles
 
         private void btnStop_Click(object sender, EventArgs e)
         {
+            CtrlBtn(false);
             _timer.Stop();
         }
     }

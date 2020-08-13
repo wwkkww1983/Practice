@@ -19,7 +19,7 @@ namespace Caist.Framework.Service.Cewenhistory
             var expression = ListFilter(param);
             StringBuilder strSql = new StringBuilder();
             strSql.Append(@"select top(1000) 
-            dict_Id as dictId,dict_Id as dictId,dict_Value as dictValue,create_Time as createTime
+            area_Name as areaName,max_value as maxValue,min_Value as minValue,create_Time as createTime
             from [dbo].[mk_plc_cewen_values]");
             strSql.Append("where  DATEDIFF(HOUR,getdate(),[create_Time]) <=1");
             var list = await this.BaseRepository().FindList<CewenMonitorEntity>(strSql.ToString());

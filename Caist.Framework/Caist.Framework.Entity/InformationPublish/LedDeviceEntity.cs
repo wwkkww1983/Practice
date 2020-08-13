@@ -8,7 +8,7 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// <summary>
         /// led设备唯一ID号
         /// </summary>
-        public string DeviceUID { get; set; }
+        public string DeviceUid { get; set; }
         /// <summary>
         /// 设别名称
         /// </summary>
@@ -17,6 +17,6 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// <summary>
         /// 设备IP地址
         /// </summary>
-        public string Ip_Address { get; set; }
+        public string IpAddress { get; set; }
     }
 }

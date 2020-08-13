@@ -91,12 +91,12 @@ namespace Caist.Framework.Service
                             ShowErrorLog(_res);
                         }
                     });
-                    #region 光纤测温数据同步
-                    _formFiber = new FormFiber();
-                    _formFiber.Show();
-                    _formFiber.Hide();
-                    _formFiber.btnSync_Click(null, null); 
-                    #endregion
+                    //#region 光纤测温数据同步
+                    //_formFiber = new FormFiber();
+                    //_formFiber.Show();
+                    //_formFiber.Hide();
+                    //_formFiber.btnSync_Click(null, null); 
+                    //#endregion
                 }
                 catch (Exception ex)
                 {

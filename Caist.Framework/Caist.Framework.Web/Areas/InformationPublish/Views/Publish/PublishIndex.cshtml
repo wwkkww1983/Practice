@@ -9,6 +9,12 @@
                     <li>
                         内容：<input id="LinkContent" col="LinkContent" type="text" />
                     </li>
+                    <li class="select-time">
+                        <label>创建时间： </label>
+                        <input id="startTime" col="StartTime" type="text" class="time-input" placeholder="开始时间" />
+                        <span>-</span>
+                        <input id="endTime" col="EndTime" type="text" class="time-input" placeholder="结束时间" />
+                    </li>
                     <li>
                         <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                     </li>
@@ -29,6 +35,8 @@
 <script type="text/javascript">
     $(function () {
         initGrid();
+        laydate.render({ elem: '#startTime', format: 'yyyy-MM-dd' });
+        laydate.render({ elem: '#endTime', format: 'yyyy-MM-dd' });
     });
 
     function initGrid() {
@@ -36,7 +44,7 @@
         $('#gridTable').ysTable({
             url: queryUrl,
             sortName: 'Id',
-            sortOrder: 'Asc',
+            sortOrder: 'desc',
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'ID', visible: false },

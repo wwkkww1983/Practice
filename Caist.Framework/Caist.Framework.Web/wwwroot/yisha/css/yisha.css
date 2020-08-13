@@ -307,7 +307,28 @@ label {
     height: 30px;
     width: 280px;
 }
-
+.select-list li .select {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: transparent;
+    outline: none;
+    height: 30px;
+    width: 280px;
+}
+.select-list li .select-short {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: transparent;
+    outline: none;
+    height: 30px;
+    width: 100px;
+}
+.select-select2 label {
+    margin-top: 8px;
+}
+.select-select2 label, .select-select2 div {
+    float: left;
+}
 .select-list .select-time input {
     width: 133px;
 }

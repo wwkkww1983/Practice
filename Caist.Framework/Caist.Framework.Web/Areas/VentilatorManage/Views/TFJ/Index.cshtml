@@ -27,7 +27,10 @@
                 <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
             </li>
             <li>
-                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class=" fa-search"></i>&nbsp;打印</a>
+                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="print()">打印</a>
+            </li>
+            <li>
+                <a class="btn btn-primary btn-sm" asp-action="Export">导出Excel</a></>
             </li>
         </ul>
     </div>
@@ -94,6 +97,7 @@
             legend: {
                 data: ['风速']
             },
+     
             grid: {
                 x: 60,
                 x2: 40,
@@ -104,7 +108,7 @@
                 {
                     type: 'category',
                     boundaryGap: false,
-                    data: ['05/21', '05/22', '05/23', '05/24', '05/25', '05/26', '05/27', '05/28', '05/29', '05/30', '05/31']
+                    data: ['07/25', '07/26', '07/27', '07/28', '07/29', '07/30', '08/1', '08/2', '08/3', '08/4']
                 }
             ],
             yAxis: [
@@ -115,6 +119,7 @@
                     }
                 }
             ],
+
             series: [
                 {
                     name: '风速',

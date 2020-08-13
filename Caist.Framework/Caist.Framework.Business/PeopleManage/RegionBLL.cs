@@ -1,4 +1,5 @@
-﻿using Caist.Framework.Entity.PeopleManage;
+﻿using Caist.Framework.Cache;
+using Caist.Framework.Entity.PeopleManage;
 using Caist.Framework.Model.PeopleManage;
 using Caist.Framework.Service.PeopleManage;
 using Caist.Framework.Util.Extension;
@@ -11,30 +12,20 @@ namespace Caist.Framework.Business.PeopleManage
 {
     public class RegionBLL
     {
-        private RegionService regionService = new RegionService();
-
-        //private MqThemeCache mqThemeCache = new MqThemeCache();
+        private readonly RegionService regionService = new RegionService();
+        private readonly PeopleCache peopleCache = new PeopleCache();
 
         #region 获取数据
         public async Task<TData<List<RegionPeopleNumEntity>>> PersonnelList(RegionParam param)
         {
             var obj = new TData<List<RegionPeopleNumEntity>>();
-            var list = await regionService.PersonnelList(param);
+            var sql = await peopleCache.GetSQL();
+            var list = await regionService.PersonnelList(param, sql);
             obj.Result = list;
             obj.TotalCount = list.Count;
             obj.Tag = 1;
             return obj;
         }
-        public async Task<TData<List<RegionPeopleNumEntity>>> PersonnelListr(RegionParam param)
-        {
-            var obj = new TData<List<RegionPeopleNumEntity>>();
-            var list = await regionService.PersonnelList(param);
-            obj.Result = list;
-            obj.TotalCount = list.Count;
-            obj.Tag = 1;
-            return obj;
-        }
-
 
         public async Task<TData<List<RegionPeopleNumEntity>>> PeopleCounting(RegionParam param)
         {

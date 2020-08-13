@@ -11,5 +11,8 @@ namespace Caist.Framework.Entity
         public string StationAddress { get; set; }
         [DBColumn(ColName = "Nums")]
         public string Nums { get; set; }
+        [DBColumn(ColName = "View_Function_Id")]
+        public string ViewFunctionId { get; set; }
+       
     }
 }

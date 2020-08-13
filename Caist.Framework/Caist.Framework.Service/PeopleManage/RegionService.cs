@@ -15,10 +15,10 @@ namespace Caist.Framework.Service.PeopleManage
     public class RegionService : RepositoryFactory
     {
         #region 获取数据
-        public async Task<List<RegionPeopleNumEntity>> PersonnelList(RegionParam param)
+        public async Task<List<RegionPeopleNumEntity>> PersonnelList(RegionParam param, string sql)
         {
             var strSql = new StringBuilder();
-            List<DbParameter> filter = ListFilter(param, strSql);
+            List<DbParameter> filter = ListFilter(param, strSql, sql);
             var list = await this.BaseRepository().FindList<RegionPeopleNumEntity>(strSql.ToString(), filter.ToArray());
             return list.ToList();
         }
@@ -64,17 +64,15 @@ namespace Caist.Framework.Service.PeopleManage
         #endregion
 
         #region 私有方法
-        private List<DbParameter> ListFilter(RegionParam param, StringBuilder strSql)
+        private List<DbParameter> ListFilter(RegionParam param, StringBuilder strSql, string sql)
         {
-            strSql.AppendFormat(@"select people_id as PepoleNumber,people_name as PepoleName,rank_name as TypeOfWorkName from mk_people_position p where convert(varchar(10),report_time,23) = '{0}' and position_id =@CurrentStation
-                                group by people_id,people_name,rank_name", DateTime.Now.ToString("yyyy-MM-dd"));
-
+            strSql.AppendFormat(sql, DateTime.Now.ToString("yyyy-MM-dd"));
             var parameter = new List<DbParameter>();
             if (param != null)
             {
                 if (param.CurrentStation.HasValue())
                 {
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@CurrentStation", param.CurrentStation));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@RegionName", param.CurrentStation));
                 }
             }
             return parameter;
@@ -88,7 +86,7 @@ namespace Caist.Framework.Service.PeopleManage
                             GROUP BY Current_Station,Station_Address");
 
             var parameter = new List<DbParameter>();
-          
+
             return parameter;
         }
 

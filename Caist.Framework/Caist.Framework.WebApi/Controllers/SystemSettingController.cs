@@ -1,6 +1,7 @@
 ﻿using Caist.Framework.Business.ApplicationManage;
 using Caist.Framework.Entity.ApplicationManage;
 using Caist.Framework.Model.Param.ApplicationManage;
+using Caist.Framework.Util;
 using Caist.Framework.Util.Model;
 using Caist.Framework.WebApi.Handle;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,8 @@ namespace Caist.Framework.WebApi.Controllers
         public async Task<TData<List<SystemSettingEntity>>> GetPageListJson([FromQuery] SystemSettingListParam param, [FromQuery] Pagination pagination)
         {
             TData<List<SystemSettingEntity>> obj = await systemSettingBLL.GetPageList(param, pagination);
+           
+
             return obj;
         }
 

@@ -65,6 +65,7 @@ namespace Caist.Framework.Entity.Entity
         public string CurrentStation { get; set; }
         public string StationAddress { get; set; }
         public string Nums { get; set; }
+        public string ViewFunctionId { get; set; }
     }
     #endregion
     #endregion

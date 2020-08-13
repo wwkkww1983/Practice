@@ -118,9 +118,11 @@ namespace Caist.Framework.Service.ApplicationManage
                                     a.base_modify_time as BaseModifyTime,
                                     a.base_modifier_id as BaseModifierId,
                                     a.view_function_id as ViewFunctionId,
+                                    b.system_setting_id as SystemId,
                                     a.manipulate_model_name as ManipulateModelName,
                                     a.manipulate_model_sort as ManipulateModelSort,
                                     a.manipulate_model_stutas as ManipulateModelStutas,
+                                    a.manipulate_model_show_home as ManipulateModelShowHome,
                                     a.manipulate_model_mark as ManipulateModelMark,
                                     a.manipulate_model_unit as ManipulateModelUnit,
                                     b.view_name as ViewName ");

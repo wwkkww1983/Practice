@@ -17,14 +17,10 @@ namespace Caist.Framework.Service.Choucahistory
         public async Task<List<ChoucaiMonitorEntity>> GetSecurityInfoList(ChoucaiMonitorParam param)
         {
             var expression = ListFilter(param);
-            StringBuilder strSql = new StringBuilder();
-            strSql.Append(@"select top(1000) 
-            dict_Id as dictId,dict_Id as dictId,dict_Value as dictValue,create_Time as createTime
-            from [dbo].[mk_plc_choucai_values]");
-            strSql.Append("where  DATEDIFF(HOUR,getdate(),[create_Time]) <=1");
-            var list = await this.BaseRepository().FindList<ChoucaiMonitorEntity>(strSql.ToString());
+        
+            var list = await this.BaseRepository().FindList<ChoucaiMonitorEntity>(expression);
 
-            return list.OrderBy(p => p.createTime).ToList();
+            return list.OrderBy(p => p.createTime).Take(1000).ToList();
         }
 
         #endregion
@@ -33,6 +29,17 @@ namespace Caist.Framework.Service.Choucahistory
         private Expression<Func<ChoucaiMonitorEntity, bool>> ListFilter(ChoucaiMonitorParam param)
         {
             var expression = LinqExtensions.True<ChoucaiMonitorEntity>();
+            if (param != null)
+            {
+                if (param.StartDate.HasValue())
+                {
+                    expression = expression.And(t => t.createTime >= param.StartDate);
+                }
+                if (param.EndDate.HasValue())
+                {
+                    expression = expression.And(t => t.createTime <= param.EndDate);
+                }
+            }
             //if (param != null)
             //{
             //}

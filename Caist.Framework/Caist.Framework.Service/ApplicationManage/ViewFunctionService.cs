@@ -15,6 +15,8 @@ namespace Caist.Framework.Service.ApplicationManage
 {
     public class ViewFunctionService : RepositoryFactory
     {
+
+        private RepositoryFactory repositoryFactory = new RepositoryFactory();
         #region 获取数据
         public async Task<List<ViewFunctionEntity>> GetList(ViewFunctionListParam param)
         {
@@ -81,6 +83,15 @@ namespace Caist.Framework.Service.ApplicationManage
             {
                 await entity.Modify();
                 await this.BaseRepository().Update(entity);
+
+                //特殊处理 人员定位数据修改需要同步更新绑定ID到人员定位配置表 如果不关联这个关系会导致前端无法根据视图模块加载数据
+                //人员定位系统ID按照目前得结构逻辑来说是固定的
+                if (entity.SystemSettingId== 168647666916397056)
+                {
+                    StringBuilder strSql = new StringBuilder();
+                    strSql.AppendFormat("update mk_region_pepole_count set View_Function_Id={1} where Region_name='{0}'",entity.ViewName,entity.Id);
+                    await repositoryFactory.BaseRepository().ExecuteBySql(strSql.ToString());
+                }
             }
         }
 

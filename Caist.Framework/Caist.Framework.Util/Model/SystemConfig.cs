@@ -99,6 +99,10 @@ namespace Caist.Framework.Util.Model
         /// 上传服务器密码
         /// </summary>
         public string FTPPwd { get; set; }
+        /// <summary>
+        /// 人员定位根据不同矿来定义不同SQL查询相关人员信息
+        /// </summary>
+        public string PeoplePositionSqlPath { get; set; }
 
     }
 }

@@ -17,13 +17,8 @@ namespace Caist.Framework.Service.yafenghistory
         public  async Task<List<yafengMonitorEntity>> GetSecurityInfoList(yafengMonitorParam param)
         {
             var expression = ListFilter(param);
-            StringBuilder strSql = new StringBuilder();
-            strSql.Append(@"select top(1000) 
-            dict_Id as dictId,dict_Id as dictId,dict_Value as dictValue,create_Time as createTime
-            from [dbo].[mk_plc_yafeng_values]");
-            strSql.Append("where  DATEDIFF(HOUR,getdate(),[create_Time]) <=1");
-            var list = await this.BaseRepository().FindList<yafengMonitorEntity>(strSql.ToString());
-            return list.OrderBy(p => p.createTime).ToList();
+            var list = await this.BaseRepository().FindList<yafengMonitorEntity>(expression);
+            return list.OrderBy(p => p.createTime).Take(1000).ToList();
         }
 
         #endregion
@@ -32,6 +27,18 @@ namespace Caist.Framework.Service.yafenghistory
         private Expression<Func<yafengMonitorEntity, bool>> ListFilter(yafengMonitorParam param)
         {
             var expression = LinqExtensions.True<yafengMonitorEntity>();
+
+            if (param != null)
+            {
+                if (param.StartDate.HasValue())
+                {
+                    expression = expression.And(t => t.createTime >= param.StartDate);
+                }
+                if (param.EndDate.HasValue())
+                {
+                    expression = expression.And(t => t.createTime <= param.EndDate);
+                }
+            }
             //if (param != null)
             //{
             //}

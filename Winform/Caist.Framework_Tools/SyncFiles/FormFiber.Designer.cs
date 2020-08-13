@@ -59,6 +59,7 @@
             // 
             // btnStop
             // 
+            this.btnStop.Enabled = false;
             this.btnStop.Location = new System.Drawing.Point(122, 39);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(75, 23);
@@ -178,7 +179,7 @@
             this.ClientSize = new System.Drawing.Size(660, 160);
             this.Controls.Add(this.groupBox1);
             this.Name = "FormFiber";
-            this.Text = "Form1";
+            this.Text = "同步相关数据";
             this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);

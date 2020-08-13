@@ -18,6 +18,12 @@
             <param name="AlarmField">mk_alarm_plan.alarm_field</param>
             <returns></returns>
         </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetAreaAlarmInfo">
+            <summary>
+            区域环境数据
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Caist.Framework.WebApi.Controllers.CewenMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Cewenhistory.CewenMonitorParam)">
             <summary>
             获取Chouwen数据

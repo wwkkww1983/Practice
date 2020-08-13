@@ -195,7 +195,6 @@
             dataName: 'Result',  // 数据名称
             onChange: null
         }, option);
-
         var dom = {
             loadData: function () {
                 if (_option.url) {
@@ -276,7 +275,6 @@
                         html += option;
                         html += "</select>";
                         target.append(html);
-
                         if (setting.onChange) {
                             $("#" + id).change(setting.onChange);
                         }
@@ -284,7 +282,7 @@
                     $("#" + id).select2();
 
                     // hack 搜索的select保持和其他元素的宽度一致
-                    $("#" + targetId).find(".select2-container").width(280);
+                    $("#" + targetId).find(".select2-container").width("100%");
                 }
             }
         };

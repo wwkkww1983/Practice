@@ -46,5 +46,17 @@ namespace Caist.Framework.WebApi.Controllers
             var obj = await BojingMonitor.GetAlarmPlanInfo(AlarmField);
             return obj.RemoveNullValue();
         }
+
+        /// <summary>
+        /// 区域环境数据
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<string> GetAreaAlarmInfo()
+        {
+            var obj = await BojingMonitor.GetAreaAlarmInfo();
+            return obj.RemoveNullValue();
+
+        }
     }
 }
