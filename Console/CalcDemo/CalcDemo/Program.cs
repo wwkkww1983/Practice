@@ -8,23 +8,7 @@ namespace ConsoleApp1
         static float _result = 0;
         static void Main(string[] args)
         {
-            //Random rdm = new Random();
-
-
-            //Console.WriteLine(rdm.NextDouble().ToString("#0.00"));
-
-            //MatchNumber();
-            // 2+7*(3/6)-5
-            // 3/6
-            // 7*0.5
-            // 2+3.5
-            // 5.5-5
-
-            //var str = "2+7*(3+3/6-5*22.02)-5";
-            //var dict = new Dictionary<int, string>();
-            //Calc(str.Replace("", string.Empty));
-            //Console.WriteLine(res);
-            string str = "2+7*(3+3/6-5*22.02)-5-(528*9-3.69)";
+            string str = "2+7*(3+-3/6-5*22.02)--5-(528*9-3.69)";
             Calc(str);
             Console.WriteLine(_result.ToString());
             Console.ReadKey();
@@ -133,7 +117,7 @@ namespace ConsoleApp1
         // 3+3 / 6-5*2 获取表达式前后数字
         public static float MatchNumber(string positin, string str, ref string strNum)
         {
-            Regex r = new Regex(@"(\-?[1-9]\d*\.?\d*)|(0\.\d*[1-9])");//正则
+            Regex r = new Regex(@"(\-?[1-9]\d*\.?\d*)|(\-?0\.\d*[1-9])");//正则
             Match m = r.Match(str);//匹配
             string num = string.Empty;
             if (positin == "end")
