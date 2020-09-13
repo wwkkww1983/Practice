@@ -1,7 +1,11 @@
 ﻿using Caist.Framework.Business.ApplicationManage;
 using Caist.Framework.Entity;
 using Caist.Framework.Entity.ApplicationManage;
+using Caist.Framework.Enum;
 using Caist.Framework.Model.Param.ApplicationManage;
+using Caist.Framework.Model.Param.OrganizationManage;
+using Caist.Framework.Model.Result.SystemManage;
+using Caist.Framework.Service.PointManage;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
@@ -23,6 +27,7 @@ namespace Caist.Framework.Business.AutoJob
     {
         private ViewManipulateModelBLL viewManipulateModelBLL = new ViewManipulateModelBLL();
         private InformationPublishBLL InformationPublishBLL = new InformationPublishBLL();
+        private DeviceService deviceService = new DeviceService();
         private readonly FtpClient ftpClient = new FtpClient(GlobalContext.SystemConfig.FTPServer,
             new NetworkCredential(GlobalContext.SystemConfig.FTPUser, GlobalContext.SystemConfig.FTPPwd));
         private readonly string TemplatePath = GlobalContext.SystemConfig.InformationPublishTemplatePath;
@@ -59,54 +64,85 @@ namespace Caist.Framework.Business.AutoJob
             //记录本次任务已发布信息
             List<PublishContent> PublishList = new List<PublishContent>();
             //提取出模板中需要匹配的PLC数据块
-            //主斜井皮带.电压(V)
-            //主斜井皮带.电流(A)
-            //根据系统模块.模块名称 查询到数据后替换模板中的内容数据值
+
             TempList.ForEach((n) =>
             {
+                //正则匹配点位 根据点位匹配数据
                 MatchCollection Matches = Regex.Matches(n.linkContent, @"(?<=\{\{)[^}]*(?=\}\})", RegexOptions.Multiline);
-                ViewManipulateModelListParam param = new ViewManipulateModelListParam();
-                foreach (Match NextMatch in Matches)
+                SystemDataParam param = new SystemDataParam();
+                if (n.linkContent.Contains("井下实时人员数量")) //人员信息联动
                 {
-                    if (!NextMatch.ToString().Contains("井下实时信息"))
+
+                    string result = HttpHelper.HttpPost(Util.GlobalContext.SystemConfig.PeopleRealTime, "");
+                    if (!string.IsNullOrEmpty(result))
                     {
-                        //key:主斜井皮带   value: 电流(A)
-                        string[] dict = NextMatch.ToString().Split('.');
-                        //判断是为重复的视图项
-                        if (!string.IsNullOrEmpty(param.ViewName) && param.ViewName != dict[0])
+                        var data = JsonHelper.ToObject<List<PublicPeopleRealTime>>(result);
+                        StringBuilder sb = new StringBuilder();
+                        sb.AppendFormat("井下实时人员数量：{0}人 \r\n", data.Count);
+                        sb.AppendFormat("编 号   姓 名      职位           位  置\r\n");
+                        foreach (var item in data)
                         {
-                            param.ViewName += "," + dict[0];
+                            item.TypeOfWorkName = !string.IsNullOrEmpty(item.TypeOfWorkName) ? item.TypeOfWorkName : "普通职工";
+                            #region 处理文字长度
+                            if ((4 - item.PepoleName.Length)!= 0)
+                            {
+                                var length = 4 - item.PepoleName.Length;
+                                for (int i = 0; i < length; i++)
+                                {
+                                    item.PepoleName += "  ";
+                                }
+                            }
+                           
+                            if ((5 - item.TypeOfWorkName.Length) != 0)
+                            {
+                                var length = 5 - item.TypeOfWorkName.Length;
+                                for (int i = 0; i < length; i++)
+                                {
+                                    item.TypeOfWorkName += "  ";
+                                }
+                            }
+                            #endregion
+                            sb.AppendFormat("{0}   {1}   {2}     {3}\r\n", item.PepoleNumber, item.PepoleName,
+                                item.TypeOfWorkName, item.StationAddress);
                         }
-                        else
+                        n.linkContent = sb.ToString();
+                    }
+                }
+                else  //plc采集的系统
+                {
+                    foreach (Match NextMatch in Matches)
+                    {
+                        //针对PLC采集点表数据
+                        if (!NextMatch.ToString().Contains("R"))
                         {
-                            param.ViewName = dict[0];
+                            var TabName = deviceService.GetSysDataTableName(NextMatch.Value);
+                            if (TabName.Result != null)
+                            {
+                                param.DictId = NextMatch.Value;
+                                param.TabName = TabName.Result.TabName;
+                                //开始获取数据
+                                var data = viewManipulateModelBLL.GetPublishList(param);
+                                if (data.Result != null && data.Result.Result != null) //如果又数据的话
+                                {
+                                    var entity = data.Result.Result;
+                                    var value = ConvertData(entity);
+                                    //替换当前行中已经获取到的点位数据
+                                    n.linkContent = n.linkContent.Replace("{{" + param.DictId + "}}", value);
+                                }
+                                else
+                                {
+                                    n.linkContent = n.linkContent.Replace("{{" + param.DictId + "}}", "--"); //如果没有获取到数据直接返回--
+                                }
+                            }
                         }
-                        //判断是否为重复的数据项
-                        if (!string.IsNullOrEmpty(param.ManipulateModelName) && param.ManipulateModelName != dict[1])
+                        else //针对同步数据
                         {
-                            param.ManipulateModelName += "," + dict[1];
-                        }
-                        else
-                        {
-                            param.ManipulateModelName = dict[1];
+                            //TODO:人员信息、光纤、供配电
                         }
                     }
                 }
-                if (!string.IsNullOrEmpty(param.ViewName))
-                {
-                    //根据模板中配置的PLC节点查询出节点最新数据
-                    var List = viewManipulateModelBLL.GetPublishList(param);
-                    TData<List<ViewManipulateModelEntity>> dataList = List.Result;
-                    if (dataList.Result != null && dataList.Result.Count > 0)
-                    {
-                        foreach (var data in dataList.Result)
-                        {
-                            //将模板中匹配得如： {{主斜井皮带.电压(V)}} 替换为最新得数值  ，其它得不做修改
-                            n.linkContent = n.linkContent.Replace("{{" + data.ViewName + "." + data.ManipulateModelName + "}}", data.ViewValue.HasValue() ? data.ViewValue : "0");
-                        }
-                        PublishList.Add(n);
-                    }
-                }
+              
+                PublishList.Add(n);
 
             });
             //获取当前输出文件名称
@@ -128,40 +164,112 @@ namespace Caist.Framework.Business.AutoJob
             return obj;
         }
 
+        /// <summary>
+        /// 根据数据类型转换显示数据
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        private static string ConvertData(SystemDataEntity entity)
+        {
+            string value;
+            if (IsInt(entity.DictValue))
+            {
+                value = entity.DictValue;
+            }
+            else if (IsNumeric(entity.DictValue))
+            {
+                value = Convert.ToDouble(entity.DictValue).ToString("f2");
+            }
+            else if (IsBool(entity.DictValue))
+            {
+                value = Convert.ToBoolean(entity.DictValue) ? "是" : "否";
+            }
+            else
+            {
+                value = entity.DictValue;
+            }
+
+            return value;
+        }
+
 
         //输出信息发布数据txt文件到指定得ftp服务器
         private bool WriteDirAndUplpadFtp(string path, string filename, string content)
         {
-            if (Directory.Exists(path) == false)//如果不存在就创建file文件夹
+            bool status = false;
+           
+            try    //如果有ftp服务器需要上传到ftp服务器，如果没有，抛出异常，并且只保存到指定磁盘目录
             {
-                Directory.CreateDirectory(path);
-            }
 
-            if (System.IO.File.Exists(Path.GetFullPath(path + filename)))
-            {
-                File.Delete(Path.GetFullPath(path + filename));
+                if (GlobalContext.SystemConfig.FTPMode == FTPMode.Ftp)
+                {
+
+                    #region  ftp先写到本地磁盘在上传
+                    if (Directory.Exists(path) == false)//如果不存在就创建file文件夹
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    if (System.IO.File.Exists(Path.GetFullPath(path + filename)))
+                    {
+                        File.Delete(Path.GetFullPath(path + filename));
+                    }
+                    FileStream fs = new FileStream(path + filename, FileMode.Create);
+                    StreamWriter sw = new StreamWriter(fs);
+                    //开始写入
+                    sw.Write(content);
+                    //清空缓冲区
+                    sw.Flush();
+                    //关闭流
+                    sw.Close();
+                    fs.Close();
+                    #endregion
+                    //建立连接
+                    ftpClient.Connect();
+                    if (ftpClient.IsConnected == false)
+                    {
+                        return false;
+                    }
+                    var ftpStatus = ftpClient.UploadFile(path + filename, filename);
+                    //断开连接
+                    ftpClient.Disconnect();
+                    //释放资源
+                    ftpClient.Dispose();
+                    status = ftpStatus == FtpStatus.Success;
+                }
+                else if (GlobalContext.SystemConfig.FTPMode == FTPMode.UNC)
+                {
+                    FileShareHelper.connectState();
+                    status = FileShareHelper.WriteFiles(filename, content);
+                }
+                else  //直接走的磁盘路径发布模式
+                {
+                    if (Directory.Exists(path) == false)//如果不存在就创建file文件夹
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+
+                    if (System.IO.File.Exists(Path.GetFullPath(path + filename)))
+                    {
+                        File.Delete(Path.GetFullPath(path + filename));
+                    }
+                    FileStream fs = new FileStream(path + filename, FileMode.Create);
+                    StreamWriter sw = new StreamWriter(fs);
+                    //开始写入
+                    sw.Write(content);
+                    //清空缓冲区
+                    sw.Flush();
+                    //关闭流
+                    sw.Close();
+                    fs.Close();
+                    status = true;
+                }
             }
-            FileStream fs = new FileStream(path + filename, FileMode.Create);
-            StreamWriter sw = new StreamWriter(fs);
-            //开始写入
-            sw.Write(content);
-            //清空缓冲区
-            sw.Flush();
-            //关闭流
-            sw.Close();
-            fs.Close();
-            //建立连接
-            ftpClient.Connect();
-            if (ftpClient.IsConnected == false)
+            catch (Exception ex)
             {
-                return false;
+                LogHelper.Write(ex);
             }
-            var ftpStatus = ftpClient.UploadFile(path + filename, filename);
-            //断开连接
-            ftpClient.Disconnect();
-            //释放资源
-            ftpClient.Dispose();
-            return ftpStatus == FtpStatus.Success;
+            return status;
         }
         /// <summary>
         /// 数据插入数据库
@@ -176,6 +284,42 @@ namespace Caist.Framework.Business.AutoJob
                 entity.DeviceUid = item.deviceUID;
                 entity.LinkContent = item.linkContent;
                 await InformationPublishBLL.SaveForm(entity);
+            }
+        }
+        static bool IsInt(string s)
+        {
+            int v;
+            if (int.TryParse(s, out v))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        static bool IsNumeric(string s)
+        {
+            double v;
+            if (double.TryParse(s, out v))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        static bool IsBool(string s)
+        {
+            bool v;
+            if (bool.TryParse(s, out v))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

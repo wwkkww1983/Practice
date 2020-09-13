@@ -1,10 +1,13 @@
-﻿using Caist.Framework.ThreadPool;
-using SyncFiles;
+﻿using Caist.Framework.DataAccess;
+using Caist.Framework.Entity;
+using Caist.Framework.ThreadPool;
+using Caist.Framework.Util;
+using Newtonsoft.Json;
+//using SyncFiles;
 using SyncLogic;
 using SyncUtil;
 using System;
-using System.IO;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,12 +15,12 @@ namespace Caist.Framework.Service
 {
     public partial class FrmMian
     {
-        readonly int _millSeconds = 60000;
+        readonly int _millSeconds = 1000;
         string _interval;
         Sync sc;
-        FormFiber _formFiber;
-        string _path = Common.GetConfigValue("LogPath");
-        public void Init()
+        //FormFiber _formFiber;
+        string _path = Common.GetConfigValue("SyncLogPath");
+        public void InitSyncData()
         {
             sc = new Sync();
 
@@ -45,30 +48,28 @@ namespace Caist.Framework.Service
         {
             try
             {
+                #region 通过HTTP读取
+                if (bool.Parse("IsHttpRead".GetConfigrationStr()))
+                {
+                    var model = HttpHelper.HttpGet("SecurityMonitorUrl".GetConfigrationStr());
+                    model = model.Replace("Value", "ssz");
+                    var listModel = JsonConvert.DeserializeObject<List<SecurityMonitorEntity>>(model);
+                    DataServices.SaveSecurityMonitorData(listModel);
+                }
+                #endregion
                 Task.Run(async () =>
                 {
                     var tp = await sc.SyncDataAsync();
                     _res = tp.Item1;
                     if (_res.HasValue())
                     {
-                        ShowErrorLog(_res);
+                        Common.LogError(_res);
                     }
                 });
-                //var tp = sc.SyncDataAsync();
-                //if (tp.IsCompleted)
-                //{
-                //    _res = tp.Result.Item1;
-                //    if (_res.HasValue())
-                //    {
-                //        ShowErrorLog(_res);
-                //    }
-                //    GC.Collect();
-                //    GC.WaitForPendingFinalizers();
-                //}
             }
             catch (Exception ex)
             {
-                ShowErrorLog(ex.Message);
+                Common.LogError(ex);
             }
         }
         string _res = string.Empty;
@@ -88,7 +89,7 @@ namespace Caist.Framework.Service
                         _res = tp.Item1;
                         if (_res.HasValue())
                         {
-                            ShowErrorLog(_res);
+                            Common.LogError(_res);
                         }
                     });
                     //#region 光纤测温数据同步
@@ -100,7 +101,7 @@ namespace Caist.Framework.Service
                 }
                 catch (Exception ex)
                 {
-                    ShowErrorLog(ex.Message);
+                    Common.LogError(ex);
                 }
             }
             else
@@ -109,21 +110,14 @@ namespace Caist.Framework.Service
             }
         }
 
-        private void ShowErrorLog(string msg)
-        {
-            string path = Path.Combine(_path, DateTime.Now.ToString("yyyyMMdd") + ".txt");
-            FileOperation.WriteText(path, msg);
-        }
-
         private void btnSave_Click(object sender, EventArgs e)
         {
             var i = txtInterval.Text.Trim();
             if (i.HasValue())
             {
                 var path = Common.GetConfigValue("IntervalPath");
-                var res = FileOperation.WriteText(path, i, false);
+                FileOperation.WriteText(path, i, false);
                 _interval = i;
-                ShowErrorLog(res);
             }
             else
             {
@@ -138,11 +132,11 @@ namespace Caist.Framework.Service
                 timerSyncData.Stop();
                 btnStart.Enabled = true;
                 lblHint.Visible = false;
-                _formFiber._timer.Stop();
+                //_formFiber._formFiberTimer.Stop();
             }
             catch (Exception ex)
             {
-                ShowErrorLog(ex.Message);
+                Common.LogError(ex);
             }
         }
 

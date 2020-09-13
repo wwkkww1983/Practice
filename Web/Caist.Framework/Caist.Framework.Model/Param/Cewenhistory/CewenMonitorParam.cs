@@ -8,5 +8,7 @@ namespace Caist.Framework.Model.Param.Cewenhistory
     {
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+
+        public string DictId { get; set; }
     }
 }

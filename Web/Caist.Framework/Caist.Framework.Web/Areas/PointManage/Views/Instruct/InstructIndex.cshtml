@@ -64,12 +64,12 @@
                 { field: 'Address', title: '标签地址' },
                 {
                     field: 'DataType', title: '数据类型', formatter: function (value, row, index) {
-                        if (row.DataType == "@InstructEnum.BOOL.ParseToInt()") {
-                            return '<span class="badge badge-primary">' + "@InstructEnum.BOOL.GetDescription()" + '</span>';
-                        } else if(row.DataType == "@InstructEnum.BYTE.ParseToInt()") {
-                            return '<span class="badge badge-secondary">' + "@InstructEnum.BYTE.GetDescription()" + '</span>';
-                        } else if(row.DataType == "@InstructEnum.SHORT.ParseToInt()") {
-                            return '<span class="badge badge-success">' + "@InstructEnum.SHORT.GetDescription()" + '</span>';
+                        if (row.DataType == "@InstructEnum.SHORT.ParseToInt()") {
+                            return '<span class="badge badge-primary">' + "@InstructEnum.SHORT.GetDescription()" + '</span>';
+                        } else if(row.DataType == "@InstructEnum.UINT32.ParseToInt()") {
+                            return '<span class="badge badge-secondary">' + "@InstructEnum.UINT32.GetDescription()" + '</span>';
+                        } else if(row.DataType == "@InstructEnum.USHORT.ParseToInt()") {
+                            return '<span class="badge badge-success">' + "@InstructEnum.USHORT.GetDescription()" + '</span>';
                         }else if(row.DataType == "@InstructEnum.INT.ParseToInt()") {
                             return '<span class="badge badge-danger">' + "@InstructEnum.INT.GetDescription()" + '</span>';
                         }else if(row.DataType == "@InstructEnum.FLOAT.ParseToInt()") {
@@ -77,8 +77,7 @@
                         }
                     }
                 },
-                { field: 'Remark', title: '描述' },
-                { field: 'GroupName', title: '寄存标识' }
+                { field: 'Remark', title: '描述' }
             ],
             queryParams: function (params) {
                 var pagination = $('#gridTable').ysTable('getPagination', params);

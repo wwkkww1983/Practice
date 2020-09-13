@@ -40,6 +40,36 @@ namespace Caist.Framework.Service.PointManage
             return list.ToList();
         }
 
+        public async Task<DeviceEntity> GetSysDataTableName(string dictId)
+        {
+            var strSql = new StringBuilder();
+            strSql.Append(@"select top(1)
+                                    c.id as Id,
+                                    c.base_modify_time as BaseModifyTime,
+                                    c.base_modifier_id as BaseModifierId,
+                                    c.Device_Name as DeviceName,
+                                    c.Device_Host as DeviceHost,
+                                    c.Device_Port as DevicePort,
+                                    c.PLCType as PLCType,
+                                    c.Slot_No as SlotNo,
+                                    c.Local as Local,
+                                    c.Remote as Remote,
+                                    c.parent_id as ParentId,
+                                    c.system_id as SystemId,
+                                    c.tab_name as TabName
+            from  mk_view_manipulate_model a
+            left join mk_view_function b on  a.view_function_id = b.id
+            left join mk_device c on b.system_setting_id = c.system_id");
+            List<DbParameter> param = new List<DbParameter>();
+            if (!string.IsNullOrEmpty(dictId))
+            {
+                strSql.Append(" where a.manipulate_model_mark=@dictId");
+                param.Add(DbParameterExtension.CreateDbParameter("@dictId", dictId));
+            }
+            var list = await this.BaseRepository().FindList<DeviceEntity>(strSql.ToString(), param.ToArray());
+            return list.ToList().FirstOrDefault();
+        }
+
         public async Task<DeviceEntity> GetEntity(long id)
         {
             return await this.BaseRepository().FindEntity<DeviceEntity>(id);

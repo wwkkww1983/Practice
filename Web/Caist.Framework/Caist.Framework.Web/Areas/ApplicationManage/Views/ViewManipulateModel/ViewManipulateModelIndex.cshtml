@@ -3,36 +3,36 @@
     Layout = "~/Views/Shared/_Index.cshtml";
 }
 
-    <div class="container-div">
-        <div class="row">
-            <div id="searchDiv" class="col-sm-12 search-collapse">
-                <div class="select-list">
-                    <ul>
-                        <li>
-                            展示项目：<input id="manipulateModelName" col="ManipulateModelName" type="text" />
-                        </li>
-                        <li class="select-select2">
-                            <label>系统模块：</label>
-                            <div id="systemId" col="SystemId" class="select"></div>
-                        </li>
-                        <li>
-                            <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="btn-group-sm hidden-xs" id="toolbar">
-                <a id="btnAdd" class="btn btn-success" onclick="showSaveForm(true)"><i class="fa fa-plus"></i> 新增</a>
-                <a id="btnEdit" class="btn btn-primary disabled" onclick="showSaveForm(false)"><i class="fa fa-edit"></i> 修改</a>
-                <a id="btnDelete" class="btn btn-danger disabled" onclick="deleteForm()"><i class="fa fa-remove"></i> 删除</a>
-            </div>
-            <div class="col-sm-12 select-table table-striped">
-                <table id="gridTable" data-mobile-responsive="true"></table>
+<div class="container-div">
+    <div class="row">
+        <div id="searchDiv" class="col-sm-12 search-collapse">
+            <div class="select-list">
+                <ul>
+                    <li>
+                        展示项目：<input id="manipulateModelName" col="ManipulateModelName" type="text" />
+                    </li>
+                    <li class="select-select2">
+                        <label>系统模块：</label>
+                        <div id="systemId" col="SystemId" class="select"></div>
+                    </li>
+                    <li>
+                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                    </li>
+                </ul>
             </div>
         </div>
+        <div class="btn-group-sm hidden-xs" id="toolbar">
+            <a id="btnAdd" class="btn btn-success" onclick="showSaveForm(true)"><i class="fa fa-plus"></i> 新增</a>
+            <a id="btnEdit" class="btn btn-primary disabled" onclick="showSaveForm(false)"><i class="fa fa-edit"></i> 修改</a>
+            <a id="btnDelete" class="btn btn-danger disabled" onclick="deleteForm()"><i class="fa fa-remove"></i> 删除</a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="gridTable" data-mobile-responsive="true"></table>
+        </div>
     </div>
+</div>
 
-    <script type="text/javascript">
+<script type="text/javascript">
     $(function () {
         initGrid();
         $("#systemId").ysComboBox({
@@ -75,6 +75,22 @@
                         }
                     }
                 },
+                {
+                    field: 'InstructView', title: '展示类型',
+                    formatter: function (value, row, index) {
+                        if (row.InstructView == "@InstructViewEnum.Govern.ParseToInt()") {
+                            return '<span class="badge badge-primary">' + "@InstructViewEnum.Govern.GetDescription()" + '</span>';
+                        } else if (row.InstructView == "@InstructViewEnum.Alarm.ParseToInt()") {
+                            return '<span class="badge badge-warning">' + "@InstructViewEnum.Alarm.GetDescription()" + '</span>';
+                        } else if(row.InstructView == "@InstructViewEnum.Data.ParseToInt()") {
+                            return '<span class="badge badge-success">' + "@InstructViewEnum.Data.GetDescription()" + '</span>';
+                        } else if(row.InstructView == "@InstructViewEnum.Start.ParseToInt()") {
+                            return '<span class="badge badge-success">' + "@InstructViewEnum.Start.GetDescription()" + '</span>';
+                        }else if(row.InstructView == "@InstructViewEnum.Stop.ParseToInt()") {
+                            return '<span class="badge badge-success">' + "@InstructViewEnum.Stop.GetDescription()" + '</span>';
+                        }
+                    }
+                },
                 { field: 'ManipulateModelSort', title: '排序' },
             ],
             queryParams: function (params) {
@@ -105,7 +121,7 @@
             title: id > 0 ? "编辑控制模块" : "添加控制模块",
             content: '@Url.Content("~/ApplicationManage/ViewManipulateModel/ViewManipulateModelForm")' + '?id=' + id,
             width: "768px",
-            height: "350px",
+            height: "450px",
             callback: function (index, layero) {
                 var iframeWin = window[layero.find('iframe')[0]['name']];
                 iframeWin.saveForm(index);
@@ -135,5 +151,5 @@
         }
     }
 
-    </script>
+</script>
 

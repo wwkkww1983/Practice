@@ -98,4 +98,12 @@ namespace Caist.Framework.Enum
         PayError = 7
     }
 
+    public enum FTPMode
+    {
+        [Description("FTP服务器")]
+        Ftp = 1,
+        [Description("共享文件夹")]
+        UNC =2,
+    }
+
 }

@@ -23,11 +23,13 @@ namespace Caist.Framework.Web.Areas.YFJDemo.Controllers
             return View();
         }
         [HttpPost]
+        //历史
         public async Task<string> GetyafengTempLists([FromBody]yafengMonitorParam param)
         {
             var obj = await yafengMonitorBLL.GetSecurityInfoList(param);
             return obj.RemoveNullValue();
         }
+        //实时
         public async Task<string> GetyafengTempListsr([FromBody]yafengMonitorParam param)
         {
             var obj = await yafengMonitorBLL.GetSecurityInfoListr(param);

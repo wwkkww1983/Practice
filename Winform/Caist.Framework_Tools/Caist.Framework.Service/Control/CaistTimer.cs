@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Caist.Framework.Entity.Enum;
+using Caist.Siemens;
 
 namespace Caist.Framework.Service.Control
 {
     public class CaistTimer:System.Timers.Timer
     {
         public string State { get; set; }
-        public object obj { get; set; }
+        public string ClientFlag { get; set; }
+        public SiemensHelpers obj { get; set; }
     }
 
+    public class DataBaseTimer : CaistTimer
+    {
+        public RequestType Tag { get; set; }
+    }
 }

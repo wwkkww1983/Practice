@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Caist.Framework.Util
 {
@@ -84,5 +80,20 @@ namespace Caist.Framework.Util
             return string.Empty;
         }
         #endregion
+
+
+        public static double GetMinuteinterval(DateTime StartTime,DateTime EndTime)
+        {
+            DateTime pauseT = StartTime;
+            DateTime resumeT = EndTime;
+            TimeSpan ts1 = new TimeSpan(pauseT.Ticks);
+            TimeSpan ts2 = new TimeSpan(resumeT.Ticks);
+            TimeSpan tsSub = ts1.Subtract(ts2).Duration();
+            return tsSub.TotalSeconds;
+
+            //tsSub.Days:相差天数；
+            //tsSub.Hours：相差小时；
+            //tsSub.Minutes：相差分钟；
+        }
     }
 }

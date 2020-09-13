@@ -34,9 +34,9 @@
                 <input id="remark" col="Remark" type="text" class="form-control" />
             </div>
             @*<label class="col-sm-2 control-label">寄存标识<font class="red"> *</font></label>
-                <div class="col-sm-4">
-                    <div id="groupname" col="GroupName"></div>
-                </div>*@
+            <div class="col-sm-4">
+                <div id="groupname" col="GroupName"></div>
+            </div>*@
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">输入输出</label>
@@ -54,7 +54,7 @@
     var instructGroupId = ys.request("instructGroupId");
     $(function () {
         $("#dataType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructEnum).EnumToDictionaryString())) });
-        $("#output").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructParamEnum).EnumToDictionaryString())) });
+        $("#output").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructParamEnum).EnumToDictionaryString())) });        
         getForm();
         $("#instructGroupId").ysComboBox({
             url: '@Url.Content("~/PointManage/InstructGroup/GetListJson")',

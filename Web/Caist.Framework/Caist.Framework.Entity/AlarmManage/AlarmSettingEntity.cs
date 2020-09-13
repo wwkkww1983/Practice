@@ -9,6 +9,8 @@ namespace Caist.Framework.Entity.AlarmManage
     {
         [JsonConverter(typeof(StringJsonConverter))]
         public long? ViewManipulateId { get; set; }
+        [NotMapped]
+        public string ManipulateModelName { get; set; }
         public string MinValue { get; set; }
         public string MaxValue { get; set; }
         public string BroadcastContent { get; set; }

@@ -7,8 +7,9 @@
         <div id="searchDiv" class="col-sm-12 search-collapse">
             <div class="select-list">
                 <ul>
-                    <li>
-                        应用系统：<input id="SystemId" col="SystemId" type="text" />
+                    <li class="select-select2">
+                        <label>系统模块：</label>
+                        <div id="SystemId" col="SystemId" class="select"></div>
                     </li>
                     <li>
                         <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -25,6 +26,12 @@
 <script type="text/javascript">
     $(function () {
         initGrid();
+        $("#SystemId").ysComboBox({
+            url: '@Url.Content("~/ApplicationManage/SystemSetting/GetListJson")',
+            key: "Id",
+            value: "SystemName",
+            class: "form-control",
+        });
     });
 
     function initGrid() {
@@ -45,7 +52,19 @@
                         return val
                     } },
                 { field: 'AlarmReason', title: '报警原因' },
-                { field: 'BroadcastContent', title: '报警语音' }
+                { field: 'BroadcastContent', title: '报警内容' },
+                 {
+                    field: 'BroadcastCount', title: '告警等级',
+                    formatter: function (value, row, index) {
+                        if (row.BroadcastCount == "@AlarmClassEnum.ClassA.ParseToInt()") {
+                            return '<span class="badge badge-info">' + "@AlarmClassEnum.ClassA.GetDescription()" + '</span>';
+                        } else if (row.BroadcastCount == "@AlarmClassEnum.ClassB.ParseToInt()") {
+                            return '<span class="badge badge-warning">' + "@AlarmClassEnum.ClassB.GetDescription()" + '</span>';
+                        } else if (row.BroadcastCount == "@AlarmClassEnum.ClassC.ParseToInt()"){
+                            return '<span class="badge badge-danger">' + "@AlarmClassEnum.ClassC.GetDescription()" + '</span>';
+                        }
+                    }
+                }
             ],
             queryParams: function (params) {
                 var pagination = $('#gridTable').ysTable('getPagination', params);
@@ -72,5 +91,5 @@
             }
         }
     }
-    
+
 </script>

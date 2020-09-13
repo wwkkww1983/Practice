@@ -193,6 +193,7 @@
             multiple: false,
             data: null, // 数据源          
             dataName: 'Result',  // 数据名称
+            unit:"unit",
             onChange: null
         }, option);
         var dom = {
@@ -260,11 +261,11 @@
                                 option += "<optgroup label='--" + row[setting.key] + "--'>";
                                 $.each(row[setting.value], function (j) {
                                     var childRow = row[setting.value][j];
-                                    option += "<option value='" + childRow[setting.key] + "'>" + childRow[setting.value] + "</option>";
+                                    option += "<option value='" + childRow[setting.key] + "' unit='" + childRow[setting.unit] + "'>" + childRow[setting.value] + "</option>";
                                 });
                             }
                             else {
-                                option += "<option value='" + row[setting.key] + "'>" + row[setting.value] + "</option>";
+                                option += "<option value='" + row[setting.key] + "' unit='" + row[setting.unit] + "' >" + row[setting.value] + "</option>";
                             }
                         }
                     });
@@ -404,7 +405,7 @@
                 }
             }
             else if (control.tagName == "SELECT") {
-                $(control).val(data[field]);
+                $(control).val(data[field]).select2();
             }
             else if (control.tagName == "DIV") {
                 if ($(control).find("#" + id + "_tree").length > 0) {

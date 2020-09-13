@@ -110,6 +110,13 @@ namespace SyncDataAccess
                     {
                         bulk.ColumnMappings.Add(item.Split(',')[0], item.Split(',')[1]);
                     }
+                    if (bulk.ColumnMappings.Count == 0)
+                    {
+                        foreach (DataColumn column in dataTable.Columns)
+                        {
+                            bulk.ColumnMappings.Add(column.ColumnName, column.ColumnName.ToLower());
+                        }
+                    }
                     bulk.NotifyAfter = 100;
                     bulk.WriteToServer(dataTable);
                 }

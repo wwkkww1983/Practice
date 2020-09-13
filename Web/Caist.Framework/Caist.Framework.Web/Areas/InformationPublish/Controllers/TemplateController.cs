@@ -18,6 +18,7 @@ namespace Caist.Framework.Web.Areas.InformationPublish.Controllers
     public class TemplateController : BaseController
     {
         private InformationTemplateBLL InformationTemplateBLL = new InformationTemplateBLL();
+        private LedDeviceBLL ledDeviceBLL = new LedDeviceBLL();
         #region 视图页面
         [AuthorizeFilter("InformationPublish:Template:view")]
         public IActionResult TemplateIndex()
@@ -38,7 +39,18 @@ namespace Caist.Framework.Web.Areas.InformationPublish.Controllers
         [AuthorizeFilter("InformationPublish:Template:search")]
         public async Task<IActionResult> GetPageListJson(InformationPublishParam param, Pagination pagination)
         {
-            TData<List<PublishContent>> obj = await InformationTemplateBLL.GetPageList(param, pagination);
+            TData<List<PublishContentPage>> obj = await InformationTemplateBLL.GetPageList(param, pagination);
+          
+            TData<List<LedDeviceEntity>> led = await ledDeviceBLL.GetList(new LedDeviceParam());
+            if (obj.Result!=null)
+            {
+                obj.Result.ForEach(n => {
+                    if (led.Result.FindIndex(f=>f.DeviceUid==n.deviceUID) >= 0)
+                    {
+                        n.deviceName = led.Result.FirstOrDefault(m => m.DeviceUid == n.deviceUID).DeviceName;
+                    }
+                });
+            }
             return Json(obj);
         }
 
@@ -58,6 +70,7 @@ namespace Caist.Framework.Web.Areas.InformationPublish.Controllers
         [AuthorizeFilter("InformationPublish:Template:add,InformationPublish:Template:edit")]
         public async Task<IActionResult> SaveFormJson(PublishContent entity,int Index,int Add)
         {
+            entity.linkContent = entity.linkContent.Replace("\n","\r\n"); 
             TData<string> obj = await InformationTemplateBLL.SaveForm(entity,Index, Add);
             return Json(obj);
         }

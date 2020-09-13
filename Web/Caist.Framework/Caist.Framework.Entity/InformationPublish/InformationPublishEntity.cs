@@ -13,5 +13,8 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// 发布内容
         /// </summary>
         public string LinkContent { get; set; }
+
+        [NotMapped]
+        public string DeviceName { get; set; }
     }
 }

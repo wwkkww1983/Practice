@@ -5,18 +5,136 @@
 <div class="wrapper animated fadeInRight">
     <form id="form" class="form-horizontal m">
         <div class="form-group">
-            <label class="col-sm-2 control-label ">设备号 <font class="red"> *</font> </label>
+            <label class="col-sm-2 control-label ">系统名称<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="systemModels" col="SystemModels"></div>
+            </div>
+            <div class="col-sm-4 control-label"><font class="red">纯文本编辑信息不用选择系统</font></div>
+        </div>
+        <div class="form-group" id="pclPanel" style="display:none;">
+            <label class="col-sm-2 control-label ">所属模块</label>
+            <div class="col-sm-4">
+                <div id="viewFunctionId" col="ViewFunctionId"></div>
+            </div>
+            <label class="col-sm-2 control-label ">显示点位<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="viewManipulateId" col="ViewManipulateId"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">设备<font class="red"> *</font></label>
             <div class="col-sm-10">
-                <input id="deviceUID" col="deviceUID" type="text" class="form-control" />
+                <div id="deviceUID" col="deviceUID"></div>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">移动速度<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <select class="form-control select2" id="moveSpeed" col="moveSpeed">
+                    <option value="1">1级</option>
+                    <option value="0">自适应</option>
+                    <option value="2">2级</option>
+                    <option value="3">3级</option>
+                    <option value="4">4级</option>
+                    <option value="5">5级</option>
+                    <option value="6">6级</option>
+                    <option value="7">7级</option>
+                    <option value="8">8级</option>
+                </select>
+            </div>
+            <label class="col-sm-2 control-label ">字体<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <select class="form-control select2" id="fontName" col="fontName">
+                    <option value="1">宋体</option>
+                    <option value="2">楷体</option>
+                    <option value="3">黑体</option>
+                    <option value="4">隶书</option>
+                    <option value="5">行书/幼圆</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">字体大小<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <select class="form-control select2" id="fontSize" col="fontSize">
+                    <option value="1">16*16</option>
+                    <option value="0">12*12</option>
+                    <option value="2">24*24</option>
+                    <option value="3">32*32</option>
+                    <option value="4">48*48</option>
+                    <option value="5">64*64</option>
+                    <option value="6">80*80</option>
+                    <option value="7">96*96</option>
+                </select>
+            </div>
+            <label class="col-sm-2 control-label ">字体<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <select class="form-control select2" id="fontColor" col="fontColor">
+                    <option value="1">红色</option>
+                    <option value="2">绿色</option>
+                    <option value="3">黄色</option>
+                    <option value="4">蓝色</option>
+                    <option value="5">紫色</option>
+                    <option value="6">青色</option>
+                    <option value="7">白色</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">显示方式<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <select class="form-control select2" id="showMode" col="showMode">
+                    <option value="9">立即显示</option>
+                    <option value="0">自适应自适应</option>
+                    <option value="1">从右向左移动</option>
+                    <option value="2">从左向右移动</option>
+                    <option value="3">从下向上移动</option>
+                    <option value="4">从上向下移动</option>
+                    <option value="5">从右向左展开</option>
+                    <option value="6">从左向右展开</option>
+                    <option value="7">从下向上展开</option>
+                    <option value="8">从上向下展开</option>
+                    <option value="10">从中间向两边展开</option>
+                    <option value="11">从两边向中间展开</option>
+                    <option value="12">从中间向上下展开</option>
+                    <option value="13">从上下向中间展开</option>
+                    <option value="14">闪烁</option>
+                    <option value="15">右百叶</option>
+                    <option value="16">下百叶</option>
+                </select>
+            </div>
+
+
+            <label class="col-sm-2 control-label ">内容属性<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <select class="form-control select2" id="attribute" col="attribute">
+                    <option value="1">居左标题</option>
+                    <option value="2">居中标题</option>
+                    <option value="3">居右标题</option>
+                    <option value="4">闪烁广告</option>
+                    <option value="5">不闪烁广告</option>
+                    <option value="6">正文</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">停留时间<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <select class="form-control select2" id="stopTime" col="stopTime">
+                    <option value="1">5秒</option>
+                    <option value="255">一直静止显示</option>
+                    <option value="0">由程序依据播放方式和每屏的显示字符数自动设定</option>
+                </select>
             </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label ">模板内容  <font class="red"> *</font> </label>
             <div class="col-sm-10">
-                <input id="linkContent" col="linkContent" type="text" class="form-control" />
+                <textarea rows="5" id="linkContent"  col="linkContent" class="form-control"></textarea>
             </div>
         </div>
-
         <div class="form-group" id="control-index-input">
             <label class="col-sm-2 control-label ">索引  <font class="red"> *</font> </label>
             <div class="col-sm-10">
@@ -28,18 +146,78 @@
 </div>
 <script type="text/javascript">
     var id = ys.request("id");
-        $(function () {
-            getForm();
-            $("#form").validate({
-                rules: {
-                    viewFunctionId: { required: true },
-                    manipulateModelName: { required: true }
-                }
-            });
+    var content = "";
+    var linkContent = $("#linkContent").val();
+    $(function () {
+        getForm();
+        $("#form").validate({
+            rules: {
+                viewFunctionId: { required: true },
+                manipulateModelName: { required: true }
+            }
         });
+        $("#systemModels").ysComboBox({
+            url: '@Url.Content("~/ApplicationManage/SystemSetting/GetListJson")',
+            key: "Id",
+            value: "SystemName",
+            class: "form-control",
+            onChange: showViewFunction,
+        });
+         $("#deviceUID").ysComboBox({
+            url: '@Url.Content("~/InformationPublish/Device/GetListJson")',
+            key: "DeviceUid",
+            value: "DeviceName",
+            class: "form-control",
+        });
+    });
+
+    function showViewFunction() {
+        var selectConValue = $("#systemModels_select").find("option:selected").val();
+        if ($("#systemModels_select").find("option:selected").text().indexOf("人员定位") > -1) {
+            $("#pclPanel").hide();
+            $("#linkContent").val("井下实时人员数量：{R}人");
+        } else {
+            $("#pclPanel").show();
+            $("#linkContent").val("");
+             $("#viewFunctionId").ysComboBox({
+               url: '@Url.Content("~/ApplicationManage/ViewFunction/GetListJson")' + '?SystemSettingId=' + selectConValue + "&ViewType=1",
+                    key: "Id",
+                    value: "ViewName",
+                    class: "form-control",
+                    onChange: showComboBox,
+             });
+            showComboBox();
+        }
+
+    }
+     function showComboBox() {
+         var selectValue = $("#viewFunctionId_select").find("option:selected").val();
+         content= $("#viewFunctionId_select").find("option:selected").text()
+        $("#viewManipulateId").ysComboBox({
+            url: '@Url.Content("~/ApplicationManage/ViewManipulateModel/GetListJson")' + '?ViewFunctionId=' + selectValue,
+            key: "ManipulateModelMark",
+            value: "ManipulateModelName",
+            unit: "ManipulateModelUnit",
+            class: "form-control",
+            onChange: Content,
+        });
+    }
+    function Content() {
+        var thisTxt = $("#viewManipulateId_select").find("option:selected").text();
+        var unit = $("#viewManipulateId_select").find("option:selected").attr("unit");
+        if (unit == "null") { //处理单位为空的数据
+            unit = "";
+        }
+        if (linkContent!="") {
+            linkContent += ";" + content + thisTxt + ":{{" + $("#viewManipulateId_select").find("option:selected").val() + "}}" + unit;
+        } else {
+            linkContent = content + thisTxt + ":{{" + $("#viewManipulateId_select").find("option:selected").val() + "}}" + unit;
+        }
+        $("#linkContent").val(linkContent);
+    }
     function getForm() {
 
-            if (linkContent!="") {
+        if (id!="") {
                 ys.ajax({
                     url: '@Url.Content("~/InformationPublish/Template/GetFormJson")' + '?id=' + id,
                     type: "get",

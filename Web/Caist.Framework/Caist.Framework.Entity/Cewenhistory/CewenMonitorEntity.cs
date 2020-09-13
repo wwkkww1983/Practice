@@ -6,10 +6,8 @@ using System.Text;
 namespace Caist.Framework.Entity.Cewenhistory
 {
     [Serializable]
-    [Table("mk_plc_cewen_values")]
-   public class CewenMonitorEntity : BaseEntity
+    public class CewenMonitorEntity : BaseEntity
     {
-        public string Id { get; set; }
         public string areaName { get; set; }
         public string maxValue { get; set; }
         public string minValue { get; set; }

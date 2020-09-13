@@ -51,7 +51,8 @@
 <script type="text/javascript">
     var Nums;
     $(function () {
-
+        laydate.render({ elem: '#startTime', format: 'yyyy-MM-dd' });
+        laydate.render({ elem: '#endTime', format: 'yyyy-MM-dd' });
         $.ajax({
             url: '/PepolePosition/Pepole/PersonnelList',
             type: 'post',

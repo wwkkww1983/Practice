@@ -118,6 +118,7 @@ namespace Caist.Framework.Service.ApplicationManage
                                     a.view_button_url as ViewButtonUrl,
                                     a.view_button_image as ViewButtonImage,
                                     a.view_status as ViewStatus,
+                                    a.view_function_show_home as ViewFunctionShowHome,
                                     b.system_name as SystemSettingName ");
             if (bSystemSettingContent)
             {
@@ -127,6 +128,16 @@ namespace Caist.Framework.Service.ApplicationManage
             var parameter = new List<DbParameter>();
             if (param != null)
             {
+                if (param.ViewFunctionShowHome.HasValue())
+                {
+                    strSql.Append(" AND a.view_function_show_home = @ViewFunctionShowHome");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ViewFunctionShowHome", param.ViewFunctionShowHome));
+                }
+                if (param.ViewType.HasValue && param.ViewType > 0)
+                {
+                    strSql.Append(" AND a.view_type = @ViewType");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ViewType", param.ViewType));
+                }
                 if (!string.IsNullOrEmpty(param.ViewName))
                 {
                     strSql.Append(" AND b.[system_nick_name] like @ViewName");

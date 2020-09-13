@@ -8,22 +8,29 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
+/**
+ *  zhangmeiqing 2020-8-17
+ *  此类为光纤测温以文本方式存储的矿而服务（中渝）
+ * */
 namespace SyncFiles
 {
     public partial class FormFiber : Form
     {
-        public Timer _timer;
+        public Timer _formFiberTimer;
         string _path;
         List<string> _temps = new List<string>();
         Dictionary<int,string> _tempFibers = new Dictionary<int, string>();
-        List<FiberEntity> _fibers = new List<FiberEntity>();
+        public static List<FiberEntity> _listFormFibers = new List<FiberEntity>();
+
         public FormFiber()
         {
             InitializeComponent();
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Common.InitLog("FiberLogPath".GetConfigrationStr());
             Init();
         }
 
@@ -32,9 +39,9 @@ namespace SyncFiles
             _path = GetPath();
             _temps = FileOperation.ReadTextList(_path);
             _tempFibers = GetKeyPair(FileOperation.ReadTextList("FiberConfigPath".GetConfigrationStr()));
-            _timer = new Timer();
-            _timer.Interval = 5000;
-            _timer.Tick += _timer_Tick;
+            _formFiberTimer = new Timer();
+            _formFiberTimer.Interval = 5000;
+            _formFiberTimer.Tick += _timer_Tick;
         }
 
         private Dictionary<int, string> GetKeyPair(List<string> lists)
@@ -52,7 +59,7 @@ namespace SyncFiles
             {
                 CtrlBtn(true);
                 Start();
-                _timer.Start();
+                _formFiberTimer.Start();
             }
             catch (Exception ex)
             {
@@ -69,9 +76,9 @@ namespace SyncFiles
         private void Start()
         {
             //_temps.Clear();
-            _fibers.Clear();
+            _listFormFibers.Clear();
             BuildList();
-            var flag = DataServices.InsertData(_fibers);
+            var flag = DataServices.SaveFiberData(_listFormFibers);
             if (!flag)
             {
                 MessageBox.Show("faild!");
@@ -101,14 +108,13 @@ namespace SyncFiles
 
         private void AddFiberEntityToList(List<float> listTemp, string name)
         {
-            _fibers.Add(new FiberEntity()
+            _listFormFibers.Add(new FiberEntity()
             {
                 AreaName = name,
                 AverageValue = listTemp.Average().ToString(),
                 MaxValue = listTemp.Max().ToString(),
-                MinValuePos = listTemp.Max().ToString(),
                 MinValue = listTemp.Min().ToString(),
-                MaxValuePos = listTemp.Min().ToString()
+                CreateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
             });
         }
 
@@ -135,7 +141,7 @@ namespace SyncFiles
         private void btnStop_Click(object sender, EventArgs e)
         {
             CtrlBtn(false);
-            _timer.Stop();
+            _formFiberTimer.Stop();
         }
     }
 

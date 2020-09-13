@@ -30,7 +30,7 @@
                 <a id="btnSearch" class="btn btn-primary btn-sm" onclick="print()">打印</a>
             </li>
             <li>
-                <a class="btn btn-primary btn-sm" asp-action="Export">导出Excel</a></>
+                <a class="btn btn-primary btn-sm" href="javascript:;" onclick="exportExcel()">导出Excel</a></>
             </li>
         </ul>
     </div>
@@ -66,10 +66,12 @@
 
 
 <script type="text/javascript">
+
     var low_global;
 
     $(function () {
-
+        laydate.render({ elem: '#startTime', format: 'yyyy-MM-dd' });
+        laydate.render({ elem: '#endTime', format: 'yyyy-MM-dd' });
         $.ajax({
             url: '/VentilatorManage/TFJ/GettongfengTempLists',
             type: 'post',
@@ -152,6 +154,12 @@
                 low_global.push(datas[i].dictValue);
             }
         }
+    }
+
+    //导出excel数据
+    function exportExcel() {
+        
+        window.open("/VentilatorManage/TFJ/Export?StartDate=" + $("#startTime").val() + "&EndDate=" + $("#endTime").val());
     }
 </script>
 

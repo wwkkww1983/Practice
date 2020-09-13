@@ -5,15 +5,9 @@ namespace Caist.Framework.Entity.FiberManage
 {
     [Serializable]
     [Table("mk_cable_thermometry")]
-    public class CableEntity
+    public class CableEntity:BaseEntity
     {
-        /// <summary>
-        /// 主键
-        /// </summary>
-        public long Id
-        {
-            get; set;
-        }
+
         /// <summary>
         /// 区域名称
         /// </summary>
@@ -30,13 +24,6 @@ namespace Caist.Framework.Entity.FiberManage
             get; set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public string MaxValuePos
-        {
-            get; set;
-        }
 
         /// <summary>
         /// 最小值
@@ -46,13 +33,6 @@ namespace Caist.Framework.Entity.FiberManage
             get; set;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public string MinValuePos
-        {
-            get; set;
-        }
         /// <summary>
         /// 平均值
         /// </summary>

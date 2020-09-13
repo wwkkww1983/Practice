@@ -12,6 +12,7 @@ namespace Caist.Framework.Entity.PointManage
         public string DataType { get; set; }
         public string Output { get; set; }
         public string Remark { get; set; }
+
         [JsonConverter(typeof(StringJsonConverter))]
         public long? InstructGroupId { get; set; }
         public string InstructGroupName { get; set; }
@@ -26,6 +27,7 @@ namespace Caist.Framework.Entity.PointManage
         public string DataType { get; set; }
         public string Output { get; set; }
         public string Remark { get; set; }
+
         [JsonConverter(typeof(StringJsonConverter))]
         public long? InstructGroupId { get; set; }
         public string InstructGroupName { get; set; }

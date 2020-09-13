@@ -34,7 +34,7 @@ namespace Caist.Framework.Web.Areas.AlarmManage.Controllers
         [AuthorizeFilter("alarmgsetting:alarmgsetting:search")]
         public async Task<IActionResult> GetListJson(AlarmSettingListParam param)
         {
-            TData<List<AlarmSettingsEntity>> obj = await alarmSetting.GetList(param);
+            TData<List<AlarmSettingEntity>> obj = await alarmSetting.GetList(param);
             return Json(obj);
         }
 
@@ -42,7 +42,7 @@ namespace Caist.Framework.Web.Areas.AlarmManage.Controllers
         [AuthorizeFilter("alarmgsetting:alarmgsetting:search")]
         public async Task<IActionResult> GetPageListJson(AlarmSettingListParam param, Pagination pagination)
         {
-            TData<List<AlarmSettingsEntity>> obj = await alarmSetting.GetPageList(param, pagination);
+            TData<List<AlarmSettingEntity>> obj = await alarmSetting.GetPageList(param, pagination);
             return Json(obj);
         }
 

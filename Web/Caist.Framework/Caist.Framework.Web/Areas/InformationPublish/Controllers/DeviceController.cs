@@ -36,6 +36,15 @@ namespace Caist.Framework.Web.Areas.InformationPublish.Controllers
 
         [HttpGet]
         [AuthorizeFilter("InformationPublish:Device:search")]
+        public async Task<IActionResult> GetListJson(LedDeviceParam param)
+        {
+            TData<List<LedDeviceEntity>> obj = await ledDeviceBLL.GetList(param);
+            return Json(obj);
+        }
+
+
+        [HttpGet]
+        [AuthorizeFilter("InformationPublish:Device:search")]
         public async Task<IActionResult> GetPageListJson(LedDeviceParam param, Pagination pagination)
         {
             TData<List<LedDeviceEntity>> obj = await ledDeviceBLL.GetPageList(param, pagination);

@@ -413,6 +413,8 @@ namespace Caist.Framework.PLC.Siemens.Common
 				DataType,
 				DataString
 			});
+
+
 			this._Socket.Send(StrTobyte.StrToArraybyte(text5));
 		}
 

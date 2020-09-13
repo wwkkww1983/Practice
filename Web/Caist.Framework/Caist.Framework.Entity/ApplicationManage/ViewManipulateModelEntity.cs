@@ -55,5 +55,8 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// </summary>
         [NotMapped]
         public string ViewValue { get; set; }
+
+
+        public int? InstructView { get; set; }
     }
 }

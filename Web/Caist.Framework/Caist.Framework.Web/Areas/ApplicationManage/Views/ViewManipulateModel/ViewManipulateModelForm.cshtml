@@ -40,6 +40,10 @@
                 <label class="col-sm-2 control-label">是否显示首页</label>
                 <div class="col-sm-4" id="ManipulateModelShowHome" col="ManipulateModelShowHome"></div>
             </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">展示类型</label>
+                <div class="col-sm-10" id="instructView" col="InstructView"></div>
+            </div>
         </form>
     </div>
     <script type="text/javascript">
@@ -49,6 +53,7 @@
         $(function () {
             $("#manipulateModelStutas").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(IsEnum).EnumToDictionaryString())) });
             $("#ManipulateModelShowHome").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(IsEnum).EnumToDictionaryString())) });
+            $("#instructView").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructViewEnum).EnumToDictionaryString())) });
             $("#viewFunctionId").ysComboBox({
                 url: '@Url.Content("~/ApplicationManage/ViewFunction/GetListJson")',
                 key: "Id",

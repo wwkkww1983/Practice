@@ -42,12 +42,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entity\VideoEntity.cs" />
     <Compile Include="Entity\CommonEntity.cs" />
     <Compile Include="Entity\AlarmRecordEntity.cs" />
     <Compile Include="Entity\HistoryEntity.cs" />
+    <Compile Include="Entity\MqtSettingEntity.cs" />
     <Compile Include="Entity\MqThemeEntity.cs" />
+    <Compile Include="Entity\SecurityMonitorEntity.cs" />
     <Compile Include="Entity\PLCEntity.cs" />
     <Compile Include="Entity\PepolePostionEntity.cs" />
+    <Compile Include="Entity\OpcPowerEntity.cs" />
     <Compile Include="Entity\SubStationEntity.cs" />
     <Compile Include="Entity\FiberEntity.cs" />
     <Compile Include="Entity\DeviceEntity.cs" />

@@ -17,7 +17,7 @@ namespace Caist.Framework.Service.Security
         {
             var expression = ListFilter(param);
             var list = await this.BaseRepository().FindList(expression);
-            return list.OrderBy(p => p.UpdatDateTime).ToList();
+            return list.ToList();
         }
 
         #endregion

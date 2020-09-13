@@ -95,7 +95,8 @@
     });*@
 
     function initChart() {
-
+        laydate.render({ elem: '#startTime', format: 'yyyy-MM-dd' });
+        laydate.render({ elem: '#endTime', format: 'yyyy-MM-dd' });
         var lineChart = echarts.init(document.getElementById("echarts-line-chart"));
         var lineoption = {
             tooltip: {

@@ -1,4 +1,2 @@
-﻿select people_id as PepoleNumber,people_name as PepoleName,rank_name as TypeOfWorkName from mk_people_position p
-                                    left join mk_region_pepole_count on mk_region_pepole_count.Region_id = p.position_id 
-                                where convert(varchar(10),report_time,23) = '{0}' and mk_region_pepole_count.Region_name =@RegionName
-                                group by people_id,people_name,rank_name;
+﻿select p.Pepole_Number as PepoleNumber,p.people_name as PepoleName,p.type_of_work_name as TypeOfWorkName,p.report_time as ReportTime
+from mk_people_position p where p.station_address = @RegionName and convert(varchar(19),report_time,120) = '{0}' 

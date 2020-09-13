@@ -1,4 +1,6 @@
-﻿namespace Caist.Framework.Entity.Entity
+﻿using System.Collections.Generic;
+
+namespace Caist.Framework.Entity.Entity
 {
     public class TagGroupsEntity
     {
@@ -12,9 +14,13 @@
         public string ReadCount { get; set; }
         [DBColumn(ColName = "BeginAddress")]
         public string BeginAddress { get; set; }
+        [DBColumn(ColName = "BeginBlock")]
+        public string BeginBlock { get; set; }
         [DBColumn(ColName = "Block")]
         public string Block { get; set; }
         [DBColumn(ColName = "MMType")]
         public string MMType { get; set; }
+
+        public List<TagEntity> TagEntities { get; set; }
     }
 }

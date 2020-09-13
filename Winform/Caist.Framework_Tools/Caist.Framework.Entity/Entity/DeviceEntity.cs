@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Caist.Framework.Entity.Entity;
+using System;
+using System.Collections.Generic;
 
 namespace Caist.Framework.Entity
 {
@@ -25,5 +27,8 @@ namespace Caist.Framework.Entity
         public string ParentId { get; set; }
         [DBColumn(ColName = "tab_name")]
         public string TabName { get; set; }
+        [DBColumn(ColName = "system_id")]
+        public string SystemId { get; set; }
+        public List<TagGroupsEntity> TagGroupsEntities { get; set; }
     }
 }

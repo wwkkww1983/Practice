@@ -37,7 +37,6 @@ namespace Caist.Framework.WebApi.Controllers
             TData<ViewManipulateModelEntity> obj = await viewManipulateModelBLL.GetEntity(id);
             return obj;
         }
-
         #endregion
     }
 }

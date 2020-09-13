@@ -16,7 +16,21 @@ namespace Caist.Framework.PLC.Siemens.CheckType
 			byte[] ByteArray = new byte[num];
 			for (int i = 0; i < num; i++)
 			{
-				ByteArray[i] = Convert.ToByte(FuckProtect.DataFrom(0) + StringArray[i], 16); //8 位无符号、16进制转换
+
+                if (Convert.ToInt32(StringArray[i],16) > 255)
+                {
+					var Area = (byte)(Convert.ToInt32(StringArray[i], 16) % 256);
+					ByteArray[i] = Area;
+
+					ByteArray[i + 1] = (byte)(Area == 0x84 ? (ushort)(Convert.ToInt32(StringArray[i], 16) / 256) : (ushort)0);
+					i++;
+                }
+                else
+                {
+					ByteArray[i] = Convert.ToByte(FuckProtect.DataFrom(0) + StringArray[i], 16); //8 位无符号、16进制转换
+				}
+
+			
 			}
 			return ByteArray;
 		}

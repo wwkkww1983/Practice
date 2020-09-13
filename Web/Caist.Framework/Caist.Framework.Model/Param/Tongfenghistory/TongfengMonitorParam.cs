@@ -9,5 +9,10 @@ namespace Caist.Framework.Model.Param.Tongfenghistory
     {
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public string DictId { get; set; }
+
+        public string Frequency { get; set; }
+
+
     }
 }

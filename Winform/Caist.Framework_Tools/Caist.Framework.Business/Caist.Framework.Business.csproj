@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationManage\MqttCodeSettingBLL.cs" />
     <Compile Include="ApplicationManage\MqThemeBLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VideoBLL.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Caist.Framework.DataAccess\Caist.Framework.DataAccess.csproj">
@@ -54,6 +56,8 @@
       <Name>Caist.Framework.Entity</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

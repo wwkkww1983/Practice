@@ -73,7 +73,21 @@ namespace Caist.Framework.WebApi.Controllers
         {
             var obj = new TData();
             Operator.Instance.RemoveCurrent(token);
-            obj.Message = "登出成功";
+            obj.Message = "退出成功";
+            return obj;
+        }
+
+        /// <summary>
+        /// 子系统开关状态日志
+        /// </summary>
+        /// <param Id="Id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public TData LoginBackground([FromQuery] string Id)
+        {
+            var obj = new TData();
+            Operator.Instance.RemoveCurrent(Id);
+            obj.Message = "记录成功";
             return obj;
         }
         #endregion

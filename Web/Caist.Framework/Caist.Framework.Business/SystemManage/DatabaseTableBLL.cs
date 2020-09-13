@@ -119,8 +119,8 @@ namespace Caist.Framework.Business.SystemManage
         #region 提交数据
         public async Task<string> DatabaseBackup(string backupPath)
         {
-            string database = HtmlHelper.Resove(GlobalContext.Configuration.GetSection("DB:ConnectionString").Value, "database=", ";");
-            await databaseTableService.DatabaseBackup(database, backupPath);
+            string database = HtmlHelper.Resove(GlobalContext.Configuration.GetSection("DB:ConnectionString").Value, "Database =", ";");
+            await databaseTableService.DatabaseBackup(database.Trim(), backupPath);
             return backupPath;
         }
 

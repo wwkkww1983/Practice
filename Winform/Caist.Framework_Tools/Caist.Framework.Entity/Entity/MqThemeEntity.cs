@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Permissions;
 
 namespace Caist.Framework.Entity
 {
@@ -44,7 +45,7 @@ namespace Caist.Framework.Entity
         [DBColumn(ColName = "mq_ctl")]
         public string MqCtl { get; set; }
         /// <summary>
-        /// 编码
+        /// 集团编码
         /// </summary>
         [DBColumn(ColName = "mq_code")]
         public string MqCode { get; set; }
@@ -68,5 +69,8 @@ namespace Caist.Framework.Entity
         /// </summary>
         [DBColumn(ColName = "mq_stutas")]
         public int? MqStutas { get; set; }
+
+        [DBColumn(ColName = "last_update_time")]
+        public DateTime? LastUpdateTime { get; set; }
     }
 }

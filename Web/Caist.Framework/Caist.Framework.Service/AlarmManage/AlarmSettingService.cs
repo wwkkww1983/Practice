@@ -16,27 +16,27 @@ namespace Caist.Framework.Service.AlarmManage
     public class AlarmSettingService : RepositoryFactory
     {
         #region 获取数据
-        public async Task<List<AlarmSettingsEntity>> GetList(AlarmSettingListParam param)
+        public async Task<List<AlarmSettingEntity>> GetList(AlarmSettingListParam param)
         {
             var strSql = new StringBuilder();
             List<DbParameter> filter = ListFilter(param, strSql);
-            var list = await this.BaseRepository().FindList<AlarmSettingsEntity>(strSql.ToString(), filter.ToArray());
+            var list = await this.BaseRepository().FindList<AlarmSettingEntity>(strSql.ToString(), filter.ToArray());
             return list.ToList();
         }
 
-        public async Task<List<AlarmSettingsEntity>> GetPageList(AlarmSettingListParam param, Pagination pagination)
+        public async Task<List<AlarmSettingEntity>> GetPageList(AlarmSettingListParam param, Pagination pagination)
         {
             var strSql = new StringBuilder();
             List<DbParameter> filter = ListFilter(param, strSql);
-            var list = await this.BaseRepository().FindList<AlarmSettingsEntity>(strSql.ToString(), filter.ToArray(), pagination);
+            var list = await this.BaseRepository().FindList<AlarmSettingEntity>(strSql.ToString(), filter.ToArray(), pagination);
             return list.ToList();
         }
 
-        public async Task<List<AlarmSettingsEntity>> GetPageContentList(AlarmSettingListParam param, Pagination pagination)
+        public async Task<List<AlarmSettingEntity>> GetPageContentList(AlarmSettingListParam param, Pagination pagination)
         {
             var strSql = new StringBuilder();
             List<DbParameter> filter = ListFilter(param, strSql, true);
-            var list = await this.BaseRepository().FindList<AlarmSettingsEntity>(strSql.ToString(), filter.ToArray(), pagination);
+            var list = await this.BaseRepository().FindList<AlarmSettingEntity>(strSql.ToString(), filter.ToArray(), pagination);
             return list.ToList();
         }
 
@@ -64,7 +64,7 @@ namespace Caist.Framework.Service.AlarmManage
         public async Task DeleteForm(string ids)
         {
             long[] idArr = TextHelper.SplitToArray<long>(ids, ',');
-            await this.BaseRepository().Delete<AlarmSettingsEntity>(idArr);
+            await this.BaseRepository().Delete<AlarmSettingEntity>(idArr);
         }
         #endregion
 

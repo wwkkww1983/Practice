@@ -5,21 +5,17 @@ namespace Caist.Framework.Entity
     [Serializable]
     public class FiberEntity
     {
-        [DBColumn(ColName = "Id")]
+        [DBColumn(ColName = "id")]
         public string Id { get; set; }
-        [DBColumn(ColName = "area_name")]
+        [DBColumn(ColName = "AreaName")]
         public string AreaName { get; set; }
-        [DBColumn(ColName = "max_value")]
+        [DBColumn(ColName = "MaxValue")]
         public string MaxValue { get; set; }
-        [DBColumn(ColName = "max_value_pos")]
-        public string MaxValuePos { get; set; }
-        [DBColumn(ColName = "min_value")]
+        [DBColumn(ColName = "MinValue")]
         public string MinValue { get; set; }
-        [DBColumn(ColName = "min_value_pos")]
-        public string MinValuePos { get; set; }
-        [DBColumn(ColName = "average_value")]
+        [DBColumn(ColName = "AverageValue")]
         public string AverageValue { get; set; }
-        [DBColumn(ColName = "current_temperature")]
-        public string CurrentTemperature { get; set; }
+        [DBColumn(ColName = "CreateTime")]
+        public string CreateTime { get; set; }
     }
 }

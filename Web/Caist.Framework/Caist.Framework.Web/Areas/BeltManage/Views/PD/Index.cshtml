@@ -67,7 +67,8 @@
 <script type="text/javascript">
     var low_global;
     $(function () {
-
+        laydate.render({ elem: '#startTime', format: 'yyyy-MM-dd' });
+        laydate.render({ elem: '#endTime', format: 'yyyy-MM-dd' });
         $.ajax({
             url: '/BeltManage/PD/GetpidaiTempLists',
             type: 'post',

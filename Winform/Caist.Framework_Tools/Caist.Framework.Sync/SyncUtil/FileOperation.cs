@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -59,29 +60,41 @@ namespace SyncUtil
         /// </summary>
         /// <param name="path"></param>
         /// <param name="text"></param>
-        /// <param name="falg">是否覆盖（默认是）</param>
+        /// <param name="append">是否追加（默认是）</param>
+        /// <param name="wrap">是否增加换行（默认否）</param>
         /// <returns></returns>
-        public static string WriteText(string path, string text, bool flag = true)
+        public static void WriteText(string path, string text, bool append = true, bool wrap = false)
         {
-            string str = "保存失败！";
             StreamWriter sw = null;
             try
             {
-                var p = path.Substring(0, path.LastIndexOf("\\"));
-                if (!Directory.Exists(p))
+                if (path.IndexOf(":") > -1)
                 {
-                    Directory.CreateDirectory(p);
+                    var p = path.Substring(0, path.LastIndexOf("\\"));
+                    if (!Directory.Exists(p))
+                    {
+                        Directory.CreateDirectory(p);
+                    }
                 }
                 if (File.Exists(path))
                 {
-                    sw = new StreamWriter(path, flag);
+                    sw = new StreamWriter(path, append, Encoding.UTF8);
                 }
                 else
                 {
+                    var direc = path.Substring(0, path.LastIndexOf("\\"));
+                    if (!Directory.Exists(direc))
+                    {
+                        Directory.CreateDirectory(direc);
+                    }
                     sw = new StreamWriter(File.Create(path));
                 }
                 sw.Write(text);
-                return "保存成功！";
+                sw.Flush();
+                if (wrap)
+                {
+                    sw.WriteLine("\r\n");
+                }
 
             }
             finally
@@ -92,6 +105,53 @@ namespace SyncUtil
                 }
             }
             //return str;
+        }
+
+
+        /// <summary>
+        /// 写入文本文档
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="text"></param>
+        /// <param name="append">是否追加（默认是）</param>
+        /// <param name="wrap">是否增加换行（默认否）</param>
+        /// <returns></returns>
+        public static void Log(string path, string msg)
+        {
+            StreamWriter sw = null;
+            try
+            {
+                if (path.IndexOf(":") > -1)
+                {
+                    var p = path.Substring(0, path.LastIndexOf("\\"));
+                    if (!Directory.Exists(p))
+                    {
+                        Directory.CreateDirectory(p);
+                    }
+                }
+                if (File.Exists(path))
+                {
+                    sw = new StreamWriter(path, true, Encoding.UTF8);
+                }
+                else
+                {
+                    var direc = path.Substring(0, path.LastIndexOf("\\"));
+                    if (!Directory.Exists(direc))
+                    {
+                        Directory.CreateDirectory(direc);
+                    }
+                    sw = new StreamWriter(File.Create(path));
+                }
+                sw.Write(msg);
+                sw.Flush();
+            }
+            finally
+            {
+                if (sw != null)
+                {
+                    sw.Close();
+                }
+            }
         }
     }
 }

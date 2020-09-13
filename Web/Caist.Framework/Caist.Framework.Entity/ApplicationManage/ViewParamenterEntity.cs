@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Caist.Framework.Util;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Caist.Framework.Entity.ApplicationManage
 {
@@ -8,6 +10,7 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// <summary>
         /// 控制模块ID
         /// </summary>
+        [JsonConverter(typeof(StringJsonConverter))]
         public long? ViewControlModelId { get; set; }
         /// <summary>
         /// 控制名称
@@ -58,6 +61,10 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// 控制模块指定对应的模型动画索引值  按照0,1 格式组成
         /// </summary>
         public string Animation { get; set; }
+        /// <summary>
+        /// 控制模式
+        /// </summary>
+        public string ControlModels { get; set; }
 
         /// <summary>
         /// 控制模块

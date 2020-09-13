@@ -1,6 +1,8 @@
 ﻿using Caist.Framework.Business.PeopleManage;
+using Caist.Framework.Entity.PeopleManage;
 using Caist.Framework.Model.PeopleManage;
 using Caist.Framework.Util.Extension;
+using Caist.Framework.Util.Model;
 using Caist.Framework.WebApi.Handle;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -14,8 +16,22 @@ namespace Caist.Framework.WebApi.Controllers
     public class PeoplePositioningController : ControllerBase
     {
         private RegionBLL regionBLL = new RegionBLL();
+        private PeoplePositionMarkBLL markBll = new PeoplePositionMarkBLL();
 
         #region 获取数据
+
+        /// <summary>
+        /// 获取人员定位标记坐标信息
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<string> GetMarkList([FromQuery] RegionParam param)
+        {
+            var obj = await markBll.GetList(param);
+            return obj.RemoveNullValue();
+        }
+
 
         /// <summary>
         /// 根据点位获取实时人员列表
@@ -64,6 +80,23 @@ namespace Caist.Framework.WebApi.Controllers
         //    var obj = await regionBLL.PeopleInfo(param);
         //    return obj;
         //}
+        #endregion
+
+        #region 提交数据
+        [HttpPost]
+        public async Task<TData<string>> SaveFormJson([FromQuery] PeoplePositionMarkEntity entity)
+        {
+            if (!entity.Id.HasValue)
+            {
+                TData<string> data = new TData<string>();
+                data.Message = "提交数据失败：ID不能为空";
+                data.Tag = 0;
+                return data;
+            }
+            var obj = await markBll.SaveForm(entity);
+            return obj;
+        }
+
         #endregion
     }
 }

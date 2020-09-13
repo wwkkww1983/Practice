@@ -20,5 +20,10 @@ namespace Caist.Framework.Model.Param.ApplicationManage
         /// 系统模块ID
         /// </summary>
         public long? SystemId { get; set; }
+
+        /// <summary>
+        /// 控制类型
+        /// </summary>
+        public string ControlModels { get; set; }
     }
 }

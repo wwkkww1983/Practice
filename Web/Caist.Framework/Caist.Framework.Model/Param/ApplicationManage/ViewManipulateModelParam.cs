@@ -14,5 +14,11 @@ namespace Caist.Framework.Model.Param.ApplicationManage
         public string ViewName { get; set; }
 
         public long? SystemId { get; set; }
+
+        /// <summary>
+        /// 数据指令类型
+        /// </summary>
+        public int? InstructView { get; set; }
+
     }
 }

@@ -6,40 +6,41 @@
 @section header{
     @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/report/echarts/echarts.min.js"))
 }
-@*gqcw*@
-    <div id="searchDiv" class="col-sm-12 search-collapse">
-        <div class="select-list">
-            <ul>
-                <li>
-                    请选择：<span id="roleStatus" col="RoleStatus"></span>
-                    <select style="height: 28px;" id="xiala">
-                        <option value="Voltage" selected="selected">历史数据</option>
-                    </select>
-                </li>
-                <li class="select-time">
-                    <label>查询时间： </label>
-                    <input id="startTime" col="StartTime" type="text" class="time-input" placeholder="开始时间" />
-                    <span>-</span>
-                    <input id="endTime" col="EndTime" type="text" class="time-input" placeholder="结束时间" />
-                </li>
-                <li>
-                    <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                </li>
-                <li>
-                    <a id="btnSearch" class="btn btn-primary btn-sm" onclick="print()">打印</a>
-                </li>
-                <li>
-                    <a class="btn btn-primary btn-sm" asp-action="Export">导出Excel</a></>
-                </li>
-            </ul>
-        </div>
+@*光纤*@
+<div id="searchDiv" class="col-sm-12 search-collapse">
+    <div class="select-list">
+        <ul>
+            <li>
+                请选择：<span id="roleStatus" col="RoleStatus"></span>
+                <select style="height: 28px;" id="xiala">
+                    <option value="Voltage" selected="selected">历史光纤</option>
+                    <option value="Electricity">实时光纤</option>
+                </select>
+            </li>
+            <li class="select-time">
+                <label>查询时间： </label>
+                <input id="startTime" col="StartTime" type="text" class="time-input" placeholder="开始时间" />
+                <span>-</span>
+                <input id="endTime" col="EndTime" type="text" class="time-input" placeholder="结束时间" />
+            </li>
+            <li>
+                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+            </li>
+            <li>
+                <a id="btnSearch" class="btn btn-primary btn-sm" onclick="print()">打印</a>
+            </li>
+            <li>
+                <a class="btn btn-primary btn-sm" asp-action="Export">导出Excel</a></>
+            </li>
+        </ul>
     </div>
+</div>
 <div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-sm-16">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>历史温度记录</h5>
+                    <h5>历史光纤记录</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="echarts" id="echarts-line-chart"></div>
@@ -53,7 +54,7 @@
         <div class="col-sm-16">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>实时温度记录</h5>
+                    <h5>实时光纤记录</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="echarts" id="echarts-line-chartr"></div>
@@ -62,18 +63,20 @@
         </div>
     </div>
 </div>
-@*//历史数据信息*@
+
 
 <script type="text/javascript">
-    var max_value;
-    var min_value;
-    $(function () {
+    var low_global;
 
+    $(function () {
+        laydate.render({ elem: '#startTime', format: 'yyyy-MM-dd' });
+        laydate.render({ elem: '#endTime', format: 'yyyy-MM-dd' });
         $.ajax({
             url: '/FiberDemo/Fiber/GetFiberTempLists',
             type: 'post',
             data: {
-                AreaName: ""
+                StartDate: "",
+                EndDate: ""
             },
             dataType: 'json',
             contentType: 'application/json; charset=UTF-8',
@@ -82,63 +85,47 @@
                 initChart();
             }
         });
+
     });
 
     function initChart() {
 
         var lineChart = echarts.init(document.getElementById("echarts-line-chart"));
         var lineoption = {
-            title: {
-                text: '一周温度变化'
-            },
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['最高温度', '最低温度']
+                data: ['风速']
             },
+
             grid: {
-                x: 40,
+                x: 60,
                 x2: 40,
-                y2: 24
+                y2: 17
             },
             calculable: true,
             xAxis: [
                 {
                     type: 'category',
                     boundaryGap: false,
-                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                    data: ['07/25', '07/26', '07/27', '07/28', '07/29', '07/30', '08/1', '08/2', '08/3', '08/4']
                 }
             ],
             yAxis: [
                 {
                     type: 'value',
                     axisLabel: {
-                        formatter: '{value} °C'
+                        formatter: '{value}m/s'
                     }
                 }
             ],
+
             series: [
                 {
-                    name: '最高温度',
+                    name: '风速',
                     type: 'line',
-                    data: min_value,
-                    markPoint: {
-                        data: [
-                            { type: 'max', name: '最大值' },
-                            { type: 'min', name: '最小值' }
-                        ]
-                    },
-                    markLine: {
-                        data: [
-                            { type: 'average', name: '平均值' }
-                        ]
-                    }
-                },
-                {
-                    name: '最低温度',
-                    type: 'line',
-                    data: max_value,
+                    data: low_global,
                     markPoint: {
                         data: [
                             { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
@@ -157,30 +144,30 @@
     }
 
     function filterData(result) {
-        max_value = new Array();
-        min_value = new Array();
+        low_global = new Array();
+        high_global = new Array();
         var res = eval(result);
         var datas = res.Result;
         if (datas != null && datas.length > 0) {
             for (var i = 0; i < datas.length; i++) {
-                max_value.push(datas[i].MinValuePos);
-                min_value.push(datas[i].MaxValuePos);
+                low_global.push(datas[i].maxValue);
             }
         }
     }
+
 </script>
 
-@*实时数据信息*@
 <script type="text/javascript">
-    var max_value;
-    var min_value;
+    var low_global;
+
     $(function () {
 
         $.ajax({
             url: '/FiberDemo/Fiber/GetFiberTempListsr',
             type: 'post',
             data: {
-                AreaName: ""
+                StartDate: "",
+                EndDate: ""
             },
             dataType: 'json',
             contentType: 'application/json; charset=UTF-8',
@@ -189,25 +176,23 @@
                 initChartr();
             }
         });
+
     });
 
     function initChartr() {
 
         var lineChart = echarts.init(document.getElementById("echarts-line-chartr"));
         var lineoption = {
-            title: {
-                text: '一周温度变化'
-            },
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['最高温度', '最低温度']
+                data: ['风速']
             },
             grid: {
-                x: 40,
+                x: 60,
                 x2: 40,
-                y2: 24
+                y2: 17
             },
             calculable: true,
             xAxis: [
@@ -220,31 +205,15 @@
                 {
                     type: 'value',
                     axisLabel: {
-                        formatter: '{value} °C'
+                        formatter: '{value}m/s'
                     }
                 }
             ],
             series: [
                 {
-                    name: '最高温度',
+                    name: '风速',
                     type: 'line',
-                    data: min_value,
-                    markPoint: {
-                        data: [
-                            { type: 'max', name: '最大值' },
-                            { type: 'min', name: '最小值' }
-                        ]
-                    },
-                    markLine: {
-                        data: [
-                            { type: 'average', name: '平均值' }
-                        ]
-                    }
-                },
-                {
-                    name: '最低温度',
-                    type: 'line',
-                    data: max_value,
+                    data: low_global,
                     markPoint: {
                         data: [
                             { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
@@ -263,14 +232,13 @@
     }
 
     function filterData(result) {
-        max_value = new Array();
-        min_value = new Array();
+        low_global = new Array();
+        high_global = new Array();
         var res = eval(result);
         var datas = res.Result;
         if (datas != null && datas.length > 0) {
             for (var i = 0; i < datas.length; i++) {
-                max_value.push(datas[i].MinValuePos);
-                min_value.push(datas[i].MaxValuePos);
+                low_global.push(datas[i].minValue);
             }
         }
     }

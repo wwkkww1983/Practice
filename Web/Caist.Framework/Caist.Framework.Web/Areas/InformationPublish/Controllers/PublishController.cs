@@ -15,6 +15,7 @@ namespace Caist.Framework.Web.Areas.InformationPublish.Controllers
     [Area("InformationPublish")]
     public class PublishController : BaseController
     {
+
         private InformationPublishBLL InformationPublishBLL = new InformationPublishBLL();
         #region 视图页面
         [AuthorizeFilter("InformationPublish:Publish:view")]

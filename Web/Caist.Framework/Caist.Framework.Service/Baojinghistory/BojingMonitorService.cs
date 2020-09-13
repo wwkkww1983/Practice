@@ -84,6 +84,24 @@ namespace Caist.Framework.Service.Baojinghistory
             return Entity;
         }
 
+
+        /// <summary>
+        /// 获取有报警预案的报警记录条数
+        /// </summary>
+        /// <returns></returns>
+        public async Task<int> GetAlarmCount()
+        {
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(@"select count(1)
+                    from mk_alarm_record a 
+                    left join mk_alarm_settings  b on a.alarm_id = b.id 
+                    inner join  mk_alarm_plan c on c.alarm_field = b.id ");
+            object result = await this.BaseRepository().FindObject(strSql.ToString());
+            int count = result.ParseToInt();
+            return count;
+        }
+
         /// <summary>
         /// 区域告警环境数据
         /// </summary>

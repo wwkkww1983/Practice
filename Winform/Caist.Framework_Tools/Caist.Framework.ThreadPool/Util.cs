@@ -43,6 +43,19 @@ namespace Caist.Framework.ThreadPool
             return dt != null && dt.Rows.Count > 0;
         }
         /// <summary>
+        /// 调用此方法如果对象中的float值为1转换为json字符串后不再变为1.0。 如果本身就是1.1转换后还是1.1 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        public static string ToNoDecimalJson<T>(this T t)
+        {
+            JsonSerializerSettings s1 = new JsonSerializerSettings();
+
+            s1.Converters.Add(new JsonDecimalHelper());
+            return JsonConvert.SerializeObject(t, null, s1);
+        }
+        /// <summary>
         /// 根据字符串获取配置文件值
         /// </summary>
         /// <param name="key"></param>
@@ -57,5 +70,8 @@ namespace Caist.Framework.ThreadPool
             }
             return str;
         }
+
+     
+
     }
 }

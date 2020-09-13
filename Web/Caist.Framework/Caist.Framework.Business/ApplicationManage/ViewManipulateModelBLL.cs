@@ -1,5 +1,6 @@
 ﻿using Caist.Framework.Entity.ApplicationManage;
 using Caist.Framework.Model.Param.ApplicationManage;
+using Caist.Framework.Model.Param.OrganizationManage;
 using Caist.Framework.Service.ApplicationManage;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
@@ -13,6 +14,7 @@ namespace Caist.Framework.Business.ApplicationManage
     public class ViewManipulateModelBLL
     {
         private ViewManipulateModelService viewManipulateModelService = new ViewManipulateModelService();
+        private ViewFunctionService viewFunctionService = new ViewFunctionService();
 
         #region 获取数据
         public async Task<TData<List<ViewManipulateModelEntity>>> GetList(ViewManipulateModelListParam param)
@@ -51,11 +53,11 @@ namespace Caist.Framework.Business.ApplicationManage
         }
 
 
-        public async Task<TData<List<ViewManipulateModelEntity>>> GetPublishList(ViewManipulateModelListParam param)
+        public async Task<TData<SystemDataEntity>> GetPublishList(SystemDataParam param)
         {
-            TData<List<ViewManipulateModelEntity>> obj = new TData<List<ViewManipulateModelEntity>>();
+            TData<SystemDataEntity> obj = new TData<SystemDataEntity>();
             obj.Result = await viewManipulateModelService.GetPublishList(param);
-            obj.TotalCount = obj.Result.Count;
+            obj.TotalCount = 1;
             obj.Tag = 1;
             return obj;
         }
@@ -79,7 +81,9 @@ namespace Caist.Framework.Business.ApplicationManage
             if (entity.Id.IsNullOrZero())
             {
                 object Count = await viewManipulateModelService.ExistViewFunctionId(entity);
-                if (Count.ParseToInt() >= Util.GlobalContext.SystemConfig.AddModelLimit)
+                var  fEntity = viewFunctionService.GetEntity(entity.ViewFunctionId.Value);
+                //视图模块会显示在首页的  视图项目不能大于当前条数限制
+                if (fEntity.Result.ViewFunctionShowHome == 1 && Count.ParseToInt() >= Util.GlobalContext.SystemConfig.AddModelLimit)
                 {
                     obj.Message = "当前类型数据模块超限制";
                     obj.Tag = -1;

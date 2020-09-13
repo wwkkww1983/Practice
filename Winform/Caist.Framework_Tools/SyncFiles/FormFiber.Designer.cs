@@ -53,7 +53,7 @@
             this.btnSync.Name = "btnSync";
             this.btnSync.Size = new System.Drawing.Size(75, 23);
             this.btnSync.TabIndex = 0;
-            this.btnSync.Text = "Sync";
+            this.btnSync.Text = "同步";
             this.btnSync.UseVisualStyleBackColor = true;
             this.btnSync.Click += new System.EventHandler(this.btnSync_Click);
             // 
@@ -64,7 +64,7 @@
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(75, 23);
             this.btnStop.TabIndex = 1;
-            this.btnStop.Text = "Stop";
+            this.btnStop.Text = "停止";
             this.btnStop.UseVisualStyleBackColor = true;
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 

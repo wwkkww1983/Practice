@@ -1,0 +1,184 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormWhite.cshtml";
+}
+
+<div class="wrapper animated fadeInRight">
+    <form id="form" class="form-horizontal m">
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">应用模块</label>
+            <div class="col-sm-4">
+                <div id="parameterModels" col="ParameterModels"></div>
+            </div>
+            <label class="col-sm-2 control-label">操作模块<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="parameterControls" col="ParameterControls"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">参数名称<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="parameterName" col="ParameterName" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label ">设置类型<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="parameterSettingType" col="ParameterSettingType"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Ip地址<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="parameterIp" col="ParameterIp" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label ">端口<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="parameterPort" col="ParameterPort" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">PLC类型</label>
+            <div class="col-sm-10" id="parameterPlcType" col="ParameterPlcType"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">数据类型</label>
+            <div class="col-sm-10" id="parameterDataType" col="ParameterDataType"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">单位<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="parameterUnit" col="ParameterUnit" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label">排序</label>
+            <div class="col-sm-4">
+                <input id="parameterSort" col="ParameterSort" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">参数类型</label>
+            <div class="col-sm-10" id="parameterType" col="ParameterType"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">指令</label>
+            <div class="col-sm-10">
+                <input id="parameterInstructions" col="ParameterInstructions" type="text" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">最小值指令</label>
+            <div class="col-sm-4">
+                <input id="parameterMinInstructions" col="ParameterMinInstructions" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label">最大值指令</label>
+            <div class="col-sm-4">
+                <input id="parameterMaxInstructions" col="ParameterMaxInstructions" type="text" class="form-control" />
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+        var id = ys.request("id");
+
+        $(function () {
+            $("#parameterPlcType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(SettingPlcTypeEnum).EnumToDictionaryString())) });
+            $("#parameterDataType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructEnum).EnumToDictionaryString())) });
+            $("#paramenterType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(SettingParamenterType).EnumToDictionaryString())) });
+            getForm();
+
+            $('input[name=paramenterType_radiobox]').on('ifChecked', function (event) {
+                var paramenterType = $(event.target).val();
+                paramenterUnitVisible(paramenterType);
+            });
+
+            $("#parameterControls").ysComboBox({
+                url: '@Url.Content("~/ApplicationManage/ViewControlModel/GetListJson")',
+                key: "Id",
+                value: "ControlName",
+                class: "form-control",
+            });
+
+            $("#parameterModels").ysComboBox({
+                url: '@Url.Content("~/ApplicationManage/SystemSetting/GetListJson")',
+                key: "Id",
+                value: "SystemName",
+                class: "form-control",
+            });
+
+            $("#parameterSettingType").ysComboBox({
+                data: top.getDataDict("ValueSetting"),
+                key: "DictKey",
+                value: "DictValue",
+                class: "form-control"
+            });
+
+            $("#form").validate({
+                rules: {
+                    systemSettingId: { required: true },
+                    parameterName: { required: true },
+                    parameterSettingType: { required: true },
+                    parameterIp: { required: true },
+                    parameterPort: { required: true },
+                    parameterUnit: { required: true }
+                }
+            });
+        });
+
+        function paramenterUnitVisible(parameterSettingType) {
+
+            if (parameterSettingType == "@SettingParamenterType.Single.ParseToInt()") {
+                $("#parameterInstructions").parents(".form-group").show();
+                $("#parameterMinInstructions").parents(".form-group").hide();
+                $("#parameterMaxInstructions").parents(".form-group").hide();
+            } else if (parameterSettingType == "@SettingParamenterType.Pair.ParseToInt()") {
+                $("#parameterInstructions").parents(".form-group").hide();
+                $("#parameterMinInstructions").parents(".form-group").show();
+                $("#parameterMaxInstructions").parents(".form-group").show();
+            }
+        }
+
+        function getForm() {
+            if (id > 0) {
+                ys.ajax({
+                    url: '@Url.Content("~/SettingValueManage/SettingValue/GetFormJson")' + '?id=' + id,
+                    type: "get",
+                    success: function (obj) {
+                        if (obj.Tag == 1) {
+                            $("#form").setWebControls(obj.Result);
+                        }
+                    }
+                });
+            }
+            else {
+                ys.ajax({
+                    url: '@Url.Content("~/SettingValueManage/SettingValue/GetMaxSortJson")',
+                    type: "get",
+                    success: function (obj) {
+                        if (obj.Tag == 1) {
+                            var defaultData = {};
+                            defaultData.ParameterSort = obj.Result;
+                            $("#form").setWebControls(defaultData);
+                        }
+                    }
+                });
+            }
+        }
+
+        function saveForm(index) {
+            if ($("#form").validate().form()) {
+                var postData = $("#form").getWebControls({ Id: id });
+                ys.ajax({
+                    url: '@Url.Content("~/SettingValueManage/SettingValue/SaveFormJson")',
+                    type: "post",
+                    data: postData,
+                    success: function (obj) {
+                        if (obj.Tag == 1) {
+                            ys.msgSuccess(obj.Message);
+                            parent.searchGrid();
+                            parent.layer.close(index);
+                        }
+                        else {
+                            ys.msgError(obj.Message);
+                        }
+                    }
+                });
+            }
+        }
+</script>

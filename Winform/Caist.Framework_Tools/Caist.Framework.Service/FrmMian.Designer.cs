@@ -95,17 +95,15 @@ namespace Caist.Framework.Service
             this.webAddress = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
             this.webPort = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripLabel7 = new System.Windows.Forms.ToolStripLabel();
+            this.txtSendCount = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.webStart = new System.Windows.Forms.ToolStripButton();
             this.webStop = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.webSend = new System.Windows.Forms.ToolStripButton();
             this.SystemImage = new System.Windows.Forms.ImageList(this.components);
-            this.timing = new System.Windows.Forms.Timer(this.components);
-            this.timerWebSocket = new System.Windows.Forms.Timer(this.components);
             this.timerSyncData = new System.Windows.Forms.Timer(this.components);
-            this.txtSendCount = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStripLabel7 = new System.Windows.Forms.ToolStripLabel();
             this.SystemMenu.SuspendLayout();
             this.SystemStatus.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -138,7 +136,7 @@ namespace Caist.Framework.Service
             this.SystemMenu.Location = new System.Drawing.Point(0, 0);
             this.SystemMenu.Name = "SystemMenu";
             this.SystemMenu.Padding = new System.Windows.Forms.Padding(7, 3, 0, 3);
-            this.SystemMenu.Size = new System.Drawing.Size(1006, 26);
+            this.SystemMenu.Size = new System.Drawing.Size(1006, 27);
             this.SystemMenu.TabIndex = 0;
             this.SystemMenu.Text = "menuStrip1";
             // 
@@ -148,13 +146,13 @@ namespace Caist.Framework.Service
             this.pLC参数设置ToolStripMenuItem,
             this.btnClose});
             this.系统设置SToolStripMenuItem.Name = "系统设置SToolStripMenuItem";
-            this.系统设置SToolStripMenuItem.Size = new System.Drawing.Size(85, 20);
+            this.系统设置SToolStripMenuItem.Size = new System.Drawing.Size(83, 21);
             this.系统设置SToolStripMenuItem.Text = "系统设置(&S)";
             // 
             // pLC参数设置ToolStripMenuItem
             // 
             this.pLC参数设置ToolStripMenuItem.Name = "pLC参数设置ToolStripMenuItem";
-            this.pLC参数设置ToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.pLC参数设置ToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.pLC参数设置ToolStripMenuItem.Text = "服务设置";
             // 
             // btnClose
@@ -162,14 +160,14 @@ namespace Caist.Framework.Service
             this.btnClose.Image = ((System.Drawing.Image)(resources.GetObject("btnClose.Image")));
             this.btnClose.Name = "btnClose";
             this.btnClose.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.btnClose.Size = new System.Drawing.Size(157, 22);
+            this.btnClose.Size = new System.Drawing.Size(161, 22);
             this.btnClose.Text = "退出(&X)";
             // 
             // 帮助HToolStripMenuItem
             // 
             this.帮助HToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("帮助HToolStripMenuItem.Image")));
             this.帮助HToolStripMenuItem.Name = "帮助HToolStripMenuItem";
-            this.帮助HToolStripMenuItem.Size = new System.Drawing.Size(78, 20);
+            this.帮助HToolStripMenuItem.Size = new System.Drawing.Size(77, 21);
             this.帮助HToolStripMenuItem.Text = "帮助(&H)";
             // 
             // SystemStatus
@@ -189,20 +187,20 @@ namespace Caist.Framework.Service
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(98, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(92, 17);
             this.toolStripStatusLabel1.Text = "当前运行时长：";
             // 
             // txttiming
             // 
             this.txttiming.Name = "txttiming";
-            this.txttiming.Size = new System.Drawing.Size(63, 17);
+            this.txttiming.Size = new System.Drawing.Size(62, 17);
             this.txttiming.Text = "--：--：--";
             // 
             // toolStripStatusLabel3
             // 
             this.toolStripStatusLabel3.Enabled = false;
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
-            this.toolStripStatusLabel3.Size = new System.Drawing.Size(93, 17);
+            this.toolStripStatusLabel3.Size = new System.Drawing.Size(89, 17);
             this.toolStripStatusLabel3.Text = "PLC当前状态：";
             this.toolStripStatusLabel3.Visible = false;
             // 
@@ -210,7 +208,7 @@ namespace Caist.Framework.Service
             // 
             this.txtStatus.Enabled = false;
             this.txtStatus.Name = "txtStatus";
-            this.txtStatus.Size = new System.Drawing.Size(37, 17);
+            this.txtStatus.Size = new System.Drawing.Size(38, 17);
             this.txtStatus.Text = "------";
             this.txtStatus.Visible = false;
             // 
@@ -223,11 +221,11 @@ namespace Caist.Framework.Service
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.ImageList = this.SystemImage;
-            this.tabControl1.Location = new System.Drawing.Point(0, 26);
+            this.tabControl1.Location = new System.Drawing.Point(0, 27);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1006, 526);
+            this.tabControl1.Size = new System.Drawing.Size(1006, 525);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControl1.TabIndex = 2;
             // 
@@ -241,7 +239,7 @@ namespace Caist.Framework.Service
             this.tabPLC.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPLC.Name = "tabPLC";
             this.tabPLC.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPLC.Size = new System.Drawing.Size(998, 493);
+            this.tabPLC.Size = new System.Drawing.Size(998, 492);
             this.tabPLC.TabIndex = 0;
             this.tabPLC.Text = "PLC采集";
             this.tabPLC.UseVisualStyleBackColor = true;
@@ -260,7 +258,7 @@ namespace Caist.Framework.Service
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Size = new System.Drawing.Size(990, 458);
+            this.splitContainer1.Size = new System.Drawing.Size(990, 457);
             this.splitContainer1.SplitterDistance = 282;
             this.splitContainer1.TabIndex = 1;
             // 
@@ -273,7 +271,7 @@ namespace Caist.Framework.Service
             this.TreeDevice.Location = new System.Drawing.Point(0, 0);
             this.TreeDevice.Name = "TreeDevice";
             this.TreeDevice.SelectedImageIndex = 0;
-            this.TreeDevice.Size = new System.Drawing.Size(280, 456);
+            this.TreeDevice.Size = new System.Drawing.Size(280, 455);
             this.TreeDevice.TabIndex = 0;
             // 
             // ImageDevice
@@ -301,8 +299,8 @@ namespace Caist.Framework.Service
             // 
             this.splitContainer2.Panel2.Controls.Add(this.txtMessage);
             this.splitContainer2.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.splitContainer2.Size = new System.Drawing.Size(704, 458);
-            this.splitContainer2.SplitterDistance = 259;
+            this.splitContainer2.Size = new System.Drawing.Size(704, 457);
+            this.splitContainer2.SplitterDistance = 258;
             this.splitContainer2.SplitterWidth = 5;
             this.splitContainer2.TabIndex = 1;
             // 
@@ -323,7 +321,7 @@ namespace Caist.Framework.Service
             this.lvPoint.Location = new System.Drawing.Point(0, 0);
             this.lvPoint.MultiSelect = false;
             this.lvPoint.Name = "lvPoint";
-            this.lvPoint.Size = new System.Drawing.Size(702, 257);
+            this.lvPoint.Size = new System.Drawing.Size(702, 256);
             this.lvPoint.TabIndex = 0;
             this.lvPoint.UseCompatibleStateImageBehavior = false;
             this.lvPoint.View = System.Windows.Forms.View.Details;
@@ -388,7 +386,7 @@ namespace Caist.Framework.Service
             this.btnPLCStrats.Image = ((System.Drawing.Image)(resources.GetObject("btnPLCStrats.Image")));
             this.btnPLCStrats.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnPLCStrats.Name = "btnPLCStrats";
-            this.btnPLCStrats.Size = new System.Drawing.Size(53, 22);
+            this.btnPLCStrats.Size = new System.Drawing.Size(52, 22);
             this.btnPLCStrats.Text = "启动";
             this.btnPLCStrats.Click += new System.EventHandler(this.btnPLCStrats_Click);
             // 
@@ -397,7 +395,7 @@ namespace Caist.Framework.Service
             this.btnPLCStop.Image = ((System.Drawing.Image)(resources.GetObject("btnPLCStop.Image")));
             this.btnPLCStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnPLCStop.Name = "btnPLCStop";
-            this.btnPLCStop.Size = new System.Drawing.Size(53, 22);
+            this.btnPLCStop.Size = new System.Drawing.Size(52, 22);
             this.btnPLCStop.Text = "停止";
             // 
             // toolStripSeparator1
@@ -410,7 +408,7 @@ namespace Caist.Framework.Service
             this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(105, 22);
+            this.toolStripButton1.Size = new System.Drawing.Size(100, 22);
             this.toolStripButton1.Text = "手动发送指令";
             // 
             // tabDataBase
@@ -431,7 +429,7 @@ namespace Caist.Framework.Service
             this.tabDataBase.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabDataBase.Name = "tabDataBase";
             this.tabDataBase.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabDataBase.Size = new System.Drawing.Size(998, 493);
+            this.tabDataBase.Size = new System.Drawing.Size(998, 492);
             this.tabDataBase.TabIndex = 1;
             this.tabDataBase.Text = "数据同步";
             this.tabDataBase.UseVisualStyleBackColor = true;
@@ -447,7 +445,7 @@ namespace Caist.Framework.Service
             // lblwarn
             // 
             this.lblwarn.AutoSize = true;
-            this.lblwarn.Font = new System.Drawing.Font("SimSun", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblwarn.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblwarn.ForeColor = System.Drawing.Color.Red;
             this.lblwarn.Location = new System.Drawing.Point(248, 9);
             this.lblwarn.Name = "lblwarn";
@@ -459,7 +457,7 @@ namespace Caist.Framework.Service
             // lblWaring
             // 
             this.lblWaring.AutoSize = true;
-            this.lblWaring.Font = new System.Drawing.Font("SimSun", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.lblWaring.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.lblWaring.ForeColor = System.Drawing.Color.Black;
             this.lblWaring.Location = new System.Drawing.Point(287, 9);
             this.lblWaring.Name = "lblWaring";
@@ -483,7 +481,7 @@ namespace Caist.Framework.Service
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(57, 17);
             this.label2.TabIndex = 11;
-            this.label2.Text = "(分钟/次)";
+            this.label2.Text = "(秒钟/次)";
             // 
             // label1
             // 
@@ -543,7 +541,7 @@ namespace Caist.Framework.Service
             this.tabMQT.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabMQT.Name = "tabMQT";
             this.tabMQT.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabMQT.Size = new System.Drawing.Size(998, 493);
+            this.tabMQT.Size = new System.Drawing.Size(998, 492);
             this.tabMQT.TabIndex = 3;
             this.tabMQT.Text = "MQT上传";
             this.tabMQT.UseVisualStyleBackColor = true;
@@ -570,12 +568,12 @@ namespace Caist.Framework.Service
             // toolStripLabel3
             // 
             this.toolStripLabel3.Name = "toolStripLabel3";
-            this.toolStripLabel3.Size = new System.Drawing.Size(72, 22);
+            this.toolStripLabel3.Size = new System.Drawing.Size(68, 22);
             this.toolStripLabel3.Text = "矿区名称：";
             // 
             // tsTbMqName
             // 
-            this.tsTbMqName.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.tsTbMqName.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.tsTbMqName.Name = "tsTbMqName";
             this.tsTbMqName.Size = new System.Drawing.Size(150, 25);
             this.tsTbMqName.Text = "贵阳瓮安县陡山煤矿";
@@ -583,12 +581,12 @@ namespace Caist.Framework.Service
             // toolStripLabel4
             // 
             this.toolStripLabel4.Name = "toolStripLabel4";
-            this.toolStripLabel4.Size = new System.Drawing.Size(69, 22);
+            this.toolStripLabel4.Size = new System.Drawing.Size(67, 22);
             this.toolStripLabel4.Text = "服务器IP：";
             // 
             // tsTbServer
             // 
-            this.tsTbServer.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.tsTbServer.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.tsTbServer.Name = "tsTbServer";
             this.tsTbServer.Size = new System.Drawing.Size(100, 25);
             this.tsTbServer.Text = "127.0.0.1";
@@ -596,12 +594,12 @@ namespace Caist.Framework.Service
             // toolStripLabel5
             // 
             this.toolStripLabel5.Name = "toolStripLabel5";
-            this.toolStripLabel5.Size = new System.Drawing.Size(46, 22);
+            this.toolStripLabel5.Size = new System.Drawing.Size(44, 22);
             this.toolStripLabel5.Text = "端口：";
             // 
             // tsTbMqPort
             // 
-            this.tsTbMqPort.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.tsTbMqPort.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.tsTbMqPort.Name = "tsTbMqPort";
             this.tsTbMqPort.Size = new System.Drawing.Size(50, 25);
             this.tsTbMqPort.Text = "8000";
@@ -609,12 +607,12 @@ namespace Caist.Framework.Service
             // toolStripLabel6
             // 
             this.toolStripLabel6.Name = "toolStripLabel6";
-            this.toolStripLabel6.Size = new System.Drawing.Size(72, 22);
+            this.toolStripLabel6.Size = new System.Drawing.Size(68, 22);
             this.toolStripLabel6.Text = "提交账号：";
             // 
             // tsTbMqUserName
             // 
-            this.tsTbMqUserName.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.tsTbMqUserName.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.tsTbMqUserName.Name = "tsTbMqUserName";
             this.tsTbMqUserName.Size = new System.Drawing.Size(100, 25);
             this.tsTbMqUserName.Text = "admin";
@@ -624,7 +622,7 @@ namespace Caist.Framework.Service
             this.MqttStart.Image = global::Caist.Framework.Service.Properties.Resources.start;
             this.MqttStart.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.MqttStart.Name = "MqttStart";
-            this.MqttStart.Size = new System.Drawing.Size(53, 22);
+            this.MqttStart.Size = new System.Drawing.Size(52, 22);
             this.MqttStart.Text = "启动";
             this.MqttStart.Click += new System.EventHandler(this.MqttStart_Click);
             // 
@@ -634,7 +632,7 @@ namespace Caist.Framework.Service
             this.MqttStop.Image = global::Caist.Framework.Service.Properties.Resources.stop;
             this.MqttStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.MqttStop.Name = "MqttStop";
-            this.MqttStop.Size = new System.Drawing.Size(53, 22);
+            this.MqttStop.Size = new System.Drawing.Size(52, 22);
             this.MqttStop.Text = "停止";
             this.MqttStop.Click += new System.EventHandler(this.MqttStop_Click);
             // 
@@ -666,7 +664,7 @@ namespace Caist.Framework.Service
             this.tabPage1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage1.Size = new System.Drawing.Size(998, 493);
+            this.tabPage1.Size = new System.Drawing.Size(998, 492);
             this.tabPage1.TabIndex = 2;
             this.tabPage1.Text = "消息历史";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -688,8 +686,8 @@ namespace Caist.Framework.Service
             // 
             this.splitContainer3.Panel2.Controls.Add(this.webContent);
             this.splitContainer3.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.splitContainer3.Size = new System.Drawing.Size(990, 458);
-            this.splitContainer3.SplitterDistance = 295;
+            this.splitContainer3.Size = new System.Drawing.Size(990, 457);
+            this.splitContainer3.SplitterDistance = 294;
             this.splitContainer3.TabIndex = 1;
             // 
             // webMessage
@@ -699,7 +697,7 @@ namespace Caist.Framework.Service
             this.webMessage.Location = new System.Drawing.Point(0, 0);
             this.webMessage.Name = "webMessage";
             this.webMessage.ReadOnly = true;
-            this.webMessage.Size = new System.Drawing.Size(988, 293);
+            this.webMessage.Size = new System.Drawing.Size(988, 292);
             this.webMessage.TabIndex = 1;
             this.webMessage.Text = "";
             // 
@@ -739,13 +737,13 @@ namespace Caist.Framework.Service
             // toolStripLabel1
             // 
             this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(56, 22);
+            this.toolStripLabel1.Size = new System.Drawing.Size(55, 22);
             this.toolStripLabel1.Text = "IP地址：";
             // 
             // webAddress
             // 
             this.webAddress.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.webAddress.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.webAddress.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.webAddress.Name = "webAddress";
             this.webAddress.Size = new System.Drawing.Size(120, 25);
             this.webAddress.Text = "0.0.0.0";
@@ -753,16 +751,30 @@ namespace Caist.Framework.Service
             // toolStripLabel2
             // 
             this.toolStripLabel2.Name = "toolStripLabel2";
-            this.toolStripLabel2.Size = new System.Drawing.Size(46, 22);
+            this.toolStripLabel2.Size = new System.Drawing.Size(44, 22);
             this.toolStripLabel2.Text = "端口：";
             // 
             // webPort
             // 
             this.webPort.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.webPort.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.webPort.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.webPort.Name = "webPort";
             this.webPort.Size = new System.Drawing.Size(60, 25);
             this.webPort.Text = "8000";
+            // 
+            // toolStripLabel7
+            // 
+            this.toolStripLabel7.Name = "toolStripLabel7";
+            this.toolStripLabel7.Size = new System.Drawing.Size(68, 22);
+            this.toolStripLabel7.Text = "推送次数：";
+            // 
+            // txtSendCount
+            // 
+            this.txtSendCount.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtSendCount.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
+            this.txtSendCount.Name = "txtSendCount";
+            this.txtSendCount.Size = new System.Drawing.Size(100, 25);
+            this.txtSendCount.Text = "500";
             // 
             // toolStripSeparator2
             // 
@@ -774,9 +786,9 @@ namespace Caist.Framework.Service
             this.webStart.Image = ((System.Drawing.Image)(resources.GetObject("webStart.Image")));
             this.webStart.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.webStart.Name = "webStart";
-            this.webStart.Size = new System.Drawing.Size(53, 22);
+            this.webStart.Size = new System.Drawing.Size(52, 22);
             this.webStart.Text = "启动";
-            this.webStart.Click += new System.EventHandler(this.webStart_Click);
+            this.webStart.Click += new System.EventHandler(this.webSocketStart_Click);
             // 
             // webStop
             // 
@@ -784,7 +796,7 @@ namespace Caist.Framework.Service
             this.webStop.Image = ((System.Drawing.Image)(resources.GetObject("webStop.Image")));
             this.webStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.webStop.Name = "webStop";
-            this.webStop.Size = new System.Drawing.Size(53, 22);
+            this.webStop.Size = new System.Drawing.Size(52, 22);
             this.webStop.Text = "关闭";
             this.webStop.Click += new System.EventHandler(this.webStop_Click);
             // 
@@ -799,7 +811,7 @@ namespace Caist.Framework.Service
             this.webSend.Image = ((System.Drawing.Image)(resources.GetObject("webSend.Image")));
             this.webSend.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.webSend.Name = "webSend";
-            this.webSend.Size = new System.Drawing.Size(53, 22);
+            this.webSend.Size = new System.Drawing.Size(52, 22);
             this.webSend.Text = "发送";
             this.webSend.Click += new System.EventHandler(this.webSend_Click);
             // 
@@ -813,28 +825,9 @@ namespace Caist.Framework.Service
             this.SystemImage.Images.SetKeyName(3, "OperatingSyste_16x16.png");
             this.SystemImage.Images.SetKeyName(4, "Mqt-push.png");
             // 
-            // timing
-            // 
-            this.timing.Interval = 1;
-            this.timing.Tick += new System.EventHandler(this.timing_Tick);
-            // 
             // timerSyncData
             // 
             this.timerSyncData.Interval = 1000;
-            // 
-            // txtSendCount
-            // 
-            this.txtSendCount.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtSendCount.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.txtSendCount.Name = "txtSendCount";
-            this.txtSendCount.Size = new System.Drawing.Size(100, 25);
-            this.txtSendCount.Text = "500";
-            // 
-            // toolStripLabel7
-            // 
-            this.toolStripLabel7.Name = "toolStripLabel7";
-            this.toolStripLabel7.Size = new System.Drawing.Size(72, 22);
-            this.toolStripLabel7.Text = "推送次数：";
             // 
             // FrmMian
             // 
@@ -844,7 +837,7 @@ namespace Caist.Framework.Service
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.SystemStatus);
             this.Controls.Add(this.SystemMenu);
-            this.Font = new System.Drawing.Font("Microsoft YaHei", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MainMenuStrip = this.SystemMenu;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
@@ -921,7 +914,6 @@ namespace Caist.Framework.Service
         private System.Windows.Forms.ImageList ImageDevice;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.ToolStripStatusLabel txtStatus;
-        private System.Windows.Forms.Timer timing;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.TabPage tabPage1;
@@ -938,7 +930,6 @@ namespace Caist.Framework.Service
         private System.Windows.Forms.RichTextBox webContent;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripButton webSend;
-        private System.Windows.Forms.Timer timerWebSocket;
         private System.Windows.Forms.Timer timerSyncData;
         private System.Windows.Forms.TabPage tabMQT;
         private System.Windows.Forms.ToolStrip MqtTool;

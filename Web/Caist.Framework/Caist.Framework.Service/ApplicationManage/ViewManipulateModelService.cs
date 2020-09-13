@@ -2,6 +2,7 @@
 using Caist.Framework.Data.Repository;
 using Caist.Framework.Entity.ApplicationManage;
 using Caist.Framework.Model.Param.ApplicationManage;
+using Caist.Framework.Model.Param.OrganizationManage;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
@@ -47,12 +48,12 @@ namespace Caist.Framework.Service.ApplicationManage
         }
 
 
-        public async Task<List<ViewManipulateModelEntity>> GetPublishList(ViewManipulateModelListParam param)
+        public async Task<SystemDataEntity> GetPublishList(SystemDataParam param)
         {
             var strSql = new StringBuilder();
-            List<DbParameter> filter = ListFilterPublish(param, strSql, true);
-            var list = await this.BaseRepository().FindList<ViewManipulateModelEntity>(strSql.ToString(), filter.ToArray());
-            return list.ToList();
+            List<DbParameter> filter = ListFilterPublish(param, strSql);
+            var list = await this.BaseRepository().FindList<SystemDataEntity>(strSql.ToString(), filter.ToArray());
+            return list.ToList().FirstOrDefault();
         }
 
         public async Task<int> GetMaxSort()
@@ -118,14 +119,16 @@ namespace Caist.Framework.Service.ApplicationManage
                                     a.base_modify_time as BaseModifyTime,
                                     a.base_modifier_id as BaseModifierId,
                                     a.view_function_id as ViewFunctionId,
-                                    b.system_setting_id as SystemId,
+                                    b.system_setting_id as SystemId, 
                                     a.manipulate_model_name as ManipulateModelName,
                                     a.manipulate_model_sort as ManipulateModelSort,
                                     a.manipulate_model_stutas as ManipulateModelStutas,
                                     a.manipulate_model_show_home as ManipulateModelShowHome,
                                     a.manipulate_model_mark as ManipulateModelMark,
                                     a.manipulate_model_unit as ManipulateModelUnit,
-                                    b.view_name as ViewName ");
+                                    a.Instruct_view as InstructView,
+                                    b.view_name as ViewName
+                                     ");
             if (bSystemSettingContent)
             {
                 strSql.Append("");
@@ -134,6 +137,11 @@ namespace Caist.Framework.Service.ApplicationManage
             var parameter = new List<DbParameter>();
             if (param != null)
             {
+                if (param.InstructView.HasValue)
+                {
+                    strSql.Append(" AND a.Instruct_view = @InstructView");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@InstructView", param.InstructView));
+                }
                 if (!string.IsNullOrEmpty(param.ManipulateModelName))
                 {
                     strSql.Append(" AND a.manipulate_model_name like @ManipulateModelName");
@@ -159,80 +167,23 @@ namespace Caist.Framework.Service.ApplicationManage
             return parameter;
         }
 
-        private List<DbParameter> ListFilterPublish(ViewManipulateModelListParam param, StringBuilder strSql, bool bSystemSettingContent = false)
+        private List<DbParameter> ListFilterPublish(SystemDataParam param, StringBuilder strSql)
         {
-            strSql.Append(@"SELECT  a.id as Id,
-                                    a.base_modify_time as BaseModifyTime,
-                                    a.base_modifier_id as BaseModifierId,
-                                    a.view_function_id as ViewFunctionId,
-                                    a.manipulate_model_name as ManipulateModelName,
-                                    a.manipulate_model_sort as ManipulateModelSort,
-                                    a.manipulate_model_stutas as ManipulateModelStutas,
-                                    a.manipulate_model_mark as ManipulateModelMark,
-                                    a.manipulate_model_unit as ManipulateModelUnit,
-                                    b.view_name as ViewName");
-            if (bSystemSettingContent)
-            {
-                strSql.Append("");
-            }
-            if (param.ViewName.Contains("皮带"))
-            {
-                strSql.Append(",(select top(1)dict_Value from mk_plc_pidai_values where mk_plc_pidai_values.dict_id=manipulate_model_mark order by mk_plc_pidai_values.id desc) as ViewValue");
-            }
-            else if (param.ViewName.Contains("水泵"))
-            {
-                strSql.Append(",(select top(1)dict_Value from mk_plc_shuibeng_values where mk_plc_shuibeng_values.dict_id=manipulate_model_mark order by mk_plc_shuibeng_values.id desc) as ViewValue");
-            }
-            else if (param.ViewName.Contains("瓦斯"))
-            {
-
-            }
-            strSql.Append(@" FROM mk_view_manipulate_model a left join mk_view_function b on a.view_function_id = b.id WHERE a.base_is_delete = 0 ");
+            strSql.Append(@"SELECT top(1) dict_Id as DictName,
+                                dict_Value as DictValue,
+                                create_Time as CreateTime ");
+        
             var parameter = new List<DbParameter>();
             if (param != null)
             {
-                if (!string.IsNullOrEmpty(param.ViewName))
+                if (!string.IsNullOrEmpty(param.TabName))
                 {
-                    StringBuilder sb = new StringBuilder();
-                  
-                    int i = 1;
-                    foreach (var name in param.ViewName.Split(","))
-                    {
-                        if (param.ViewName.Split(",").IndexOf(name)== param.ViewName.Split(",").Length-1)
-                        {
-                            sb.Append("@ViewName" + i.ToString());
-                        }
-                        else
-                        {
-                            sb.Append("@ViewName" + i.ToString() + ",");
-                        }
-                     
-                        parameter.Add(DbParameterExtension.CreateDbParameter("@ViewName" + i.ToString(),name));
-                        i++;
-                    }
-                    strSql.Append(" AND view_name in("+ sb + ")");
+                    strSql.Append(string.Format(" from {0} ", param.TabName));
                 }
-
-                if (!string.IsNullOrEmpty(param.ManipulateModelName))
+                if (!string.IsNullOrEmpty(param.DictId))
                 {
-                    StringBuilder sb = new StringBuilder();
-                  
-                    int i = 1;
-                    foreach (var name in param.ManipulateModelName.Split(","))
-                    {
-                        if (param.ManipulateModelName.Split(",").IndexOf(name) == param.ManipulateModelName.Split(",").Length-1)
-                        {
-                            sb.Append("@ManipulateModelName" + i.ToString());
-                        }
-                        else
-                        {
-                            sb.Append("@ManipulateModelName" + i.ToString() + ",");
-                        }
-
-                        parameter.Add(DbParameterExtension.CreateDbParameter("@ManipulateModelName" + i.ToString(), name));
-                        i++;
-                    }
-                    strSql.Append(" AND manipulate_model_name in("+sb+")");
+                    strSql.Append(" where dict_Id = @DictId order by create_Time desc");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@DictId", param.DictId));
                 }
             }
             return parameter;

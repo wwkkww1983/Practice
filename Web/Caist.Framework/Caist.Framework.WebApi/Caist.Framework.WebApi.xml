@@ -11,6 +11,13 @@
             <param name="param">SecurityMonitorParam</param>
             <returns></returns>
         </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetListAlarmReccordJson(Caist.Framework.Model.Param.AlarmManage.ALarmReccordListParam)">
+            <summary>
+            告警记录
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
         <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetAlarmPlanInfo(System.Nullable{System.Int64})">
             <summary>
             获取报警预案详情
@@ -18,10 +25,23 @@
             <param name="AlarmField">mk_alarm_plan.alarm_field</param>
             <returns></returns>
         </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetAlarmPlanCount">
+            <summary>
+            获取有报警预案的报警记录条数
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetAreaAlarmInfo">
             <summary>
             区域环境数据
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetAlarmCure(Caist.Framework.Model.Param.AlarmManage.ALarmReccordListParam)">
+            <summary>
+            首页获取告警统计量曲线图
+            </summary>
+            <param name="param"></param>
             <returns></returns>
         </member>
         <member name="M:Caist.Framework.WebApi.Controllers.CewenMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Cewenhistory.CewenMonitorParam)">
@@ -31,11 +51,68 @@
             <param name="param">SecurityMonitorParam</param>
             <returns></returns>
         </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.CewenMonitorController.GetMarkList">
+            <summary>
+            获取图标标记坐标信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.CewenMonitorController.SavePointFormJson(Caist.Framework.Entity.PeopleManage.FiberMark)">
+            <summary>
+            更新页面坐标
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
         <member name="M:Caist.Framework.WebApi.Controllers.ChoucaiMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Choucahistory.ChoucaiMonitorParam)">
             <summary>
             获取Choucai数据
             </summary>
             <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.DataDictController.GetList(Caist.Framework.Model.Param.SystemManage.DataDictDetailListParam)">
+            <summary>
+            获取字典
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.EventRecordController.SaveFormJson(Caist.Framework.Entity.EventRecordManage.EventRecordEntity)">
+            <summary>
+            记录控制操作日志
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.ExcelAPIController.Export(Caist.Framework.Model.yafenghistory.ExportParam)">
+            <summary>
+            导出plc历史数据到excel
+            提供对外api
+            </summary>
+            <param name="parm">查询数据参数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.ExportController.ExportEventRecord(Caist.Framework.Model.Param.EventRecordManage.EventRecordListParam)">
+            <summary>
+            导出操作记录到报表
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.ExportController.ExportAlarmRecord(Caist.Framework.Model.Param.AlarmManage.ALarmReccordListParam)">
+            <summary>
+            导出操作记录到报表
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.ExportController.ExportSystemData(Caist.Framework.Model.Param.OrganizationManage.SystemDataParam)">
+            <summary>
+            导出系统数据
+            </summary>
+            <param name="param"></param>
             <returns></returns>
         </member>
         <member name="M:Caist.Framework.WebApi.Controllers.FiberController.GetFiberInfoList(Caist.Framework.Model.FiberManage.FiberParam)">
@@ -57,6 +134,13 @@
             接口说明：前端ant pro 用到的mock数据，如果没有这两个接口的数据前端目前会报错，这种是临时的解决办法，
             要彻底解决还需要前端调整。
             </summary>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.GetMarkList(Caist.Framework.Model.PeopleManage.RegionParam)">
+            <summary>
+            获取人员定位标记坐标信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
         </member>
         <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.PersonnelList(Caist.Framework.Model.PeopleManage.RegionParam)">
             <summary>
@@ -114,6 +198,19 @@
             <param name="param"></param>
             <returns></returns>
         </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.SystemDataController.GetList(Caist.Framework.Model.Param.OrganizationManage.SystemDataParam)">
+            <summary>
+            
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.SystemDataController.GetSystemEnergy">
+            <summary>
+            系统能耗数据
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:Caist.Framework.WebApi.Controllers.TongfengMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Tongfenghistory.TongfengMonitorParam)">
             <summary>
             获取通风机数据
@@ -141,6 +238,13 @@
             用户退出登录
             </summary>
             <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.UserController.LoginBackground(System.String)">
+            <summary>
+            子系统开关状态日志
+            </summary>
+            <param Id="Id"></param>
             <returns></returns>
         </member>
         <member name="M:Caist.Framework.WebApi.Controllers.VideoController.GetVideoInfoList(Caist.Framework.Model.Param.ApplicationManage.VideoListParam)">

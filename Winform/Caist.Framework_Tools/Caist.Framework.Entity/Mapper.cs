@@ -27,7 +27,10 @@ namespace Caist.Framework.Entity
             DataColumnCollection Columns = dr.Table.Columns;
             foreach (PropertyInfo p in propertys)
             {
-                string columnName = ((DBColumn)p.GetCustomAttributes(typeof(DBColumn), false)[0]).ColName;
+                var tempObj = p.GetCustomAttributes(typeof(DBColumn), false);
+                if (tempObj == null || tempObj.Length == 0)
+                    continue;
+                string columnName = ((DBColumn)tempObj[0]).ColName;
                 // string columnName = p.Name;如果不用属性，数据库字段对应model属性,就用这个
                 if (Columns.Contains(columnName))
                 {

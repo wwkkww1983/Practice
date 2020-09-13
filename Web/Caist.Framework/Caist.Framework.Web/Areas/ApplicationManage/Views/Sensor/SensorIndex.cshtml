@@ -1,0 +1,159 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<div class="container-div">
+    <div class="row">
+        <div id="searchDiv" class="col-sm-12 search-collapse">
+            <div class="select-list">
+                <ul>
+                    <li class="select-select2">
+                        <label>所属系统：</label>
+                        <div class="select">
+                            <select class="form-control select2" id="SystemCode" col="SystemCode">
+                                <option value="">--请选择系统--</option>
+                                <option value="03">运输系统</option>
+                                <option value="04">排水系统</option>
+                                <option value="05">通风系统</option>
+                                <option value="06">瓦斯系统</option>
+                                <option value="07">压风系统</option>
+                                <option value="08">供配电系统</option>
+                                <option value="09">工业视频</option>
+                            </select>
+                        </div>
+                    </li>
+                    <li>
+                        <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="btn-group-sm hidden-xs" id="toolbar">
+            <a id="btnAdd" class="btn btn-success" onclick="showSaveForm(true)"><i class="fa fa-plus"></i> 新增</a>
+            <a id="btnEdit" class="btn btn-primary disabled" onclick="showSaveForm(false)"><i class="fa fa-edit"></i> 修改</a>
+            <a id="btnDelete" class="btn btn-danger disabled" onclick="deleteForm()"><i class="fa fa-remove"></i> 删除</a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="gridTable" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        initGrid();
+    });
+
+    function initGrid() {
+        var queryUrl = '@Url.Content("~/ApplicationManage/Sensor/GetPageListJson")';
+        $('#gridTable').ysTable({
+            url: queryUrl,
+            sortName: 'Id',
+            sortOrder: 'Desc',
+            columns: [
+                { checkbox: true, visible: true },
+                { field: 'Id', title: 'Id', visible: false },
+                { field: 'Code', title: '编码' },
+                { field: 'Name', title: '名称' },
+                {
+                    field: 'SystemCode', title: '系统',
+                    formatter: function (value, row, index) {
+                        var text = "";
+                        switch (row.SystemCode) {
+                            case "03":
+                                text = "运输系统";
+                                break;
+                            case "04":
+                                text = "排水系统";
+                                break;
+                            case "05":
+                                text = "通风系统";
+                                break;
+                            case "06":
+                                text = "瓦斯系统";
+                                break;
+                            case "07":
+                                text = "压风系统";
+                                break;
+                            case "08":
+                                text = "供配电系统";
+                                break;
+                            default:
+                                text = "工业视频";
+                                break;
+                        }
+                        return '<span class="badge badge-primary">' + text  + '</span>';
+                    }
+                },
+                {
+                    field: 'CodeType', title: '数据类型',
+                    formatter: function (value, row, index) {
+                        debugger;
+                        if (row.CodeType == "@SensorEnum.Data.ParseToInt()") {
+                            return '<span class="badge badge-primary">' + "@SensorEnum.Data.GetDescription()" + '</span>';
+                        } else {
+                            return '<span class="badge badge-warning">' + "@SensorEnum.Cotrl.GetDescription()" + '</span>';
+                        }
+                    }
+                },
+                { field: 'ValueLength', title: '最大长度' },
+                { field: 'DecimalPlaces', title: '小数位数' }
+            ],
+            queryParams: function (params) {
+                var pagination = $('#gridTable').ysTable('getPagination', params);
+                var queryString = $('#searchDiv').getWebControls(pagination);
+                return queryString;
+            }
+        });
+    }
+
+    function searchGrid() {
+        $('#gridTable').ysTable('search');
+        resetToolbarStatus();
+    }
+
+    function showSaveForm(bAdd) {
+        var id = 0;
+        if (!bAdd) {
+            var selectedRow = $("#gridTable").bootstrapTable("getSelections");
+            if (!ys.checkRowEdit(selectedRow)) {
+                return;
+            }
+            else {
+                id = selectedRow[0].Id;
+            }
+        }
+        ys.openDialog({
+            title: id > 0 ? "编辑" : "添加",
+            content: '@Url.Content("~/ApplicationManage/Sensor/SensorForm")' + '?id=' + id,
+            width: "768px",
+            height: "600px",
+            callback: function (index, layero) {
+                var iframeWin = window[layero.find('iframe')[0]['name']];
+                iframeWin.saveForm(index);
+            }
+        });
+    }
+
+    function deleteForm() {
+        var selectedRow = $("#gridTable").bootstrapTable("getSelections");
+        if (ys.checkRowDelete(selectedRow)) {
+            ys.confirm("确认要删除选中的" + selectedRow.length + "条数据吗？", function () {
+                var ids = ys.getIds(selectedRow);
+                ys.ajax({
+                    url: '@Url.Content("~/ApplicationManage/Sensor/DeleteFormJson")' + '?ids=' + ids,
+                    type: "post",
+                    success: function (obj) {
+                        if (obj.Tag == 1) {
+                            ys.msgSuccess(obj.Message);
+                            searchGrid();
+                        }
+                        else {
+                            ys.msgError(obj.Message);
+                        }
+                    }
+                });
+            });
+        }
+    }
+</script>
+

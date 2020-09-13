@@ -4,12 +4,12 @@ namespace Caist.Framework.Enum.PointManage
 {
     public enum InstructEnum
     {
-        [Description("BOOL")]
-        BOOL = 0,
-        [Description("BYTE")]
-        BYTE = 1,
         [Description("SHORT")]
-        SHORT = 2,
+        SHORT = 0,
+        [Description("UINT32")]
+        UINT32 = 1,
+        [Description("USHORT")]
+        USHORT = 2,
         [Description("INT")]
         INT = 3,
         [Description("FLOAT")]
@@ -23,4 +23,5 @@ namespace Caist.Framework.Enum.PointManage
         [Description("读")]
         PUT = 1,
     }
+
 }

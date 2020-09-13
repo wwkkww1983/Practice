@@ -34,5 +34,10 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// </summary>
         /// <returns></returns>
         public int? SystemSort { get; set; }
+
+        /// <summary>
+        /// 是否显示在一级菜单
+        /// </summary>
+        public int MenuShow { get; set; }
     }
 }

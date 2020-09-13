@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Caist.Framework.Entity.Security
 {
     [Serializable]
-    [Table("security_monitor_ingreal_time_data")]
+    [Table("security_monitor_ingreal_time_data_realTime")]
     public class SecurityMonitorEntity
     {
         public int Id { get; set; }
@@ -15,6 +15,5 @@ namespace Caist.Framework.Entity.Security
         public string dw { get; set; }
         public string ssz { get; set; }
         public string StatName { get; set; }
-        public string UpdatDateTime { get; set; }
     }
 }

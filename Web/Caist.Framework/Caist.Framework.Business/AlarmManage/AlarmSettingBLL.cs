@@ -15,27 +15,27 @@ namespace Caist.Framework.Business.AlarmManage
 
 
         #region 获取数据
-        public async Task<TData<List<AlarmSettingsEntity>>> GetList(AlarmSettingListParam param)
+        public async Task<TData<List<AlarmSettingEntity>>> GetList(AlarmSettingListParam param)
         {
-            TData<List<AlarmSettingsEntity>> obj = new TData<List<AlarmSettingsEntity>>();
+            TData<List<AlarmSettingEntity>> obj = new TData<List<AlarmSettingEntity>>();
             obj.Result = await AlarmSettingService.GetList(param);
             obj.TotalCount = obj.Result.Count;
             obj.Tag = 1;
             return obj;
         }
 
-        public async Task<TData<List<AlarmSettingsEntity>>> GetPageList(AlarmSettingListParam param, Pagination pagination)
+        public async Task<TData<List<AlarmSettingEntity>>> GetPageList(AlarmSettingListParam param, Pagination pagination)
         {
-            TData<List<AlarmSettingsEntity>> obj = new TData<List<AlarmSettingsEntity>>();
+            TData<List<AlarmSettingEntity>> obj = new TData<List<AlarmSettingEntity>>();
             obj.Result = await AlarmSettingService.GetPageList(param, pagination);
             obj.TotalCount = pagination.TotalCount;
             obj.Tag = 1;
             return obj;
         }
 
-        public async Task<TData<List<AlarmSettingsEntity>>> GetPageContentList(AlarmSettingListParam param, Pagination pagination)
+        public async Task<TData<List<AlarmSettingEntity>>> GetPageContentList(AlarmSettingListParam param, Pagination pagination)
         {
-            TData<List<AlarmSettingsEntity>> obj = new TData<List<AlarmSettingsEntity>>();
+            TData<List<AlarmSettingEntity>> obj = new TData<List<AlarmSettingEntity>>();
             obj.Result = await AlarmSettingService.GetPageContentList(param, pagination);
             obj.TotalCount = pagination.TotalCount;
             obj.Tag = 1;
@@ -71,7 +71,7 @@ namespace Caist.Framework.Business.AlarmManage
         #endregion
 
         #region 私有方法
-        private List<AlarmSettingsEntity> ListFilter(AlarmSettingListParam param, List<AlarmSettingsEntity> list)
+        private List<AlarmSettingEntity> ListFilter(AlarmSettingListParam param, List<AlarmSettingEntity> list)
         {
             if (param != null)
             {

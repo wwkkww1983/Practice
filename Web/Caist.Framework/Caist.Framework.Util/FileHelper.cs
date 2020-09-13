@@ -85,7 +85,7 @@ namespace Caist.Framework.Util
 
                 case (int)UploadFileType.Model:
                     //模型上传不用限制文件大小
-                    objCheck = CheckFileExtension(Path.GetExtension(file.FileName), ".gltf|.fbx|.FBX");
+                    objCheck = CheckFileExtension(Path.GetExtension(file.FileName), ".gltf|.fbx|.FBX|.jpg|.jpeg|.gif|.png");  //支持上传人员定位、光纤测温、供配电的线路图
                     if (objCheck.Tag != 1)
                     {
                         obj.Message = objCheck.Message;

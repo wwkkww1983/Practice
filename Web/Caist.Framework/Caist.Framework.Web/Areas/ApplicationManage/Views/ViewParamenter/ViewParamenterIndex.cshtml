@@ -94,7 +94,7 @@
             title: id > 0 ? "编辑控制" : "添加控制",
             content: '@Url.Content("~/ApplicationManage/ViewParamenter/ViewParamenterForm")' + '?id=' + id,
             width: "768px",
-            height: "510px",
+            height: "600px",
             callback: function (index, layero) {
                 var iframeWin = window[layero.find('iframe')[0]['name']];
                 iframeWin.saveForm(index);

@@ -45,7 +45,7 @@ namespace Caist.Framework.DataAccess.Cache
             {
                 lock (_locker1)
                 {
-                    var path = Path.Combine(System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase, Common.GetConfigValue("PeoplePosition"));
+                    var path = Path.Combine(System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase, Common.GetConfigValue(key));
                     string txt = FileOperation.ReadText(path);
                     if (txt.HasValue())
                     {

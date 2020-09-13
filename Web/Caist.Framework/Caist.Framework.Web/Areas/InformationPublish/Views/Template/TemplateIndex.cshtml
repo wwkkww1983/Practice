@@ -37,7 +37,7 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'linkContent', title: 'linkContent', visible: false },
-                { field: 'deviceUID',title:'设备号'},
+                { field: 'deviceName',title:'设备名称'},
                 { field: 'linkContent', title: '发布内容' }
             ],
             queryParams: function (params) {
@@ -68,7 +68,7 @@
             title: id >= 0 ? "编辑模板" : "添加模板",
             content: '@Url.Content("~/InformationPublish/Template/TemplateForm")' + '?id=' + id,
             width: "768px",
-            height: "450px",
+            height: "550px",
             callback: function (index, layero) {
                 var iframeWin = window[layero.find('iframe')[0]['name']];
                 iframeWin.saveForm(index);

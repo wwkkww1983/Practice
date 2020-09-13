@@ -56,6 +56,9 @@
     <Reference Include="AutoMapper, Version=4.0.4.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
       <HintPath>..\packages\AutoMapper.4.0.4\lib\net45\AutoMapper.dll</HintPath>
     </Reference>
+    <Reference Include="Caist.Industrial">
+      <HintPath>Libaries\Caist.Industrial.dll</HintPath>
+    </Reference>
     <Reference Include="Fleck, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Fleck.1.1.0\lib\net45\Fleck.dll</HintPath>
     </Reference>
@@ -67,6 +70,12 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Opc.Ua.Core">
+      <HintPath>..\SyncFiles\libraies\Opc.Ua.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="OpcUaHelper">
+      <HintPath>..\SyncFiles\libraies\OpcUaHelper.dll</HintPath>
     </Reference>
     <Reference Include="Polly, Version=7.0.0.0, Culture=neutral, PublicKeyToken=c8a3ffc3f8f825cc, processorArchitecture=MSIL">
       <HintPath>..\packages\Polly.7.2.1\lib\net461\Polly.dll</HintPath>
@@ -111,15 +120,31 @@
     <Compile Include="FormMainPart.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FormSubstation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSubstation.Designer.cs">
+      <DependentUpon>FormSubstation.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmMian.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FrmMian.Designer.cs">
       <DependentUpon>FrmMian.cs</DependentUpon>
     </Compile>
-    <Compile Include="M2Mqtt.cs" />
+    <Compile Include="PlcAlwaysRead.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\Opc_DAHelper.cs" />
+    <Compile Include="Tools\OPCHelper.cs" />
+    <Compile Include="Tools\OpcTimer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <EmbeddedResource Include="FormSubstation.resx">
+      <DependentUpon>FormSubstation.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmMian.resx">
       <DependentUpon>FrmMian.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -149,7 +174,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Caist.Framework.Business\Caist.Framework.Business.csproj">
@@ -168,9 +195,9 @@
       <Project>{9253DAA6-0DA1-40CC-820F-85479F2DE8A3}</Project>
       <Name>Caist.Framework.IdGenerator</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Caist.Framework.PLC\Caist.Framework.PLC.csproj">
-      <Project>{CEF12833-7919-4A18-9285-7E9E00EA509A}</Project>
-      <Name>Caist.Framework.PLC</Name>
+    <ProjectReference Include="..\Caist.Framework.M2MQTT\Caist.Framework.M2MQTT.csproj">
+      <Project>{B5BC0E0E-2945-474D-81B6-02B1F0807348}</Project>
+      <Name>Caist.Framework.M2MQTT</Name>
     </ProjectReference>
     <ProjectReference Include="..\Caist.Framework.Sync\SyncLogic\SyncLogic.csproj">
       <Project>{C799FA1F-50F3-4973-ACE6-EF612ABC6CDD}</Project>
@@ -184,20 +211,27 @@
       <Project>{EF33BFDD-D536-4A41-8D8D-86CD1C89CB0A}</Project>
       <Name>Caist.Framework.ThreadPool</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Caist.Framework.Util\Caist.Framework.Util.csproj">
+      <Project>{09457767-DD6C-43CE-8460-946CC2E71021}</Project>
+      <Name>Caist.Framework.Util</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Caist.Framework.WebSocket\Caist.Framework.WebSocket.csproj">
       <Project>{1C3875B1-0639-4A0F-9CEA-3E35621B59CB}</Project>
       <Name>Caist.Framework.WebSocket</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SyncFiles\SyncFiles.csproj">
-      <Project>{9B6B52E5-3C62-44A4-986E-1BAC6C9A7059}</Project>
-      <Name>SyncFiles</Name>
+    <ProjectReference Include="..\Caist.Siemens\Caist.Siemens\Caist.Siemens.csproj">
+      <Project>{da70273b-908a-4067-a801-18b1c0c7f2d3}</Project>
+      <Name>Caist.Siemens</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Config\FiberConfig.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Config\PeoplePositionSql.txt">
+    <Content Include="Config\FiberSql.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\PeoplePositionSql.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Config\Interval.txt">

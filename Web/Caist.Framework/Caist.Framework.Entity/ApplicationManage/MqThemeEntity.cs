@@ -53,5 +53,6 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// 状态
         /// </summary>
         public int? MqStutas { get; set; }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Caist.Framework.Entity
 {
@@ -19,5 +20,19 @@ namespace Caist.Framework.Entity
         public string MinValuePos { get; set; }
         [DBColumn(ColName = "average_value")]
         public string AverageValue { get; set; }
+    }
+
+    public class PlcConnects
+    {
+        public List<PlcConnect> PlcConnectStatus { get; set; }
+    }
+    public class PlcConnect
+    {
+        public string SysId { get; set; }
+        public string PlcName { get; set; }
+        /// <summary>
+        /// plc状态：0：关闭；1：开启；
+        /// </summary>
+        public int PlcStatus { get; set; }
     }
 }

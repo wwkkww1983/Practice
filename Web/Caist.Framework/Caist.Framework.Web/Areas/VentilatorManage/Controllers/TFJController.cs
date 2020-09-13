@@ -45,17 +45,18 @@ namespace Caist.Framework.Web.Areas.TFJDemo.Controllers
         {
             _hostingEnvironment = hostingEnvironment;
         }
+
+
         /// <summary>
         /// excel导出功能
         /// </summary>
         /// <returns></returns>
-        public IActionResult Export()
+        [HttpGet]
+        public IActionResult Export(TongfengMonitorParam tfj)
         {
-            //
-            TongfengMonitorParam tfj = new TongfengMonitorParam();
             //100天以前数据
-            tfj.StartDate = DateTime.Now.AddDays(-100);
-            tfj.EndDate = DateTime.Now;
+            //tfj.StartDate = DateTime.Now.AddDays(-100);
+            //tfj.EndDate = DateTime.Now;
             var dataFromDb = tongfengMonitorBLL.GetSecurityInfoList(tfj);
             //
             string sWebRootFolder = _hostingEnvironment.WebRootPath;

@@ -70,9 +70,9 @@ namespace Caist.Framework.Service.PeopleManage
             var parameter = new List<DbParameter>();
             if (param != null)
             {
-                if (param.CurrentStation.HasValue())
+                if (param.StationAddress.HasValue())
                 {
-                    parameter.Add(DbParameterExtension.CreateDbParameter("@RegionName", param.CurrentStation));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@RegionName", param.StationAddress));
                 }
             }
             return parameter;

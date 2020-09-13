@@ -44,8 +44,19 @@
                 { field: 'ManipulateModelName', title: '视图项' },
                 { field: 'MinValue', title: '最小值' },
                 { field: 'MaxValue', title: '最大值' },
-                { field: 'BroadcastContent', title: '语音内容' },
-                { field: 'BroadcastCount', title: '报警次数' }
+                { field: 'BroadcastContent', title: '告警内容' },
+                {
+                    field: 'BroadcastCount', title: '告警等级',
+                    formatter: function (value, row, index) {
+                        if (row.BroadcastCount == "@AlarmClassEnum.ClassA.ParseToInt()") {
+                            return '<span class="badge badge-info">' + "@AlarmClassEnum.ClassA.GetDescription()" + '</span>';
+                        } else if (row.BroadcastCount == "@AlarmClassEnum.ClassB.ParseToInt()") {
+                            return '<span class="badge badge-warning">' + "@AlarmClassEnum.ClassB.GetDescription()" + '</span>';
+                        } else if (row.BroadcastCount == "@AlarmClassEnum.ClassC.ParseToInt()"){
+                            return '<span class="badge badge-danger">' + "@AlarmClassEnum.ClassC.GetDescription()" + '</span>';
+                        }
+                    }
+                }
             ],
             queryParams: function (params) {
                 var pagination = $('#gridTable').ysTable('getPagination', params);

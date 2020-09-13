@@ -42,7 +42,40 @@ namespace Caist.Framework.Entity.Enum
         YaFeng = 7,
         [Description("供配电系统")]
         GongPeiDian = 8,
-        [Description("瓦斯利用及瓦斯发电")]
-        WLFD = 20,
+        [Description("工业视频子系统")]
+        video = 9,
+    }
+    public enum RequestType
+    {
+        [Description("人员定位")]
+        PepolePosition = 1,
+        [Description("供配电")]
+        SubStation = 2,
+        [Description("光纤测温")]
+        Fiber = 3,
+        [Description("获取plc值")]
+        GetPlcValues = 4,
+        [Description("获取当前系统所有开关的状态")]
+        GetCommandValues = 5,
+        [Description("获取单个开关状态值")]
+        GetCommandValue = 6,
+        [Description("设置单个开关状态")]
+        SetCommandValue = 7
+    }
+
+    public enum InstructViewEnum
+    {
+        [Description("数据")]
+        Data = 0,
+        [Description("控制")]
+        Govern = 1,
+        [Description("告警")]
+        Alarm = 2,
+        [Description("启动")]
+        Start = 3,
+        [Description("停止")]
+        Stop = 4,
+        [Description("参数设置")]
+        Parameter = 9
     }
 }

@@ -1,0 +1,226 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormWhite.cshtml";
+}
+
+<div class="wrapper animated fadeInRight">
+    <form id="form" class="form-horizontal m">
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">所属系统</label>
+            <div class="col-sm-10">
+                <div id="SystemId" col="SystemId"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">数据类型</label>
+            <div class="col-sm-10" id="CodeType" col="CodeType"></div>
+        </div>
+        <div class="form-group" id="CodePointPanel">
+            <label class="col-sm-2 control-label ">所属模块</label>
+            <div class="col-sm-4">
+                <div id="viewFunctionId" col="ViewFunctionId"></div>
+            </div>
+            <label class="col-sm-2 control-label ">显示点位<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="CodePointSetting" col="CodePointSetting"></div>
+            </div>
+            <input id="CodeName" name="CodeName" col="CodeName" type="hidden" value="" />
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">系统编码<font class="red"> *</font></label>
+
+            <div class="col-sm-4">
+                <select class="form-control select2" id="SystemCode" col="SystemCode">
+                    <option value="">请选择系统</option>
+                    <option value="03">运输系统</option>
+                    <option value="04">排水系统</option>
+                    <option value="05">通风系统</option>
+                    <option value="06">瓦斯系统</option>
+                    <option value="07">压风系统</option>
+                    <option value="08">供配电系统</option>
+                    <option value="09">工业视频</option>
+                </select>
+            </div>
+            <label class="col-sm-2 control-label">地址类型编码<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="AddressTypeCode" col="AddressTypeCode"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">传感器类型<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <div id="SensorId" col="SensorId"></div>
+            </div>
+
+            <label class="col-sm-2 control-label">地址采区编码<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="AddressAreCode" col="AddressAreCode" type="text" class="form-control" />
+            </div>
+
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">安装地点编码<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="AddressDeviceCode" col="AddressDeviceCode" type="text" class="form-control" />
+            </div>
+            <label class="col-sm-2 control-label">设备顺序编号<font class="red"> *</font></label>
+            <div class="col-sm-4">
+                <input id="DeviceCode" col="DeviceCode" type="text" class="form-control" />
+            </div>
+        </div>
+
+        <div class="form-group" id="alarmPanel" style="display:none">
+            <label class="col-sm-2 control-label">报警关联</label>
+            <div class="col-sm-10">
+                <div id="AlarmPoint" col="AlarmPoint"></div>
+            </div>
+
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+        var id = ys.request("id");
+    var FormData = null;
+        $("#CodeType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(SensorEnum).EnumToDictionaryString())) });
+        $(function () {
+            getForm();
+            $('input[name=CodeType_radiobox]').on('ifChecked', function (event) {
+                var CodeType = $(event.target).val();
+                viewTypeVisible(CodeType);
+            });
+            //系统选择
+            $("#SystemId").ysComboBox({
+                url: '@Url.Content("~/ApplicationManage/SystemSetting/GetListJson")',
+                key: "Id",
+                value: "SystemName",
+                class: "form-control",
+                onChange: showViewFunction,
+            });
+
+            $("#SystemCode").change(function () {
+
+                addressCode();
+                showSensor();
+            });
+
+
+        });
+    ///获取告警数据
+    function AlarmPoint(type) {
+        var selectConValue = $("#SystemId_select").find("option:selected").val();
+        var viewFunctionId_select = $("#viewFunctionId_select").find("option:selected").val();
+            $("#AlarmPoint").ysComboBox({
+                url: '@Url.Content("~/ApplicationManage/ViewManipulateModel/GetListJson")' + '?SystemId=' + selectConValue + "&InstructView=" + type +"&ViewFunctionId="+viewFunctionId_select,
+                key: "ManipulateModelMark",
+                value: "ManipulateModelName",
+                class: "form-control",
+                multiple: true
+            });
+
+    }
+    //模块选择
+    function showViewFunction() {
+        var selectConValue = $("#SystemId_select").find("option:selected").val();
+           $("#viewFunctionId").ysComboBox({
+                    url: '@Url.Content("~/ApplicationManage/ViewFunction/GetListJson")' + '?SystemSettingId=' + selectConValue + "&ViewType=1",
+                    key: "Id",
+                    value: "ViewName",
+                    class: "form-control",
+                    onChange: showComboBox,
+           });
+    }
+    //点位选择
+    function showComboBox() {
+        var selectValue = $("#viewFunctionId_select").find("option:selected").val();
+        $("#CodePointSetting").ysComboBox({
+            url: '@Url.Content("~/ApplicationManage/ViewManipulateModel/GetListJson")' + '?ViewFunctionId=' + selectValue,
+            key: "ManipulateModelMark",
+            value: "ManipulateModelName",
+            unit: "ManipulateModelUnit",
+            class: "form-control",
+            onChange: UpdateData,
+        });
+
+    }
+    function UpdateData() {
+        var thisTxt = $("#CodePointSetting_select").find("option:selected").text();
+        $("#CodeName").val(thisTxt);
+    }
+    function addressCode() {
+        $("#AddressTypeCode").ysComboBox({
+            url: '@Url.Content("~/ApplicationManage/MqTheme/GetAddressTypeListJson")' + '?SystemCode=' + $("#SystemCode").val(),
+            key: "Code",
+            value: "Name",
+            class: "form-control",
+        });
+    }
+    function showSensor() {
+        $("#SensorId").ysComboBox({
+            url: '@Url.Content("~/ApplicationManage/Sensor/GetListJson")' + '?SystemCode=' + $("#SystemCode").val(),
+                key: "Id",
+                value: "Name",
+                class: "form-control",
+        });
+
+    }
+        function getForm() {
+            if (id > 0) {
+                ys.ajax({
+                    url: '@Url.Content("~/ApplicationManage/MqTheme/GetSettingFormJson")' + '?id=' + id,
+                    type: "get",
+                    success: function (obj) {
+                        if (obj.Tag == 1) {
+                            showViewFunction();
+                            showComboBox();
+                            addressCode();
+                            showSensor();
+                            viewTypeVisible(obj.Result.CodeType);
+                            $("#form").setWebControls(obj.Result);
+                        }
+                    }
+                });
+
+            } else {
+                showViewFunction();
+                showComboBox();
+                showSensor();
+                var defaultData = {};
+                defaultData.CodeType = "@SensorEnum.Data.ParseToInt()";
+                $("#form").setWebControls(defaultData);
+            }
+        }
+
+        function saveForm(index) {
+            if ($("#form").validate().form()) {
+                var postData = $("#form").getWebControls({ Id: id });
+                ys.ajax({
+                    url: '@Url.Content("~/ApplicationManage/MqTheme/SaveSettingFormJson")',
+                    type: "post",
+                    data: postData,
+                    success: function (obj) {
+                        if (obj.Tag == 1) {
+                            ys.msgSuccess(obj.Message);
+                            parent.searchGrid();
+                            parent.layer.close(index);
+                        }
+                        else {
+                            ys.msgError(obj.Message);
+                        }
+                    }
+                });
+            }
+    }
+    function viewTypeVisible(value) {
+        if (value == "2") { //告警
+            AlarmPoint(2);
+            $("#alarmPanel").show();
+        } else if (value == "3") { //控制状态
+
+            AlarmPoint(1);
+            $("#alarmPanel").show();
+        }
+        else {
+            $("#alarmPanel").hide();
+        }
+    }
+</script>

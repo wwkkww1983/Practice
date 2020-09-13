@@ -44,6 +44,7 @@
     <Compile Include="IThreadPool.cs" />
     <Compile Include="IWorkItem.cs" />
     <Compile Include="IWorkResult.cs" />
+    <Compile Include="JsonDecimalHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SingleThreadPool.cs" />
     <Compile Include="StartInfo.cs" />

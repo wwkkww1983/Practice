@@ -44,10 +44,10 @@
         <div class="col-sm-6">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>水泵走势图</h5>
+                    <h5>局部走势图</h5>
                 </div>
                 <div class="ibox-content">
-                    <div class="echarts" id="echarts-shuibeng-chart"></div>
+                    <div class="echarts" id="echarts-jushan-chart"></div>
                 </div>
             </div>
         </div>
@@ -90,9 +90,9 @@
             }
         });
 
-        //ajax水泵异步请求数据
+        //ajax局部异步请求数据
         $.ajax({
-            url: '/PumpSystemManage/Shuibeng/GetShuibengTempLists',
+            url: '/DrainagesystemManage/Jushan/GetjushanTempLists',
             type: 'post',
             data: {
                 StartDate: "",
@@ -233,18 +233,18 @@
         lineChart.setOption(lineoption);
         $(window).resize(lineChart.resize);
     }
-    //水泵走势图
+    //局部走势图
     function ShuiBengChart(high_global) {
-        var lineChart = echarts.init(document.getElementById("echarts-shuibeng-chart"));
+        var lineChart = echarts.init(document.getElementById("echarts-jushan-chart"));
         var lineoption = {
             title: {
-                text: '水泵走势图'
+                text: '局部走势图'
             },
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['水深']
+                data: ['风扇']
             },
             grid: {
                 x: 40,
@@ -269,7 +269,7 @@
             ],
             series: [
                 {
-                    name: '水深',
+                    name: '风扇',
                     type: 'line',
                     data: high_global,
                     markPoint: {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Caist.Framework.Entity.Enum;
+using System.Collections.Generic;
 
 namespace Caist.Framework.Entity.Entity
 {
@@ -64,8 +65,21 @@ namespace Caist.Framework.Entity.Entity
     {
         public string CurrentStation { get; set; }
         public string StationAddress { get; set; }
-        public string Nums { get; set; }
-        public string ViewFunctionId { get; set; }
+        public int Nums { get; set; }
+        public List<Pepole> Pepoles { get; set; }
+    }
+    public class Pepole
+    {
+        public string PepoleNumber { get; set; }
+        public string PepoleName { get; set; }
+        public string TypeOfWorkName { get; set; }
+        public string Duty { get; set; }
+        public string Post { get; set; }
+        /// <summary>
+        /// 工时(分钟)
+        /// </summary>
+        public float ManHour { get; set; }
+
     }
     #endregion
     #endregion
@@ -74,7 +88,13 @@ namespace Caist.Framework.Entity.Entity
     #region 前端命令操作模型
     public class InstructModel
     {
-        public InstructInfo RemoteControl { get; set; }
+        public string Instruct { get; set; }
+        public string Value { get; set; }
+        public string Ip { get; set; }
+        public string Port { get; set; }
+        public string SystemId { get; set; }
+        public InstructViewEnum InstructType { get; set; }
+        public RequestType RequestType { get; set; }
     }
 
     public class InstructInfo

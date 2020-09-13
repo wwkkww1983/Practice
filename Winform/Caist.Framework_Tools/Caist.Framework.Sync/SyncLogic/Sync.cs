@@ -20,6 +20,7 @@ namespace SyncLogic
         MySqlHelper _mysqlhelper = new MySqlHelper();
         //一次执行数据条数
         readonly int _count = Convert.ToInt32(Common.GetConfigValue("MaxOnceData"));
+        DataBaseModel _baseModel;
         #region 异步方法
 
         public async Task<Tuple<string, bool>> SyncDataAsync()
@@ -33,7 +34,7 @@ namespace SyncLogic
             }
             catch (Exception ex)
             {
-                res = $"{ex.Message}\r\n{ex.StackTrace}";
+                res = $"--{_baseModel.SourceSql}--\r\n{ex.Message}\r\n{ex.StackTrace}";
             }
 
             return Tuple.Create<string, bool>(res, flag);
@@ -44,6 +45,7 @@ namespace SyncLogic
             bool flag = false;
             foreach (var item in models)
             {
+                _baseModel = item;
                 flag = await SqlToDataAsync(item);
             }
             return flag;

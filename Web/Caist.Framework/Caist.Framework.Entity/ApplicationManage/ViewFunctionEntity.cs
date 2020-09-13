@@ -19,6 +19,11 @@ namespace Caist.Framework.Entity.ApplicationManage
         public string ViewButtonImage { get; set; }
         public int? ViewStatus { get; set; }
 
+        /// <summary>
+        /// 是否在首页展示
+        /// </summary>
+        public int? ViewFunctionShowHome { get; set; }
+
         [NotMapped]
         public string SystemSettingName { get; set; }
     }

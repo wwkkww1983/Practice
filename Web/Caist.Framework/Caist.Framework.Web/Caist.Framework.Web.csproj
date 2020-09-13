@@ -10,6 +10,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <StartupObject>Caist.Framework.Web.Program</StartupObject>
+    <UserSecretsId>43935820-e414-44cd-bc84-ae294a94f2b9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

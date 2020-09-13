@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Caist.Framework.Enum;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -87,6 +88,11 @@ namespace Caist.Framework.Util.Model
         /// 信息发布路径
         /// </summary>
         public string InformationPublishPath { get; set; }
+
+        /// <summary>
+        /// //ftp上传文件模式  1：ftp  2:局域网文件共享目录
+        /// </summary>
+        public FTPMode FTPMode { get; set; }
         /// <summary>
         /// 上传服务器地址
         /// </summary>
@@ -103,6 +109,19 @@ namespace Caist.Framework.Util.Model
         /// 人员定位根据不同矿来定义不同SQL查询相关人员信息
         /// </summary>
         public string PeoplePositionSqlPath { get; set; }
+        /// <summary>
+        /// mqt上传数据查询webapi密钥
+        /// </summary>
+        public string MqtKey { get; set; }
+
+        /// <summary>
+        ///  mqt上传数据查询webapi
+        /// </summary>
+        public string MqtUrl { get; set; }
+        /// <summary>
+        /// 人员定位实时数据接口
+        /// </summary>
+        public string PeopleRealTime { get; set; }
 
     }
 }

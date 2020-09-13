@@ -20,15 +20,18 @@ namespace Caist.Framework.Service.ApplicationManage
         #region 获取数据
         public async Task<List<InformationPublishEntity>> GetList(InformationPublishParam param)
         {
-            var expression = ListFilter(param);
-            var list = await this.BaseRepository().FindList(expression);
+
+            var strSql = new StringBuilder();
+            List<DbParameter> filter = ListFilter(param, strSql);
+            var list = await this.BaseRepository().FindList<InformationPublishEntity>(strSql.ToString(), filter.ToArray());
             return list.ToList();
         }
 
         public async Task<List<InformationPublishEntity>> GetPageList(InformationPublishParam param, Pagination pagination)
         {
-            var expression = ListFilter(param);
-            var list = await this.BaseRepository().FindList(expression, pagination);
+            var strSql = new StringBuilder();
+            List<DbParameter> filter = ListFilter(param, strSql);
+            var list = await this.BaseRepository().FindList<InformationPublishEntity>(strSql.ToString(), filter.ToArray(), pagination);
             return list.ToList();
         }
 
@@ -61,29 +64,30 @@ namespace Caist.Framework.Service.ApplicationManage
         #endregion
 
         #region 私有方法
-        private Expression<Func<InformationPublishEntity, bool>> ListFilter(InformationPublishParam param)
+        private List<DbParameter> ListFilter(InformationPublishParam param, StringBuilder strSql)
         {
-
-
-            var expression = LinqExtensions.True<InformationPublishEntity>();
+            strSql.Append(@"select a.id as Id,
+                            a.Device_Uid as DeviceUid,
+                            a.Link_Content as LinkContent,
+                            a.base_modify_time as BaseModifyTime,
+                            b.Device_Name as DeviceName");
+            strSql.Append(@" FROM mk_information_publish a left join mk_led_device b on a.Device_Uid = b.Device_Uid ");
+            var parameter = new List<DbParameter>();
             if (param != null)
             {
+                if (!string.IsNullOrEmpty(param.DeviceUid))
+                {
+                    strSql.Append(" AND a.Device_Uid=@DeviceUid");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@DeviceUid", param.DeviceUid));
+                   
+                }
                 if (!string.IsNullOrEmpty(param.LinkContent))
                 {
-                    expression = expression.And(t => t.LinkContent.Contains(param.LinkContent));
-                }
-             
-                if (!string.IsNullOrEmpty(param.StartTime.ParseToString()))
-                {
-                    expression = expression.And(t => t.BaseModifyTime >= param.StartTime);
-                }
-                if (!string.IsNullOrEmpty(param.EndTime.ParseToString()))
-                {
-                    param.EndTime = (param.EndTime.Value.ToString("yyyy-MM-dd") + " 23:59:59").ParseToDateTime();
-                    expression = expression.And(t => t.BaseModifyTime <= param.EndTime);
+                    strSql.Append(" AND a.Link_Content like @LinkContent");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@LinkContent", "%" + param.LinkContent + "%"));
                 }
             }
-            return expression;
+            return parameter;
         }
         #endregion
     }
