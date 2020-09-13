@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Caist.Framework.WebApi</name>
+    </assembly>
+    <members>
+        <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetSecurityInfoList(Caist.Framework.Model.Param.Baojinghistory.BojingMonitorParam)">
+            <summary>
+            获取Chouwen数据
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetAlarmPlanInfo(System.Nullable{System.Int64})">
+            <summary>
+            获取报警预案详情
+            </summary>
+            <param name="AlarmField">mk_alarm_plan.alarm_field</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetAreaAlarmInfo">
+            <summary>
+            区域环境数据
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.CewenMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Cewenhistory.CewenMonitorParam)">
+            <summary>
+            获取Chouwen数据
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.ChoucaiMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Choucahistory.ChoucaiMonitorParam)">
+            <summary>
+            获取Choucai数据
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.FiberController.GetFiberInfoList(Caist.Framework.Model.FiberManage.FiberParam)">
+            <summary>
+            获取区域光纤温度
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.JushanMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Jushanhistory.JushanMonitorParam)">
+            <summary>
+            获取Jushan数据
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="T:Caist.Framework.WebApi.Controllers.MockController">
+            <summary>
+            接口说明：前端ant pro 用到的mock数据，如果没有这两个接口的数据前端目前会报错，这种是临时的解决办法，
+            要彻底解决还需要前端调整。
+            </summary>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.PersonnelList(Caist.Framework.Model.PeopleManage.RegionParam)">
+            <summary>
+            根据点位获取实时人员列表
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.PeopleCounting(Caist.Framework.Model.PeopleManage.RegionParam)">
+            <summary>
+            相应点位的人数统计
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.GetPeopleInfo(Caist.Framework.Model.PeopleManage.RegionParam)">
+            <summary>
+            人员信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PidaiMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Pidaihistory.PidaiMonitorParam)">
+            <summary>
+            获取pidai数据
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.RenyuanMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Renyuanhistory.RenyuanMonitorParam)">
+            <summary>
+            获取Choucai数据
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.SecurityMonitorController.GetSecurityInfoList(Caist.Framework.Model.Security.SecurityMonitorParam)">
+            <summary>
+            获取安全检测列表
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.ShuibengMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Shuibenghistory.ShuibengMonitorParam)">
+            <summary>
+            获取水泵数据
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.SubstationController.SubStationInfo(Caist.Framework.Model.SubStation.SubStationParam)">
+            <summary>
+            获取供电站信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.TongfengMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Tongfenghistory.TongfengMonitorParam)">
+            <summary>
+            获取通风机数据
+            </summary>
+            <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.UserController.GetWxOpenId(System.String)">
+            <summary>
+            获取WxOpenId
+            </summary>
+            <param name="code"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.UserController.Login(System.String,System.String)">
+            <summary>
+            用户登录
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.UserController.LoginOff(System.String)">
+            <summary>
+            用户退出登录
+            </summary>
+            <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.VideoController.GetVideoInfoList(Caist.Framework.Model.Param.ApplicationManage.VideoListParam)">
+            <summary>
+            获取所有摄像头地址
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.YafengMonitorController.GetSecurityInfoList(Caist.Framework.Model.yafenghistory.yafengMonitorParam)">
+            <summary>
+            获取yafeng历史数据
+            </summary>
+            <param name="param">yafengMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="T:Caist.Framework.WebApi.Handle.AuthorizeFilterAttribute">
+            <summary>
+            验证token和记录日志
+            </summary>
+        </member>
+        <member name="F:Caist.Framework.WebApi.Handle.AuthorizeFilterAttribute.IgnoreToken">
+            <summary>
+            忽略token的方法
+            </summary>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Handle.AuthorizeFilterAttribute.OnActionExecutionAsync(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext,Microsoft.AspNetCore.Mvc.Filters.ActionExecutionDelegate)">
+            <summary>
+            异步接口日志
+            </summary>
+            <param name="context"></param>
+            <param name="next"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

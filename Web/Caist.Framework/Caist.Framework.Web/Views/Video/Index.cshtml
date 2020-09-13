@@ -1,0 +1,293 @@
+﻿@{ 
+    Layout = null;
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>全矿井视频的访问</title>
+    <script src="~/lib/jquery/1.10.2/jquery.js"></script>
+    <style>
+
+        .vjs-paused .vjs-big-play-button,
+        .vjs-paused.vjs-has-started .vjs-big-play-button {
+            display: block;
+        }
+
+        .video-js .vjs-big-play-button {
+            font-size: 2.5em;
+            line-height: 2.3em;
+            height: 2.5em;
+            width: 2.5em;
+            -webkit-border-radius: 2.5em;
+            -moz-border-radius: 2.5em;
+            border-radius: 2.5em;
+            background-color: #73859f;
+            background-color: rgba(115,133,159,.5);
+            border-width: 0.15em;
+            margin-top: -1.25em;
+            margin-left: -1.75em;
+        }
+        /* 中间的播放箭头 */
+        .vjs-big-play-button .vjs-icon-placeholder {
+            font-size: 1.63em;
+        }
+        /* 加载圆圈 */
+        .vjs-loading-spinner {
+            font-size: 2.5em;
+            width: 2em;
+            height: 2em;
+            border-radius: 1em;
+            margin-top: -1em;
+            margin-left: -1.5em;
+        }
+
+        .video-js.vjs-playing .vjs-tech {
+            pointer-events: auto;
+        }
+
+        .top {
+            background-color: forestgreen;
+            float: top;
+        }
+
+        .list {
+            float: left;
+            width: 20%;
+            height: 100%;
+            margin-left: 5%;
+        }
+
+            .list h4 {
+                color: green;
+                cursor: pointer;
+            }
+
+        #camalist {
+            height: 500px;
+            overflow-y: auto;
+        }
+
+        .iframediv {
+            float: left;
+            margin: 5px;
+            width: 45%;
+        }
+
+        .myiframe {
+            background-color: black;
+            allowfullscreen: true;
+        }
+
+        .iframetext {
+            text-align: center;
+        }
+
+        .singleIndex {
+            text-align: center;
+            color: Green;
+            cursor: pointer;
+        }
+
+        .Close {
+            text-align: center;
+            color: Green;
+            cursor: pointer;
+        }
+
+        .defaultindex {
+            background-color: white;
+            background-image: url("@Url.Content("~/image/videoIndex.png")");
+            background-size: cover;
+        }
+    </style>
+    <script type="text/javascript">
+        var Key = "";
+        $(function () {
+
+            $("iframe").attr("src", "");
+            Key = $_GET['key'];
+            if (!Key) {
+                showTips("错误，请输入Key！", 100, 1);
+                return;
+            }
+            else {
+                CheckList("1=1");
+            }
+        });
+        var $_GET = (function () {
+            var url = window.document.location.href.toString();
+            var u = url.split("?");
+            if (typeof (u[1]) == "string") {
+                u = u[1].split("&");
+                var get = {};
+                for (var i in u) {
+                    var j = u[i].split("=");
+                    get[j[0]] = j[1];
+                }
+                return get;
+            } else {
+                return {};
+            }
+        })();
+        function CheckList(Where) {
+
+            //查询监控列表
+            var url = "";
+            var number = "";
+            var name = "";
+
+            $.ajax({
+                url: "/video/GetVideoList",
+                data: { "Key": Key, "where": Where },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Caller", "GzCloud");
+                },
+                success: function (data) {
+                    $("#camalist").html("");
+                    if (data.tag==1) {
+                        for (var i = 0; i < data.result.length; i++) {
+                            url = data.result[i].url;
+                            number = data.result[i].number;
+                            name = data.result[i].name;
+                            $("#camalist").append("<h4 id=\"video?cameraid=" + number + "&key=" + Key + "\" onclick=\"Add(this)\">" + "[" + number + "]" + name + "</h4>");
+                        }
+                    }
+                  
+                },
+                error: function () {
+
+                    console.log("error");
+                }
+            });
+
+
+        }
+        function Clear(iframeid) {
+            var iframes = document.getElementsByClassName("myiframe");
+            if (iframeid != null) {
+                $("#" + iframeid).attr("src", "");
+                $("#" + iframeid + "txt").text("无信号");
+            }
+            else {
+                for (i = 0; i < iframes.length; i++) {
+                    var iframe = iframes[i];
+                    $("#" + iframe.id).attr("src", "");
+                    $("#" + iframe.id + "txt").text("无信号");
+                }
+            }
+        }
+        function Add(listdom) {
+            var myiframes = document.getElementsByClassName("myiframe");
+            var c = 0;
+            for (i = 0; i < myiframes.length; i++) {
+                var iframe = myiframes[i];
+                console.log(iframe.src);
+                if (iframe.src == window.document.location.href.toString()) {
+                    var src = listdom.id || "";
+                    console.log(listdom);
+                    console.log(iframe.id);
+                    $("#" + iframe.id).attr("src", src);
+                    $("#" + iframe.id + "Single").attr("href", src.replace("video", "SingleVideo"));
+                    $("#" + iframe.id + "txt").text($(listdom).html());
+                    break;
+                }
+                else {
+                    c++;
+                }
+
+            }
+            if (c == myiframes.length) {
+                showTips("显示窗口已满，请清空！", 50, 2);
+            }
+
+            return false;
+        }
+        function showTips(content, height, time) {
+            //窗口的宽度
+            var windowWidth = $(window).width();
+            var tipsDiv = '<div class="tipsClass">' + content + '</div>';
+            $('body').append(tipsDiv);
+            $('div.tipsClass').css({
+                'top': height + 'px',
+                'left': (windowWidth / 2) - 350 / 2 + 'px',
+                'position': 'absolute',
+                'padding': '3px 5px',
+                'background': 'red',
+                'font-size': 12 + 'px',
+                'margin': '0 auto',
+                'text-align': 'center',
+                'width': '250px',
+                'height': 'auto',
+                'color': '#fff',
+                'opacity': '0.8'
+            }).show();
+            setTimeout(function () { $('div.tipsClass').fadeOut(); }, (time * 1000));
+        }
+    </script>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="top" style="height:50px;width:100%;text-align:center;font-size:24px;color:white;">
+            <span style="display:inline-block;">@(GlobalContext.SystemConfig.MkName)监控</span>
+        </div>
+        <div class="video-wrapper" style="position:relative;margin:0 auto;">
+
+            <div class="list">
+                <div>
+                    <h3>
+                        视频列表
+                    </h3>
+                    <!--<a onclick="Clear();" style="color:blue;font-size:8px;cursor:pointer;float:right;margin-right:10%;margin-top:-30px;">清空视频</a>-->
+                </div>
+                <div id="camalist">
+                    <!--<h4 id="index2.html?cameraid=1&key=1" onclick="Add(this)">[2]调度室</h4>-->
+                </div>
+            </div>
+            <div id="center" class="video-inner" style="position:absolute;top:0;bottom:0;left:0;right:0;margin-left:30%;margin-top:5px;">
+                <div class="iframediv">
+                    <iframe class="myiframe defaultindex" id="myframe1" src="" frameborder="0" align="left" width="100%" height="300px" scrolling="no"></iframe>
+                    <div class="iframetext">
+                        <label id="myframe1txt">无信号</label>
+                        <span style="float:right">
+                            <a id="myframe1Single" class="singleIndex" target="_blank">[单通道]</a>
+                            <a class="Close" onclick="Clear('myframe1');">[关闭]</a>
+                        </span>
+                    </div>
+                </div>
+                <div class="iframediv">
+                    <iframe class="myiframe defaultindex" id="myframe2" src="" frameborder="0" align="left" width="100%" height="300px" scrolling="no"></iframe>
+                    <div class="iframetext">
+                        <label id="myframe2txt">无信号</label>
+                        <span style="float:right">
+                            <a id="myframe2Single" class="singleIndex" target="_blank">[单通道]</a>
+                            <a class="Close" onclick="Clear('myframe2');">[关闭]</a>
+                        </span>
+                    </div>
+                </div>
+                <div class="iframediv">
+                    <iframe class="myiframe defaultindex" id="myframe3" src="" frameborder="0" align="left" width="100%" height="300px" scrolling="no"></iframe>
+                    <div class="iframetext">
+                        <label id="myframe3txt">无信号</label>
+                        <span style="float:right">
+                            <a id="myframe3Single" class="singleIndex" target="_blank">[单通道]</a>
+                            <a class="Close" onclick="Clear('myframe3');">[关闭]</a>
+                        </span>
+                    </div>
+                </div>
+                <div class="iframediv">
+                    <iframe class="myiframe defaultindex" id="myframe4" src="" frameborder="0" align="left" width="100%" height="300px" scrolling="no"></iframe>
+                    <div class="iframetext">
+                        <label id="myframe4txt">无信号</label>
+                        <span style="float:right">
+                            <a id="myframe4Single" class="singleIndex" target="_blank">[单通道]</a>
+                            <a class="Close" onclick="Clear('myframe4');">[关闭]</a>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

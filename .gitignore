@@ -9,6 +9,7 @@ packages
 *.rar
 *.7z
 *.iso
+.vs
 Resource
 /WebApplication1/.vs/WebApplication1
 /WebSocketDemo/.vs/WebSocketDemo

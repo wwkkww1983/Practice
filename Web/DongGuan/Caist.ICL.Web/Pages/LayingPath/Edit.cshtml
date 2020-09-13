@@ -1,0 +1,238 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/6/26
+    *说明：			 - ProjectInfo
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "路径信息管理";
+    Layout = "~/Pages/_LayoutEdit.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function onClose() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+        function onSave() {
+            var data = site.getFormData('.form');
+            if (data) {
+                site.load('保存中');
+                site.api('/api/LayingPath/save', data, function (ret) {
+                    site.unload();
+                    //alert(JSON.stringify(data));
+                    if (!ret.Code) {
+                        var url = $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src");
+                        $(".layui-tab-item.layui-show", window.parent.document).find('iframe').attr("src", url);
+                        onClose();
+                    }
+                });
+            }
+        }
+@if (Request.Query.ContainsKey("id")) {
+<text>
+        $(function () {
+            site.load('加载中');
+            var id = '@Request.Query["id"]';
+            site.api('/api/LayingPath/get/' + id, function (ret) {
+                site.unload();
+                if (!ret.Code) {
+                    site.setFormData('.form', ret.Data);
+                }
+                return true;
+            });
+        });
+</text>
+}
+    </script>
+}
+    <div class="form">
+        <input type="hidden" class="hidden" name="Id" value="">
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="SName" name="SName" style="width:50%" required="required"
+                   data-options="
+                label:'敷设路径名称：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="ProjectId" name="ProjectId" style=" width:100%"
+                    data-options="
+        limitToList:true,
+        panelHeight:150,
+        label:'工程名称：',
+        labelPosition:'left',
+        valueField:'Id',
+        textField:'ProjectName',
+        labelAlign:'right',
+        loader:site.loader('/api/ProjectInfo/items')
+        "></select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <select class="easyui-combobox" id="SectionId" name="SectionId" style=" width:100%"
+                    data-options="
+            loader:site.loader('/api/Section/items'),
+            limitToList:true,
+            panelHeight:150,
+            label:'分段：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'SectionCode',
+            labelAlign:'right'
+            "></select>
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="CableType" name="CableType" style="width:50%" required="required"
+                   data-options="
+                label:'电缆类型：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="flength" name="flength" style="width:50%" required="required"
+                   data-options="
+                label:'敷设长度：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="Laying_Type" name="Laying_Type" style="width:50%" required="required"
+                   data-options="
+                label:'敷设方式：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="StartAddress" name="StartAddress" style="width:50%" required="required"
+                   data-options="
+                label:'起点地名：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="StartPoint_X" name="StartPoint_X" style="width:50%"
+                   data-options="
+                label:'起点经度：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="StartPoint_Y" name="StartPoint_Y" style="width:50%"
+                   data-options="
+                label:'起点纬度：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="StartPoint_Z" name="StartPoint_Z" style="width:50%"
+                   data-options="
+                label:'起点高度：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="EndAddress" name="EndAddress" style="width:50%"
+                   data-options="
+                label:'终点名称：',
+                labelPosition:'left',
+                labelAlign:'right'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="EndPoint_X" name="EndPoint_X" style="width:50%"
+                   data-options="
+                label:'终点经度：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="EndPoint_Y" name="EndPoint_Y" style="width:50%"
+                   data-options="
+                label:'终点纬度：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-6 form-item">
+            <input class="easyui-textbox" id="EndPoint_Z" name="EndPoint_Z" style="width:50%"
+                   data-options="
+                label:'终点高度：',
+                labelPosition:'left',
+                labelAlign:'right',
+                validType:'number'
+            " />
+        </div>
+        <div class="col-xs-12 form-item">
+            <input class="easyui-textbox" id="fremark" name="fremark" style="height:60px;width:100%;"
+                   data-options="
+                multiline:true,
+                label:'备注：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        @if (Request.Query.ContainsKey("id"))
+        {
+            <div class="br col-xs-6 form-item">
+                <input class="easyui-textbox" id="CreateUser" name="CreateUser" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'创建人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+            <div class="col-xs-6 form-item">
+                <input class="easyui-datebox" id="CreateTime" name="CreateTime" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'创建时间：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+            <div class="col-xs-6 form-item">
+                <input class="easyui-textbox" id="UpdateUser" name="UpdateUser" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'修改人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+            <div class="col-xs-6 form-item">
+                <input class="easyui-datebox" id="UpdateTime" name="UpdateTime" style="width:100%"
+                       data-options="
+                    disabled:true,
+                    label:'修改人：',
+                    labelPosition:'left',
+                    labelAlign:'right',
+                " />
+            </div>
+        }
+
+        <div class="col-xs-12 form-item" style="margin-top:20px;margin-bottom:10px;">
+            <label class="form-title"></label>
+            <div class="form-control">
+                <a id="btn_save" onclick="onSave()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">保存</a>
+                <a id="btn_close" onclick="onClose()" class="easyui-linkbutton" data-options="iconCls:'icon-no'">关闭</a>
+            </div>
+        </div>
+        <div class="br"></div>
+    </div>

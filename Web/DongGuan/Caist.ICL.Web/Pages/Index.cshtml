@@ -1,0 +1,251 @@
+﻿@page
+@{
+    Layout = null;
+    ViewData["Title"] = "电缆智能敷设系统";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>电缆智能敷设系统</title>
+    <link href="~/lib/layui/css/admin/layui/css/layui.css" rel="stylesheet" type="text/css" />
+    <link href="~/lib/layui/css/admin/css/admin.css" rel="stylesheet" type="text/css" />
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/jquery/jquery.cookie.js"></script>
+    <script src="~/lib/layui/css/admin/layui/layui.js" charset="utf-8"></script>
+    <script src="~/lib/layui/css/admin/js/main.js" charset="utf-8"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+
+        layui.use(['jquery', 'element'], function () {
+            element = layui.element;
+            $ = layui.jquery;
+            element.init();
+        });
+        // element = layui.element;
+        //var $ = layui.$;
+        var active = {
+            tabAdd: function (url, id, name) {
+                element.tabAdd('tab', {
+                    title: name,
+                    content: '<iframe data-frameid="' + id + '" src="' + url + '" width="100%" height="100%" name="iframe"  scrolling="auto" class="iframe" framborder="0"></iframe>',
+                    id: id
+                })
+            },
+            tabChange: function (id) {
+                element.tabChange('tab', id);//根据传入的ID到指定的tab项
+            },
+            tabDelete: function (id) {
+                element.tabDelete("tab", id);//删除
+            }
+        };
+        function LabClick(Menu_Id, Menu_Url, Menu_Name) {
+            if ($(".layui-tab-title li[lay-id]").length <= 0) {
+                active.tabAdd(Menu_Url, Menu_Id, Menu_Name);
+            }
+            else {
+                var isData = false;
+                $.each($(".layui-tab-title li[lay-id]"), function () {
+                    if ($(this).attr("lay-id") == Menu_Id) {
+                        isData = true;
+                    }
+                })
+                if (isData == false) {
+                    active.tabAdd(Menu_Url, Menu_Id, Menu_Name);
+                }
+            }
+            active.tabChange(Menu_Id)
+        }
+        function EditPassWord() {
+            site.open({
+                fit: true,
+                title: '修改密码',
+                content: '/UserInfo/Repwd?id=' + $.cookie("UserID")
+            });
+        }
+        function initPage() {
+            $("#LeftMenu").html("");
+            ////从cook填充用户信息
+            //$(".cookGetValue").each(function () {
+            //    var value = $.cookie(this.getAttribute("cookid"));
+            //    if (value) {
+            //        this.innerHTML = value;
+            //        alert(value);
+            //    }
+            //    else {
+            //        location.href = "/login";
+            //    }
+            //})
+            ////获取用户信息,取得菜单权限
+            var UserName = $.cookie("UserName");
+            var RoleID = $.cookie("RoleId");
+            //if (!UserID)
+            //    top.location.href = '/login?returnUrl=' + encodeURIComponent(window.location.href);
+            //site.api('/api/Auth/GetCurrentUser', function (ret) {
+            //    window.parent.document.getElementById("CurrentUser").innerHTML = "欢迎您:" + ret.Data.UserName;
+            //});
+            $('#CurrentUser', window.parent.document).html("欢迎您:" + UserName);
+            //window.parent.document.getElementById("CurrentUser").innerHTML = "欢迎您:" + UserName;
+            site.api('/api/MenuGrant/GetUserMenus/' + RoleID, function (rec) {
+                var allData = rec.Data;
+                //模板集合标签,类似select的optgroup
+                //var mouldData = $.grep(allData, function (n, i) {
+                //    return n.ParentId == '00000000-0000-0000-0000-000000000000';
+                //});
+                var MenuHtml = " <div class=\"m-logo\"></div ><ul class=\"layui-nav layui-nav-tree\" lay-filter=\"leftNav\" >";
+                var i = 0;
+                allData.length > 0 && $.each(allData, function () {
+                    if (this.Menu_Pid == 0) {
+                        i++;
+                        if (i == 1) {
+                            MenuHtml += "<li class='layui-nav-item layui-nav-itemed'>";
+                        }
+                        else {
+                            MenuHtml += "<li class='layui-nav-item'>";
+                        }
+                        //<a href="javascript:;"><i class="iconfont"><img src="~/lib/layui/css/admin/images/gongchengguanli.png" width="20px" height="20px" /></i>工程管理</a>
+                        MenuHtml += "<a href='javascript:;' >";
+                        MenuHtml += "<i class='iconfont'><img src='" + this.Menu_Icon + "' width='20px' height='20px' /></i>";
+                        MenuHtml += this.Menu_Name;
+                        MenuHtml += "</a>";
+                        MenuHtml += "<dl class=\"layui-nav-child\">";
+                        for (var j = 0; j < allData.length; j++) {
+                            if (allData[j].Menu_Pid == this.Menu_Id) {
+                                MenuHtml += GetChildMenu(allData[j].Menu_Id, allData[j].Menu_Url, allData[j].Menu_Name);
+                            }
+                        }
+                        MenuHtml += "</dl>";
+                        MenuHtml += "</li>";
+                    }
+                });
+                MenuHtml += "</ul>";
+                //console.log('MenuHtml', MenuHtml)
+                $("#LeftMenu").append(MenuHtml)
+                layui.use(['jquery', 'element'], function () {
+                    element = layui.element;
+                    $ = layui.jquery;
+                    element.init();
+                });
+
+                //alert(MenuHtml);
+            });
+        }
+        function GetChildMenu(menuid, menuurl, menuname) {
+            var MenuChildHtml = "";
+            MenuChildHtml += "<dd><a href=\"javascript:LabClick('" + menuid + "','" + menuurl + "','" + menuname + "');\" data-url='" + menuurl + "' data-id='" + menuid + "' data-text='" + menuname + "' ><span class=\"l-line\"></span>" + menuname + "</a>";
+            MenuChildHtml += "</dd>"
+            return MenuChildHtml;
+        }
+        $(function () {
+            initPage();
+            var i = 0;
+            $('#hideBtn').click(
+                function () {
+                    if (i == 0) {
+                        $(".main-layout-side").animate({ width: 'toggle' });
+                        $(".main-layout-container").animate({ left: '0px' });
+                        i++;
+                    }
+                    else {
+                        $(".main-layout-side").animate({ width: 'toggle' });
+                        $(".main-layout-container").animate({ left: '200px' });
+                        i--;
+                    }
+                }
+            );
+            $('#hideBtn').hover(function () {
+                layer.tips("收缩左侧导航栏", "#hideBtn", { tips: [4, '#FF8000'], time: 0 });
+            }, function () {
+                layer.closeAll('tips');
+
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="main-layout" id='main-layout'>
+        <!--侧边栏-->
+        <div class="main-layout-side" id="LeftMenu">
+            @* <div class="m-logo"></div><ul class="layui-nav layui-nav-tree" lay-filter="leftNav"><li class='layui-nav-item layui-nav-itemed'><a href='javascript:;'><i class='iconfont'><img src='/lib/layui/css/admin/images/gongchengguanli.png' width='20px' height='20px' /></i>工程管理</a><dl class="layui-nav-child"><dd><a href="javascript:LabClick('e148b20c-116f-40ae-81ec-dc682f88c358','/ProjectInfo/Index','工程信息');" data-url='/ProjectInfo/Index' data-id='e148b20c-116f-40ae-81ec-dc682f88c358' data-text='工程信息'><span class="l-line"></span>工程信息</a></dd><dd><a href="javascript:LabClick('2b78d609-66f9-4049-994b-4b47df3e2c01','/Section/Index','分段信息');" data-url='/Section/Index' data-id='2b78d609-66f9-4049-994b-4b47df3e2c01' data-text='分段信息'><span class="l-line"></span>分段信息</a></dd><dd><a href="javascript:LabClick('591f60f5-14c7-402e-80b7-3cc2c3c9fd8a','/LayingPath/Index','敷设路径');" data-url='/LayingPath/Index' data-id='591f60f5-14c7-402e-80b7-3cc2c3c9fd8a' data-text='敷设路径'><span class="l-line"></span>敷设路径</a></dd><dd><a href="javascript:LabClick('11e3a3b7-359e-40a0-8a6e-3074eb96bf19','/Cable_Info/Index','电缆信息');" data-url='/Cable_Info/Index' data-id='11e3a3b7-359e-40a0-8a6e-3074eb96bf19' data-text='电缆信息'><span class="l-line"></span>电缆信息</a></dd></dl></li><li class='layui-nav-item layui-nav-itemed'><a href='javascript:;'><i class='iconfont'><img src='/lib/layui/css/admin/images/fenxi.png' width='20px' height='20px' /></i>受力分析</a><dl class="layui-nav-child"><dd><a href="javascript:LabClick('6fa03bc9-6f7b-49c4-9657-019f2ffde77a','/Basic_Locus/Index','轨迹点信息');" data-url='/Basic_Locus/Index' data-id='6fa03bc9-6f7b-49c4-9657-019f2ffde77a' data-text='轨迹点信息'><span class="l-line"></span>轨迹点信息</a></dd><dd><a href="javascript:LabClick('00ac1779-c23b-4c85-93b8-6b644a3ccab9','/MonitorPoint/Index','监测点信息');" data-url='/MonitorPoint/Index' data-id='00ac1779-c23b-4c85-93b8-6b644a3ccab9' data-text='监测点信息'><span class="l-line"></span>监测点信息</a></dd><dd><a href="javascript:LabClick('6fb8ffc0-3d5f-494a-8e32-0f8bdbaa2ddb','/Monitoring_Data/Index','监测数据');" data-url='/Monitoring_Data/Index' data-id='6fb8ffc0-3d5f-494a-8e32-0f8bdbaa2ddb' data-text='监测数据'><span class="l-line"></span>监测数据</a></dd></dl></li><li class='layui-nav-item layui-nav-itemed'><a href='javascript:;'><i class='iconfont'><img src='/lib/layui/css/admin/images/zidian.png' width='20px' height='20px' /></i>字典管理</a><dl class="layui-nav-child"><dd><a href="javascript:LabClick('c75b615a-07a0-4693-985f-3d8ce528a4d2','/Base_ParameterIndexTemplet/Index','指标模板');" data-url='/Base_ParameterIndexTemplet/Index' data-id='c75b615a-07a0-4693-985f-3d8ce528a4d2' data-text='指标模板'><span class="l-line"></span>指标模板</a></dd><dd><a href="javascript:LabClick('84edf342-0bb1-4e1e-b9a5-408a2d7f08fd','/Equipment/Index','设备信息');" data-url='/Equipment/Index' data-id='84edf342-0bb1-4e1e-b9a5-408a2d7f08fd' data-text='设备信息'><span class="l-line"></span>设备信息</a></dd><dd><a href="javascript:LabClick('20209e8c-dc5e-4e18-8dc0-ea11ec5db7f9','/Dic_Type/Index','字典类型');" data-url='/Dic_Type/Index' data-id='20209e8c-dc5e-4e18-8dc0-ea11ec5db7f9' data-text='字典类型'><span class="l-line"></span>字典类型</a></dd><dd><a href="javascript:LabClick('66f580d1-0182-46d5-b700-0059c31ede14','/Dic_Content/Index','字典条目');" data-url='/Dic_Content/Index' data-id='66f580d1-0182-46d5-b700-0059c31ede14' data-text='字典条目'><span class="l-line"></span>字典条目</a></dd></dl></li><li class='layui-nav-item layui-nav-itemed'><a href='javascript:;'><i class='iconfont'><img src='/lib/layui/css/admin/images/xitong.png' width='20px' height='20px' /></i>系统管理</a><dl class="layui-nav-child"><dd><a href="javascript:LabClick('1013b268-3319-4dab-b192-d4e83a16f43f','/UserOfRoles/Index','用户角色管理');" data-url='/UserOfRoles/Index' data-id='1013b268-3319-4dab-b192-d4e83a16f43f' data-text='用户角色管理'><span class="l-line"></span>用户角色管理</a></dd><dd><a href="javascript:LabClick('8f0209b3-f68b-475f-aa53-9b533bfc425f','/Menu/Index','菜单管理');" data-url='/Menu/Index' data-id='8f0209b3-f68b-475f-aa53-9b533bfc425f' data-text='菜单管理'><span class="l-line"></span>菜单管理</a></dd><dd><a href="javascript:LabClick('ab2b51a9-6980-41f3-b987-ce6d43324f26','/MenuGrant/Index','菜单授权');" data-url='/MenuGrant/Index' data-id='ab2b51a9-6980-41f3-b987-ce6d43324f26' data-text='菜单授权'><span class="l-line"></span>菜单授权</a></dd><dd><a href="javascript:LabClick('073c441f-c5d8-43bd-be6e-35331e37bd49','/UserInfo/Index','用户管理');" data-url='/UserInfo/Index' data-id='073c441f-c5d8-43bd-be6e-35331e37bd49' data-text='用户管理'><span class="l-line"></span>用户管理</a></dd><dd><a href="javascript:LabClick('b26614da-742b-42a4-85fd-c27f67dc6a27','/Role/Index','角色管理');" data-url='/Role/Index' data-id='b26614da-742b-42a4-85fd-c27f67dc6a27' data-text='角色管理'><span class="l-line"></span>角色管理</a></dd></dl></li></ul>*@
+            @*<li class="layui-nav-item layui-nav-itemed">
+                    <a href="javascript:;"><i class="iconfont"><img src="~/lib/layui/css/admin/images/gongchengguanli.png" width="20px" height="20px" /></i>工程管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;" data-url="/ProjectInfo/Index" data-id='1' data-text="工程信息" class="site-demo-active"><span class="l-line"></span>工程信息</a></dd>
+                        <dd><a href="javascript:;" data-url="/Section/Index" data-id='2' data-text="分段信息" class="site-demo-active"><span class="l-line"></span>分段信息</a></dd>
+                        <dd><a href="javascript:;" data-url="/Cable_Info/Index" data-id='3' data-text="电缆信息" class="site-demo-active"><span class="l-line"></span>电缆信息</a></dd>
+                        <dd><a href="javascript:;" data-url="/LayingPath/Index" data-id='4' data-text="路径信息管理" class="site-demo-active"><span class="l-line"></span>路径信息管理</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;"><i class="iconfont"><img src="~/lib/layui/css/admin/images/fenxi.png" width="20px" height="20px" /></i>受力分析</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;" data-url="/Basic_Locus/Index" data-id='6' data-text="轨迹点信息" class="site-demo-active"><span class="l-line"></span>轨迹点信息</a></dd>
+                        <dd><a href="javascript:;" data-url="/MonitorPoint/Index" data-id='8' data-text="监测点信息" class="site-demo-active"><span class="l-line"></span>监测点信息</a></dd>
+                        <dd><a href="javascript:;" data-url="/Monitoring_Data/Index" data-id='9' data-text="监测数据" class="site-demo-active"><span class="l-line"></span>监测数据</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;"><i class="iconfont"><img src="~/lib/layui/css/admin/images/zidian.png" width="20px" height="20px" /></i>字典管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:" data-url="/Dic_Type/Index" data-id='10' data-text="字典类型" class="site-demo-active"><span class="l-line"></span>字典类型</a></dd>
+                        <dd><a href="javascript:;" data-url="/Dic_Content/Index" data-id='11' data-text="字典条目" class="site-demo-active"><span class="l-line"></span>字典条目</a></dd>
+                        <dd><a href="javascript:;" data-url="/Base_ParameterIndexTemplet/Index" data-id='5' data-text="指标模版" class="site-demo-active"><span class="l-line"></span>指标模版</a></dd>
+                        <dd><a href="javascript:;" data-url="/Equipment/Index" data-id='7' data-text="设备信息" class="site-demo-active"><span class="l-line"></span>设备部署管理</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;"><i class="iconfont"><img src="~/lib/layui/css/admin/images/xitong.png" width="20px" height="20px" /></i>系统管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:" data-url="/UserInfo/Index" data-id='12' data-text="用户管理" class="site-demo-active"><span class="l-line"></span>用户管理</a></dd>
+                        <dd><a href="javascript:;" data-url="/Role/Index" data-id='13' data-text="角色管理" class="site-demo-active"><span class="l-line"></span>角色管理</a></dd>
+                        <dd><a href="javascript:;" data-url="/UserOfRoles/Index" data-id='14' data-text="用户角色管理" class="site-demo-active"><span class="l-line"></span>用户角色管理</a></dd>
+                        <dd><a href="javascript:;" data-url="/Menu/Index" data-id='15' data-text="菜单管理" class="site-demo-active"><span class="l-line"></span>菜单管理</a></dd>
+                        <dd><a href="javascript:;" data-url="/MenuGrant/Index" data-id='16' data-text="菜单授权" class="site-demo-active"><span class="l-line"></span>菜单授权</a></dd>
+                    </dl>
+                </li>*@
+            @*</ul>*@
+        </div>
+        <!--右侧内容-->
+        <div class="main-layout-container">
+            <!--头部-->
+            <div class="main-layout-header">
+                <div class="menu-btn" id="hideBtn">
+                    <a href="javascript:">
+                        <span class="iconfont">&#xe60e;</span>
+                    </a>
+                </div>
+                <ul class="layui-nav layui-layout-right" lay-filter="rightNav">
+                    <li class="layui-nav-item">
+                        <a href="javascript:;" data-url="/UserInfo/Index" data-id='5' data-text="个人信息" style="color:gray"><span id="CurrentUser"></span></a>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:EditPassWord();" data-url="/UserInfo/Edit" data-id='6' data-text="修改密码" style="color:gray">修改密码</a>
+                    </li>
+                    <li class="layui-nav-item"><a href="/Login" style="color:gray">退出</a></li>
+                </ul>
+            </div>
+            <!--主体内容-->
+            <div class="main-layout-body">
+                <!--tab 切换-->
+                <div class="layui-tab layui-tab-brief main-layout-tab" lay-filter="tab" lay-allowClose="true">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this" lay-id="e148b20c-116f-40ae-81ec-dc682f88c358">工程信息</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show" style="background: #f5f5f5;">
+                            <iframe src="/ProjectInfo/Index" class="layui-admin-iframe" width="100%" height="100%" name="iframe" id="iframeMain" scrolling="auto" framborder="0"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--遮罩-->
+        <div class="main-mask">
+
+        </div>
+    </div>
+</body>
+</html>

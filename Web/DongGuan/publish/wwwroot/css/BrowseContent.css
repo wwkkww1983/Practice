@@ -1,0 +1,12 @@
+﻿.col-xs-6 {
+    width: 50%;
+}
+
+.col-xs-12 {
+    width: 80%;
+}
+
+.form-item {
+    position: relative;
+    padding: 5px 0 5px 120px;
+}

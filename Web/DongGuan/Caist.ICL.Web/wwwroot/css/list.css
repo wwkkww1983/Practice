@@ -1,0 +1,55 @@
+html, body {
+    height: 100%;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.textbox-label {
+    padding-left: 10px;
+    width: 85px;
+}
+
+.filter {
+    padding-top: 10px;
+}
+
+.item {
+    float: left;
+    width: 260px;
+    padding-top: 10px;
+}
+
+.item-range {
+    width: 500px;
+}
+
+    .item-range .easyui-fluid {
+        width: 158px !important;
+    }
+
+.block {
+    display: flex;
+    flex-direction:row;
+    width: 100%;
+}
+
+.btn {
+    clear: both;
+    padding-right: 20px;
+    padding-top: 17px;
+    padding-bottom: 10px;
+    text-align: right;
+    width: 50%;
+}
+
+.search {
+    clear: both;
+    padding-left: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.br {
+    clear: both;
+}

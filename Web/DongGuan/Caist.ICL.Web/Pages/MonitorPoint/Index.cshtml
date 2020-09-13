@@ -1,0 +1,131 @@
+﻿@****************************************************************************************************
+    *创建人:			Lixz
+    *创建时间:		2019/5/21 17:59:47
+    *说明：			 - MonitorPoint
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "监测点";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            resize();
+
+            $(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+        }
+    </script>
+}
+<div class="filter">
+    <div class="item">
+        <select class="easyui-combobox" id="ProjectId" name="ProjectId" style=" width:100%"
+                data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'工程名称：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'ProjectName',
+            labelAlign:'right',
+            loader:site.loader('/api/ProjectInfo/items')
+            "></select>
+    </div>
+    <div class="item">
+        <select class="easyui-combobox" id="SectionId" name="SectionId" style=" width:100%"
+                data-options="
+            limitToList:true,
+            panelHeight:150,
+            label:'分段：',
+            labelPosition:'left',
+            valueField:'Id',
+            textField:'SectionCode',
+            labelAlign:'right',
+            loader:site.loader('/api/Section/items')
+            "></select>
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="EquipmentId" name="EquipmentId" style="width:100%"
+               data-options="
+                label:'设备：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/MonitorPoint/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:true,
+       pageSize:15,
+       pageList:[15,20,50,100],
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ProjectId',width:150,sortable:true">
+                工程名称
+            </th>
+            <th data-options="field:'SectionId',width:150,sortable:true">
+                分段
+            </th>
+            <th data-options="field:'EquipmentId',width:150,sortable:true">
+                设备
+            </th>
+            <th data-options="field:'ParameterId',width:150,sortable:true">
+                参数编码
+            </th>
+            <th data-options="field:'TerminalId',width:150,sortable:true">
+                终端ID
+            </th>
+            <th data-options="field:'Position',width:150,sortable:true">
+                位置
+            </th>
+            <th data-options="field:'PositionX',width:150,sortable:true">
+                X坐标
+            </th>
+            <th data-options="field:'PositionY',width:150,sortable:true">
+                Y坐标
+            </th>
+            <th data-options="field:'PositionZ',width:150,sortable:true">
+                Z坐标
+            </th>
+            <th data-options="field:'PositionSort',width:150,sortable:true">
+                位置序号
+            </th>
+            <th data-options="field:'Distance',width:150,sortable:true">
+                与前测点距离
+            </th>
+            <th data-options="field:'StopOrder',width:150,sortable:true">
+                启用停机指令
+            </th>
+            <th data-options="field:'StartOrder',width:150,sortable:true">
+                启用开机指令
+            </th>
+            <th data-options="field:'IsEncryption',width:150,sortable:true">
+                是否数据加密
+            </th>
+            <th data-options="field:'TargetValue',width:150,sortable:true">
+                目标值
+            </th>
+            <th data-options="field:'Remark',width:150,sortable:true">
+                备注
+            </th>
+        </tr>
+    </thead>
+</table>

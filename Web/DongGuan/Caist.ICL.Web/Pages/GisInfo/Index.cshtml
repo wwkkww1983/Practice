@@ -1,0 +1,153 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/6/26
+    *说明：			 - ProjectInfo
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "地理信息";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            resize();
+
+            $(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+            $("#btn_del").on('click', delRow);
+            $("#btn_edit").on('click', editRow);
+            $("#btn_add").on('click', addRow);
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+        }
+        function delRow() {
+            var row = $('#grid').datagrid('getSelected');
+            if (row) {
+                site.confirm('确定要删除吗?', function (flag) {
+                    if (flag) {
+                        site.api('/api/GisInfo/delete/' + row['Id'], function () {
+                            $('#grid').datagrid('reload');
+                        });
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要删除的行', 1);
+            }
+        }
+        function addRow() {
+            site.open({
+                fit: true,
+                title: '新增' + document.title,
+                content: '/GisInfo/Edit',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function editRow() {
+            var row = $('#grid').datagrid('getSelected');
+            if (row) {
+                site.open({
+                    fit: true,
+                    title: '编辑' + document.title,
+                    content: '/GisInfo/Edit?id=' + row['Id'],
+                    end: function (ret) {
+                        $('#grid').datagrid('reload');
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要编辑的行', 1);
+            }
+        }
+    </script>
+}
+    <div class="filter">
+        <div class="item">
+            <input class="easyui-textbox" id="CoordinateName" name="CoordinateName" style="width:100%"
+                   data-options="
+                label:'坐标系统名：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="place_name" name="place_name" style="width:100%"
+                   data-options="
+                label:'地点：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="frame_x" name="frame_x" style="width:100%"
+                   data-options="
+                label:'参照点X：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="frame_y" name="frame_y" style="width:100%"
+                   data-options="
+                label:'参照点Y：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="frame_z" name="frame_z" style="width:100%"
+                   data-options="
+                label:'参照点Z：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="btn">
+            <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+            <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+            <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+            <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+        </div>
+    </div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/GisInfo/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:true,
+       pageSize:30,
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'CoordinateName',width:150,sortable:true">
+                坐标系统名
+            </th>
+            <th data-options="field:'place_name',width:150,sortable:true">
+                地点
+            </th>
+            <th data-options="field:'frame_x',width:150,sortable:true">
+                参照点X
+            </th>
+            <th data-options="field:'frame_y',width:150,sortable:true">
+                参照点Y
+            </th>
+            <th data-options="field:'frame_z',width:150,sortable:true">
+                参照点Z
+            </th>
+            <th data-options="field:'fremark',width:250,sortable:true">
+                备注
+            </th>
+        </tr>
+    </thead>
+</table>

@@ -1,0 +1,352 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/6/26
+    *说明：			 - ProjectInfo
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "项目信息";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@*@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            resize();
+
+            $(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+            $("#btn_del").on('click', delRow);
+            $("#btn_edit").on('click', editRow);
+            $("#btn_add").on('click', addRow); 
+            //site.api('/api/ProjectInfo/GetCurrentUser', function (ret) {
+            //    window.parent.document.getElementById("CurrentUser").innerHTML ="欢迎您:"+ret.Data;
+            //});
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+        }
+        function delRow() {
+            //var row = $('#grid').datagrid('getSelected');
+            //if (row) {
+            //    site.confirm('确定要删除吗?', function (flag) {
+            //        if (flag) {
+            //            site.api('/api/ProjectInfo/delete/' + row['Id'], function () {
+            //                $('#grid').datagrid('reload');
+            //            });
+            //        }
+            //    });
+            //}
+            //else {
+            //    site.msg('请先选中要删除的行', 1);
+            //}
+            var rows = $('#grid').datagrid('getSelections');
+            var da = rows.length > 0 && rows.map(item => {
+                let Id = ""
+                return {
+                    Id: item.Id
+                }
+
+            })
+            if (da.length>0) {
+                site.confirm('确定要删除吗?', function (flag) {
+                    if (flag) {
+                        site.api('/api/ProjectInfo/DeleteBase',da, function () {
+                            $('#grid').datagrid('reload');
+                        });
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要删除的行', 1);
+            }
+        }
+        function addRow() {
+            site.open({
+                fit: true,
+                title: '新增' + document.title,
+                content: '/ProjectInfo/Edit',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function editRow() {
+            var row = $('#grid').datagrid('getSelected');
+            if (row) {
+                site.open({
+                    fit: true,
+                    title: '编辑' + document.title,
+                    content: '/ProjectInfo/Edit?id=' + row['Id'],
+                    end: function (ret) {
+                        $('#grid').datagrid('reload');
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要编辑的行', 1);
+            }
+        }
+    </script>
+}*@
+    <div class="filter">
+        <div class="item">
+            <input class="easyui-textbox" id="ProjectCode" name="ProjectCode" style="width:100%"
+                   data-options="
+                label:'工程编号：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="ProjectName" name="ProjectName" style="width:100%"
+                   data-options="
+                label:'工程名称：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="Location" name="Location" style="width:100%"
+                   data-options="
+                label:'地址：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="Distance" name="Distance" style="width:100%"
+                   data-options="
+                label:'工程长度：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="State" name="State" style="width:100%"
+                   data-options="
+                label:'工程状态：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="SectionCount" name="SectionCount" style="width:100%"
+                   data-options="
+                label:'工段数：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="CircuitCount" name="CircuitCount" style="width:100%"
+                   data-options="
+                label:'回路数：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="ClectricityType" name="ClectricityType" style="width:100%"
+                   data-options="
+                label:'电流类型：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="LayEnvironment" name="LayEnvironment" style="width:100%"
+                   data-options="
+                label:'敷设环境：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="Voltage" name="Voltage" style="width:100%"
+                   data-options="
+                label:'电压等级：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="CutSize" name="CutSize" style="width:100%"
+                   data-options="
+                label:'截面尺寸：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        @*<div class="item">
+            <input class="easyui-textbox" id="BuildUnit" name="BuildUnit" style="width:100%"
+                   data-options="
+                label:'建设单位：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="BuildContacts" name="BuildContacts" style="width:100%"
+                   data-options="
+                label:'建设单位联系人：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="BuildPhone" name="BuildPhone" style="width:100%"
+                   data-options="
+                label:'建设单位联系电话：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="DevUnit" name="DevUnit" style="width:100%"
+                   data-options="
+                label:'施工单位：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="DevContacts" name="DevContacts" style="width:100%"
+                   data-options="
+                label:'施工单位联系人：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="DevPhone" name="DevPhone" style="width:100%"
+                   data-options="
+                label:'施工单位联系电话：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="SuperUnit" name="SuperUnit" style="width:100%"
+                   data-options="
+                label:'监理单位：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="SuperContacts" name="SuperContacts" style="width:100%"
+                   data-options="
+                label:'监理单位联系人：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>
+        <div class="item">
+            <input class="easyui-textbox" id="SuperPhone" name="SuperPhone" style="width:100%"
+                   data-options="
+                label:'监理单位联系电话：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+        </div>*@
+        <div class="btn">
+            <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+            <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+            <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+            <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+        </div>
+    </div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/ProjectInfo/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:false,
+       pageSize:15,
+       pageList:[15,20,50,100],
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'ProjectCode',width:150,sortable:true">
+                工程编号
+            </th>
+            <th data-options="field:'ProjectName',width:150,sortable:true">
+                工程名称
+            </th>
+            <th data-options="field:'Location',width:150,sortable:true">
+                地址
+            </th>
+            <th data-options="field:'Distance',width:150,sortable:true">
+                工程长度(m)
+            </th>
+            <th data-options="field:'StateStatus',width:150,sortable:true">
+                工程状态
+            </th>
+            <th data-options="field:'SectionCount',width:150,sortable:true">
+                工段数
+            </th>
+            <th data-options="field:'CircuitCount',width:150,sortable:true">
+                回路数
+            </th>
+            <th data-options="field:'ClectricityType',width:150,sortable:true">
+                电流类型
+            </th>
+            <th data-options="field:'LayEnvironment',width:150,sortable:true">
+                敷设环境
+            </th>
+            <th data-options="field:'Voltage',width:150,sortable:true">
+                电压等级
+            </th>
+            <th data-options="field:'CutSize',width:150,sortable:true">
+                截面尺寸
+            </th>
+            <th data-options="field:'BuildUnit',width:150,sortable:true">
+                建设单位
+            </th>
+            <th data-options="field:'BuildContacts',width:150,sortable:true">
+                建设单位联系人
+            </th>
+            <th data-options="field:'BuildPhone',width:150,sortable:true">
+                建设单位联系电话
+            </th>
+            <th data-options="field:'DevUnit',width:150,sortable:true">
+                施工单位
+            </th>
+            <th data-options="field:'DevContacts',width:150,sortable:true">
+                施工单位联系人
+            </th>
+            <th data-options="field:'DevPhone',width:150,sortable:true">
+                施工单位联系电话
+            </th>
+            <th data-options="field:'SuperUnit',width:150,sortable:true">
+                监理单位
+            </th>
+            <th data-options="field:'SuperContacts',width:150,sortable:true">
+                监理单位联系人
+            </th>
+            <th data-options="field:'SuperPhone',width:150,sortable:true">
+                监理单位联系电话
+            </th>
+
+            <th data-options="field:'CreateUser',width:150,sortable:true">
+                创建人
+            </th>
+            <th data-options="field:'CreateTime',width:150,sortable:true,formatter:formatDate">
+                创建时间
+            </th>
+            <th data-options="field:'UpdateUser',width:150,sortable:true">
+                修改人用户名
+            </th>
+            <th data-options="field:'UpdateTime',width:150,sortable:true,formatter:formatDate">
+                修改时间
+            </th>
+        </tr>
+    </thead>
+</table>

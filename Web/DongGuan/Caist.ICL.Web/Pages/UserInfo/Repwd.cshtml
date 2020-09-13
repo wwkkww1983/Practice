@@ -1,0 +1,84 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/8/27
+    *说明：			用户密码修改
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "用户密码修改";
+    Layout = "~/Pages/_LayoutEdit.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        function onClose() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+        function onSave() {
+            site.load('保存中');
+            var UserName = $("#UserName").val();
+            var OldPassword = $("#OldPassword").val();
+            var NewPassword = $("#NewPassword").val();
+            //?UserName = admin & OldPassword=1234 & NewPassword=12345
+            site.api('/api/Auth/RePwd?UserName=' + UserName + '&OldPassword=' + OldPassword+'&NewPassword=' + NewPassword, function (ret) {
+                    site.unload();
+                //alert(JSON.stringify(ret.Message));
+                if (!ret.Code) {
+                        onClose();
+                    }
+                });
+        }
+@if (Request.Query.ContainsKey("id")) {
+<text>
+        $(function () {
+            site.load('加载中');
+            var id = '@Request.Query["id"]';
+            site.api('/api/UserInfo/get/' + id, function (ret) {
+                site.unload();
+                if (!ret.Code) {
+                    site.setFormData('.form', ret.Data);
+                }
+                return true;
+            });
+        });
+</text>
+}
+    </script>
+}
+<div class="form">
+    <input type="hidden" class="hidden" name="Id" value="">
+    <div class="col-xs-12 form-item">
+        <input class="easyui-textbox" id="UserName" name="UserName" style="width:100%;background-color:#f3f3ef;border-color:#f3f3ef;color:#f3f3ef;" readonly="readonly"
+               data-options="
+                label:'用户名：',
+                labelPosition:'left',
+                labelAlign:'right',
+                disabled:true,
+            " />
+    </div>
+    <div class="col-xs-12 form-item">
+        <input class="easyui-textbox" id="OldPassword" name="OldPassword" style="width:100%" required="required"
+               data-options="
+                label:'原密码：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="col-xs-12 form-item">
+        <input class="easyui-textbox" id="NewPassword" name="NewPassword" style="width:100%" required="required"
+               data-options="
+                label:'新密码：',
+                labelPosition:'left',
+                labelAlign:'right',
+            " />
+    </div>
+    <div class="col-xs-12 form-item" style="margin-top:20px;margin-bottom:10px;">
+        <label class="form-title"></label>
+        <div class="form-control">
+            <a id="btn_save" onclick="onSave()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'">保存</a>
+            <a id="btn_close" onclick="onClose()" class="easyui-linkbutton" data-options="iconCls:'icon-no'">关闭</a>
+        </div>
+    </div>
+    <div class="br"></div>
+</div>

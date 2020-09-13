@@ -1,0 +1,134 @@
+﻿@****************************************************************************************************
+*创建人:			Lixz
+*创建时间:		2019/5/21 17:59:47
+*说明：			计算结果明细 - Calculation_Detail 
+*****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "计算结果明细";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+ <script type="text/javascript">
+       $(function () {
+        resize();
+
+        $(window).resize(function () { setTimeout(resize, 30) });
+        $("#btn_search").on('click', search);
+        $("#btn_del").on('click', delRow);
+        $("#btn_edit").on('click', editRow);
+        $("#btn_add").on('click', addRow);
+    });
+    function resize() {
+        var height = $(window).height();
+        height -= $('.filter').outerHeight();
+        $('#grid').datagrid('resize', { height: height });
+    }
+    function search() {
+        $('#grid').datagrid('load');
+    }
+    function delRow() {
+        var row = $('#grid').datagrid('getSelected');
+        if (row) {
+            site.confirm('确定要删除吗?', function (flag) {
+                if (flag) {
+                    site.api('/api/Calculation_Detail/delete/' + row['Id'], function () { 
+                        $('#grid').datagrid('reload');
+                    });
+                }
+            });
+        }
+        else {
+            site.msg('请先选中要删除的行', 1);
+        }
+    }
+    function addRow() {
+        site.open({
+            fit: true,
+            title: '新增' + document.title,
+            content: '/Calculation_Detail/Edit',
+            end: function(ret){
+                $('#grid').datagrid('reload');
+            }
+        });
+    }
+    function editRow() {
+        var row = $('#grid').datagrid('getSelected');
+        if (row) {
+            site.open({
+                fit: true,
+                title: '编辑' + document.title,
+                content: '/Calculation_Detail/Edit?id=' + row['Id'],
+                end: function(ret){
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        else {
+            site.msg('请先选中要编辑的行', 1);
+        }
+    }     
+</script>
+}
+<div class="filter">
+    <div class="item">
+        <input class="easyui-textbox" id="point_x" name="point_x" label="point_x：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="point_y" name="point_y" label="point_y：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="point_z" name="point_z" label="point_z：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="data_value" name="data_value" label="data_value：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+        <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/Calculation_Detail/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:true,
+       pageSize:30,
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'point_x',width:60,align:'right',sortable:true">
+                point_x
+            </th>
+            <th data-options="field:'point_y',width:60,align:'right',sortable:true">
+                point_y
+            </th>
+            <th data-options="field:'point_z',width:60,align:'right',sortable:true">
+                point_z
+            </th>
+            <th data-options="field:'data_value',width:60,align:'right',sortable:true">
+                data_value
+            </th>
+            <th data-options="field:'CreateUser',width:150,sortable:true">
+                CreateUser
+            </th>
+            <th data-options="field:'CreateTime',width:150,sortable:true,formatter:formatDate">
+                CreateTime
+            </th>
+            <th data-options="field:'UpdateUser',width:150,sortable:true">
+                修改人用户名
+            </th>
+            <th data-options="field:'UpdateTime',width:150,sortable:true,formatter:formatDate">
+                修改时间
+            </th>
+            <th data-options="field:'Delteted',width:60,align:'center',sortable:true,formatter:formatCheck">
+                是否删除
+            </th>
+        </tr>
+    </thead>
+</table>

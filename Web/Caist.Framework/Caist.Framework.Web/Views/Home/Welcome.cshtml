@@ -1,0 +1,416 @@
+﻿@{
+    Layout = "~/Views/Shared/_FormGray.cshtml";
+}
+
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment HostingEnvironment
+@section header{
+    @BundlerHelper.Render(HostingEnvironment.ContentRootPath, Url.Content("~/lib/report/echarts/echarts.min.js"))
+}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>设备报警统计</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-pie-chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>皮带走势图 </h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-PD-chart"></div>
+                </div>
+            </div>
+        </div>
+    
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>通风机走势图</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-line-chart"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>水泵走势图</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-shuibeng-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="text/javascript">
+    $(function () {
+
+        //ajax通风异步请求数据
+        $.ajax({
+            url: '/VentilatorManage/TFJ/GettongfengTempLists',
+            type: 'post',
+            data: {
+                StartDate: "",
+                EndDate: ""
+            },
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function (res) {
+                //获取到res后台数据，调用图表加载方法显示数据到图表中
+                TongFengChart(filterData(res));
+            }
+        });
+
+
+
+        //ajax报警异步请求数据
+        $.ajax({
+            url: '/BojingMonitor/Bojing/GetBojingTempLists',
+            type: 'post',
+            data: {
+                AddName: ""
+            },
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function (res) {
+                //获取到res后台数据，调用图表加载方法显示数据到图表中
+                BaoJingChart(filterDataBaoJing(res), res.result);
+            }
+        });
+
+        //ajax水泵异步请求数据
+        $.ajax({
+            url: '/PumpSystemManage/Shuibeng/GetShuibengTempLists',
+            type: 'post',
+            data: {
+                StartDate: "",
+                EndDate: ""
+            },
+            dataType: 'json',
+            contentType: 'application/json; charset=UTF-8',
+            success: function (res) {
+                ShuiBengChart(filterData(res));
+            }
+        });
+    });
+
+    //ajax皮带异步请求数据
+    $.ajax({
+        url: '/BeltManage/PD/GetpidaiTempLists',
+        type: 'post',
+        data: {
+            StartDate: "",
+            EndDate: ""
+        },
+        dataType: 'json',
+        contentType: 'application/json; charset=UTF-8',
+        success: function (res) {
+            PDChart(filterData(res));
+        }
+    });
+
+    //数据组合方法
+    function filterData(result) {
+       var high_global = new Array();
+        var res = eval(result);
+        var datas = res.Result;
+        if (datas != null && datas.length > 0) {
+            for (var i = 0; i < datas.length; i++) {
+                high_global.push(datas[i].dictValue);
+
+            }
+        }
+        return high_global;
+    }
+    //报警
+    function filterDataBaoJing(result) {
+        var high_global = new Array();
+        var res = eval(result);
+        var datas = res.result;//小写
+        if (datas != null && datas.length > 0) {
+            for (var i = 0; i < datas.length; i++) {
+                high_global.push(datas[i].name);
+
+            }
+        }
+        return high_global;
+    }
+    //报警饼图
+    function BaoJingChart(NameArray,DataArray) {
+        var pieChart = echarts.init(document.getElementById("echarts-pie-chart"));
+        var pieoption = {
+            title: {
+                text: '设备报警统计占比',
+                x: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: "{a} <br/>{b} : {c} ({d}%)"
+            },
+            legend: {
+                orient: 'vertical',
+                x: 'left',
+                data: NameArray
+            },
+            calculable: true,
+            series: [
+                {
+                    name: '访问来源',
+                    type: 'pie',
+                    radius: '55%',
+                    center: ['50%', '60%'],
+                    data: DataArray
+                }
+            ]
+        };
+        pieChart.setOption(pieoption);
+        $(window).resize(pieChart.resize);
+    }
+    //通风走势图
+    function TongFengChart(high_global) {
+        var lineChart = echarts.init(document.getElementById("echarts-line-chart"));
+        var lineoption = {
+            title: {
+                text: '通风机走势图'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['风速']
+            },
+            grid: {
+                x: 40,
+                x2: 40,
+                y2: 24
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['07/28', '07/29', '07/30', '08/1', '08/2', '08/3', '08/4']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} m/s'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '风速',
+                    type: 'line',
+                    data: high_global,
+                    markPoint: {
+                        data: [
+                            { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                }
+            ]
+        };
+        lineChart.setOption(lineoption);
+        $(window).resize(lineChart.resize);
+    }
+    //水泵走势图
+    function ShuiBengChart(high_global) {
+        var lineChart = echarts.init(document.getElementById("echarts-shuibeng-chart"));
+        var lineoption = {
+            title: {
+                text: '水泵走势图'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['水深']
+            },
+            grid: {
+                x: 40,
+                x2: 40,
+                y2: 24
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['07/28', '07/29', '07/30', '08/1', '08/2', '08/3', '08/4']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} m/s'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '水深',
+                    type: 'line',
+                    data: high_global,
+                    markPoint: {
+                        data: [
+                            { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                }
+            ]
+        };
+        lineChart.setOption(lineoption);
+        $(window).resize(lineChart.resize);
+    }
+    //皮带走势图
+    function PDChart(high_global) {
+        var lineChart = echarts.init(document.getElementById("echarts-PD-chart"));
+        var lineoption = {
+            title: {
+                text: '皮带走势图'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['速度']
+            },
+            grid: {
+                x: 40,
+                x2: 40,
+                y2: 24
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['07/28', '07/29', '07/30', '08/1', '08/2', '08/3', '08/4']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        formatter: '{value} m/s'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: '速度',
+                    type: 'line',
+                    data: high_global,
+                    markPoint: {
+                        data: [
+                            { name: '周最低', value: -2, xAxis: 1, yAxis: -1.5 }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                }
+            ]
+        };
+        lineChart.setOption(lineoption);
+        $(window).resize(lineChart.resize);
+    }
+    //人员柱状图
+   // function Ryjs(personArry,timeArry) {
+
+        //var barChart = echarts.init(document.getElementById("echarts-bar-chart"));
+        //var baroption = {
+        //    title: {
+        //        text: '人员下井工时统计'
+        //    },
+        //    tooltip: {
+        //        trigger: 'axis'
+        //    },
+        //    legend: {
+        //        data: ['白班', '晚班']
+        //    },
+        //    grid: {
+        //        x: 30,
+        //        x2: 40,
+        //        y2: 24
+        //    },
+        //    calculable: true,
+        //    xAxis: [
+        //        {
+        //            type: 'category',
+        //            data: ['李浩', '曹一凡', '刘宇森', '章江', '李一帆', '李浩生', '丁鹏飞', '杨一帆', '赵军生', '胡雨晨', '曾云', '胡雄']
+        //        }
+        //    ],
+        //    yAxis: [
+        //        {
+        //            type: 'value'
+        //        }
+        //    ],
+        //    series: [
+        //        {
+        //            name: '白班',
+        //            type: 'bar',
+        //            data: [8, 8, 6, 8, 8, 8, 6, 8, 8, 8, 4, 8],
+        //            markPoint: {
+        //                data: [
+        //                    { type: 'max', name: '最大值' },
+        //                    { type: 'min', name: '最小值' }
+        //                ]
+        //            },
+        //            markLine: {
+        //                data: [
+        //                    { type: 'average', name: '平均值' }
+        //                ]
+        //            }
+        //        },
+        //        {
+        //            name: '晚班',
+        //            type: 'bar',
+        //            data: [2, 3, 7, 3, 3, 6, 2, 4, 4, 3, 3, 6],
+        //            markPoint: {
+        //                data: [
+        //                    { name: '天最高', value: 182.2, xAxis: 7, yAxis: 183, symbolSize: 18 },
+        //                    { name: '天最低', value: 2.3, xAxis: 11, yAxis: 3 }
+        //                ]
+        //            },
+        //            markLine: {
+        //                data: [
+        //                    { type: 'average', name: '平均值' }
+        //                ]
+        //            }
+        //        }
+        //    ]
+        //};
+        //barChart.setOption(baroption);
+        //window.onresize = barChart.resize;
+    //}
+</script>
+

@@ -1,0 +1,314 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/7/16
+    *说明：			轨迹点表 - Basic_Locus
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "轨迹点表";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            //resize();
+
+            //$(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+            $("#btn_del").on('click', delRow);
+            $("#btn_edit").on('click', editRow);
+            $("#btn_Upload").on('click', Upload);
+            $("#btn_JiSuan").on('click', JiSuan);
+            $("#btn_add").on('click', addRow);
+            $("#btn_OpenJiSuan").on('click', OpenJiSuan);
+            $("#btn_OpenLocus").on('click', OpenLocus);
+
+            $("#gridShouLi").datagrid({
+                loader: site.loader('/api/ShowLiJiSuan/page'),
+                rownumbers: true,
+                singleSelect: false,
+                pageSize: 15,
+                pageList: [15, 20, 50, 100],
+                pagination: true,
+                columns: [[
+                    { field: 'ck', checkbox: true },
+                    { field: 'Section', title: '区段', width: 150, sortable: true },
+                    { field: 'Lengths', title: '长度', width: 150, sortable: true },
+                    { field: 'BuryType', title: '敷设方式', width: 150, sortable: true },
+                    { field: 'ForceValue1', title: '侧压力', width: 150, sortable: true },
+                    { field: 'ForceValue2', title: '牵引力', width: 150, sortable: true },
+                    {
+                        field: 'IfQualify', title: '是否合格', width: 150, sortable: true, formatter: function (value, row, index) {
+                            if (value == '0') {
+                                return '<label style="line-height: 24px; color: red;">否</label>';
+                            } else {
+                                return '<label style="line-height: 24px;">是</label>';
+                            }
+                        }
+                    },
+                    {
+                        field: 'ProposedProg', title: '建议控制措施', width: 150, sortable: true, formatter: function (value, row, index) {
+                            if (row.IfQualify == '0') {
+                                return '<label style="line-height: 24px; color: red;">' + value + '</label>';
+                            } else {
+                                return '<label style="line-height: 24px;">' + value + '</label>';
+                            }
+                        }
+                    },
+                    { field: 'Material', title: '材质', width: 150, sortable: true },
+                    { field: 'StartX', title: '起点X', width: 150, sortable: true },
+                    { field: 'StartY', title: '起点Y', width: 150, sortable: true },
+                    { field: 'StartZ', title: '起点Z', width: 150, sortable: true },
+                    { field: 'EndX', title: '终点X', width: 150, sortable: true },
+                    { field: 'EndY', title: '终点Y', width: 150, sortable: true },
+                    { field: 'EndZ', title: '终点Z', width: 150, sortable: true },
+                ]]
+            });
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+            //var data = {};
+            //$.ajax({
+            //    url: 'http://192.168.5.166:8080/SystemSetting/GetListJson',
+            //    type: 'GET',
+            //    data: JSON.stringify(data),
+            //    cache: false,
+            //    processData: false,
+            //    contentType: 'application/x-www-form-urlencoded;charser=UTF-8',
+            //    success: function (ret) {
+            //        //if (ret.Code == 401) {
+            //        //    window.location.href = '/login?returnUrl=' + encodeURIComponent(window.location.href);
+            //        //}
+            //        //onClose();
+            //        //$("#id").textbox('setValue', ret.id);
+            //        //site.unload();
+            //        //alert(ret.Data);
+            //        // location.href = ret.Data;
+            //        alert("ok");
+            //        //$.messager.progress('close');
+            //    },
+            //    error: function (xhr) {
+            //        //site.msg("下载文件失败！");
+            //    }
+
+
+
+            //});
+
+            //$.ajax({
+            //    type: "get",
+            //    //			url: 'http://localhost:5001/SystemSetting/GetListJson',
+            //    url: 'http://192.168.5.166:8080/SystemSetting/GetListJson',
+            //    data: {
+
+            //    },
+            //    //dataTYpe:'jsonp',
+            //    success: function (data) {
+            //        var res = data;
+            //        alert(res);
+            //    },
+            //    error: function (data) {
+            //        alert(data);
+
+            //    },
+            //});
+        }
+        function Upload() {
+            site.open({
+                fit: true,
+                title: '导入' + document.title,
+                content: '/Basic_Locus/UpLoad',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function OpenJiSuan() {
+            site.open({
+                fit: true,
+                title: '计算' + document.title,
+                content: '/Basic_Locus/ShouLiEdit',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function delRow() {
+            var rows = $('#grid').datagrid('getSelections');
+            var da = rows.length > 0 && rows.map(item => {
+                let Id = ""
+                return {
+                    Id: item.Id
+                }
+
+            })
+            if (da.length > 0) {
+                site.confirm('确定要删除吗?', function (flag) {
+                    if (flag) {
+                        site.api('/api/Basic_Locus/DeleteBase/', da, function () {
+                            $('#grid').datagrid('reload');
+                        });
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要删除的行', 1);
+            }
+        }
+        function editRow() {
+            var row = $('#grid').datagrid('getSelected');
+            if (row) {
+                site.open({
+                    fit: true,
+                    title: '编辑' + document.title,
+                    content: '/Basic_Locus/Edit?id=' + row['Id'],
+                    end: function (ret) {
+                        $('#grid').datagrid('reload');
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要编辑的行', 1);
+            }
+        }
+        function addRow() {
+            site.open({
+                fit: true,
+                title: '新增' + document.title,
+                content: '/Basic_Locus/Edit',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function JiSuan() {
+            $.messager.progress({
+                text: "请稍等...",
+                interval: 100
+            });
+            site.api('/api/ShowLiJiSuan/AddShouLiJiSuan', function () {
+                $('#gridShouLi').datagrid('load');
+                $.messager.progress('close');
+            });
+        }
+        var active = {
+            tabAdd: function (url, id, name) {
+                top.layui.element.tabAdd('tab', {
+                    title: name,
+                    content: '<iframe data-frameid="' + id + '" src="' + url + '" width="100%" height="100%" name="iframe"  scrolling="auto" class="iframe" framborder="0"></iframe>',
+                    id: id
+                })
+            },
+            tabChange: function (id) {
+                top.layui.element.tabChange('tab', id);//根据传入的ID到指定的tab项
+            },
+            tabDelete: function (id) {
+                top.layui.element.tabDelete("tab", id);//删除
+            }
+        };
+        function OpenLocus() {
+            //site.open({
+            //    fit: true,
+            //    title: "受力计算三维轨迹图",
+            //    content: '/Basic_Locus/LocusChart',
+            //    end: function (ret) {
+            //        //$('#grid').datagrid('reload');
+            //    }(Menu_Url, Menu_Id, Menu_Name);
+            //});
+            active.tabAdd("/Basic_Locus/LocusChart", "0", "3D轨迹");
+            active.tabChange("0")
+            //window.parent.layui.index.openTabsPage("/Basic_Locus/LocusChart", "3D轨迹")
+            // LabClick("0", "/Basic_Locus/LocusChart", "3D轨迹");
+            
+        }
+    </script>
+}
+<div class="filter">
+    <div class="item">
+        <input class="easyui-textbox" id="SectionId" name="SectionId" label="分段ID：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="GisPoint" name="GisPoint" label="物探点号：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="LinkPoint" name="LinkPoint" label="连接点号：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="PointFeature" name="PointFeature" label="点特征：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+        <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+        <a id="btn_Upload" class="easyui-linkbutton" data-options="iconCls:'icon-redo'">数据导入</a>
+        @*<a id="btn_GisUp" class="easyui-linkbutton">地图信息录入</a>*@
+        <a id="btn_JiSuan" class="easyui-linkbutton" data-options="iconCls:'icon-sum'">开始计算</a>
+        <a id="btn_OpenJiSuan" class="easyui-linkbutton" data-options="iconCls:'icon-sum'">计算</a>
+        <a id="btn_OpenLocus" class="easyui-linkbutton" data-options="iconCls:'icon-sum'">生成轨迹</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:500px"
+       data-options="
+       loader:site.loader('/api/Basic_Locus/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:false,
+       pageSize:15,
+       pageList:[15,20,50,100],
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'ProjectName',width:150,sortable:true">
+                工程名称
+            </th>
+            <th data-options="field:'SectionId',width:150,sortable:true">
+                分段
+            </th>
+            <th data-options="field:'GisPoint',width:150,sortable:true">
+                物探点号
+            </th>
+            <th data-options="field:'LinkPoint',width:150,sortable:true">
+                连接点号
+            </th>
+            <th data-options="field:'PointFeature',width:150,sortable:true">
+                点特征
+            </th>
+            <th data-options="field:'Point_X',width:150,sortable:true">
+                坐标X
+            </th>
+            <th data-options="field:'Point_Y',width:150,sortable:true">
+                坐标Y
+            </th>
+            <th data-options="field:'Point_Z',width:150,sortable:true">
+                埋深
+            </th>
+            <th data-options="field:'GroundHeight',width:150,sortable:true">
+                地面高程
+            </th>
+            <th data-options="field:'LineHeight',width:150,sortable:true">
+                管线高程
+            </th>
+            <th data-options="field:'SectionSize',width:150,sortable:true">
+                管径或断面尺寸
+            </th>
+            <th data-options="field:'Material',width:150,sortable:true">
+                材质
+            </th>
+            <th data-options="field:'BuryType',width:150,sortable:true">
+                埋设方式
+            </th>
+            <th data-options="field:'remark',width:150,sortable:true">
+                备注
+            </th>
+        </tr>
+    </thead>
+</table>
+<table id="gridShouLi" class="easyui-datagrid" style="width:100%;height:500px"></table>

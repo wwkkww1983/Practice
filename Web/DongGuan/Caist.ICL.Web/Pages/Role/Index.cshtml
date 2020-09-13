@@ -1,0 +1,131 @@
+﻿@****************************************************************************************************
+    *创建人:			sty
+    *创建时间:		2019/7/19
+    *说明：			角色表 - System_Role
+    *****************************************************************************************************@
+@page
+@{
+    ViewData["Title"] = "用户角色表";
+    Layout = "~/Pages/_LayoutList.cshtml";
+}
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            resize();
+
+            $(window).resize(function () { setTimeout(resize, 30) });
+            $("#btn_search").on('click', search);
+            $("#btn_del").on('click', delRow);
+            $("#btn_edit").on('click', editRow);
+            $("#btn_add").on('click', addRow);
+        });
+        function resize() {
+            var height = $(window).height();
+            height -= $('.filter').outerHeight();
+            $('#grid').datagrid('resize', { height: height });
+        }
+        function search() {
+            $('#grid').datagrid('load');
+        }
+        function delRow() {
+            //var row = $('#grid').datagrid('getSelected');
+            var rows = $('#grid').datagrid('getSelections');
+            var da = rows.length > 0 && rows.map(item => {
+                let Id = ""
+                return {
+                    Id: item.Id
+                }
+
+            })
+            if (da.length > 0) {
+                site.confirm('确定要删除吗?', function (flag) {
+                    if (flag) {
+                        site.api('/api/Role/DeleteBase',da, function () {
+                            $('#grid').datagrid('reload');
+                        });
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要删除的行', 1);
+            }
+        }
+        function addRow() {
+            site.open({
+                fit: true,
+                title: '新增' + document.title,
+                content: '/Role/Edit',
+                end: function (ret) {
+                    $('#grid').datagrid('reload');
+                }
+            });
+        }
+        function editRow() {
+            var row = $('#grid').datagrid('getSelected');
+            if (row) {
+                site.open({
+                    fit: true,
+                    title: '编辑' + document.title,
+                    content: '/Role/Edit?id=' + row['Id'],
+                    end: function (ret) {
+                        $('#grid').datagrid('reload');
+                    }
+                });
+            }
+            else {
+                site.msg('请先选中要编辑的行', 1);
+            }
+        }
+    </script>
+}
+<div class="filter">
+    <div class="item">
+        <input class="easyui-textbox" id="RoleCode" name="RoleCode" label="角色编码：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="item">
+        <input class="easyui-textbox" id="RoleName" name="RoleName" label="角色名称：" labelPosition="left" labelAlign="right" style="width:100%" />
+    </div>
+    <div class="btn">
+        <a id="btn_search" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+        <a id="btn_add" class="easyui-linkbutton" data-options="iconCls:'icon-add'">新增</a>
+        <a id="btn_edit" class="easyui-linkbutton" data-options="iconCls:'icon-edit'">编辑</a>
+        <a id="btn_del" class="easyui-linkbutton" data-options="iconCls:'icon-remove'">删除</a>
+    </div>
+</div>
+<table id="grid" class="easyui-datagrid" style="width:100%;height:250px"
+       data-options="
+       loader:site.loader('/api/Role/page', function () { return site.filter('.filter') }),
+       rownumbers:true,
+       singleSelect:false,
+       pageSize:15,
+       pageList:[15,20,50,100],
+       pagination:true,
+       ">
+    <thead>
+        <tr>
+            <th data-options="field:'ck',checkbox:true"></th>
+            <th data-options="field:'RoleCode',width:150,sortable:true">
+                角色编码
+            </th>
+            <th data-options="field:'RoleName',width:150,sortable:true">
+                角色名称
+            </th>
+            <th data-options="field:'Remark',width:150,sortable:true">
+                备注
+            </th>
+            <th data-options="field:'CreateUser',width:150,sortable:true,formatter:formatDate">
+                创建人
+            </th>
+            <th data-options="field:'CreateTime',width:150,sortable:true,formatter:formatDate">
+                创建时间
+            </th>
+            <th data-options="field:'UpdateUser',width:150,sortable:true">
+                修改人
+            </th>
+            <th data-options="field:'UpdateTime',width:150,sortable:true,formatter:formatDate">
+                修改时间
+            </th>
+        </tr>
+    </thead>
+</table>
