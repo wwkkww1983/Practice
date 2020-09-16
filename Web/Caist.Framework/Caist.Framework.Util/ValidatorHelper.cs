@@ -356,16 +356,15 @@ namespace Caist.Framework.Util
         /// <returns></returns>
         public static string GetVideoKey()
         {
-            //string tagKey = GlobalContext.SystemConfig.VideoKey;//煤矿关键字
-            //string BeforeKey = tagKey + System.DateTime.Now.ToString("yyyy-MM-dd");//加密前
-            //string validKey = "";
-            //using (var md5 = MD5.Create())
-            //{
-            //    var result = md5.ComputeHash(Encoding.UTF8.GetBytes(BeforeKey));
-            //    validKey = BitConverter.ToString(result).Replace("-", "").ToLower();
-            //}
-
-            return GlobalContext.SystemConfig.MqtKey;
+            string tagKey = GlobalContext.SystemConfig.VideoKey;//煤矿关键字
+            string BeforeKey = tagKey + System.DateTime.Now.ToString("yyyy-MM-dd");//加密前
+            string validKey = "";
+            using (var md5 = MD5.Create())
+            {
+                var result = md5.ComputeHash(Encoding.UTF8.GetBytes(BeforeKey));
+                validKey = BitConverter.ToString(result).Replace("-", "").ToLower();
+            }
+            return validKey;
         }
 
         /// <summary>

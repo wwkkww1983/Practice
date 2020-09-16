@@ -164,6 +164,24 @@ namespace Caist.Framework.DataAccess
             }
         }
 
+        /// <summary>
+        /// 保存plc数据到相应的历史表
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<bool> SaveHistoryData(List<HistoryEntity> historys)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (var item in historys)
+            {
+                builder.Append($"INSERT INTO [dbo].{item.TabName} ([dict_Id],[dict_value],[instruct_type])VALUES('{item.DictId}','{item.DictValue}',{item.InstructType});");
+            }
+
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                return await conn.ExcuteSQLAsync(builder.ToString()) > 0;
+            }
+        }
+
 
         #region 数据加载
         public static DataTable GetGroupInfo(string ip, string port, Tuple<string, string> instruct)

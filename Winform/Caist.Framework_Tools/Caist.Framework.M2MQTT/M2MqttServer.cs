@@ -30,6 +30,8 @@ namespace Caist.Framework.M2MQTT
         private int Port;
         private ToolStripButton MqttStart;
         private RichTextBox richMQT;
+        private System.Threading.Timer timer;
+        private System.Threading.Timer hisTimer;
         public bool IsConnected
         {
             get
@@ -41,7 +43,6 @@ namespace Caist.Framework.M2MQTT
 
             }
         }
-
 
 
         public M2MqttServer(string Host, int Port, string ClientId, string UserName, string PassWord, ToolStripButton MqttStart, RichTextBox richMQT)
@@ -57,6 +58,15 @@ namespace Caist.Framework.M2MQTT
             Initializer();
 
 
+        }
+        /// <summary>
+        /// 监视定时器 短线重连停止定时器
+        /// </summary>
+        /// <param name="_timer"></param>
+        public void SetTimer(System.Threading.Timer _timer, System.Threading.Timer _hisTimer)
+        {
+            this.timer = _timer;
+            this.hisTimer = _hisTimer;
         }
         /// <summary>
         /// 初始化链接构造器
@@ -158,6 +168,9 @@ namespace Caist.Framework.M2MQTT
                             this.ClientId,
                             this.UserName,
                             this.PassWord);
+                        //重连成功开始历史数据补传
+                        if (this.client != null && this.client.IsConnected && this.hisTimer != null)
+                            this.hisTimer.Change(0, 2);
                         //tmp = FrmMian.client.Connect(
                         //    FrmMian.mqtOption.MqClientid,
                         //   "admin",
@@ -226,8 +239,8 @@ namespace Caist.Framework.M2MQTT
         //  客户端收到来自服务端的消息后触发
         public void client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
-            string ReceivedMessage = Encoding.UTF8.GetString(e.Message);
-            MqtMessage($"上传主题：{e.Topic} 数据:{ReceivedMessage}成功，收到服务器回调");
+            //string ReceivedMessage = Encoding.UTF8.GetString(e.Message);
+            MqtMessage($"上传主题：{e.Topic} 数据成功，收到服务器回调");
         }
 
 
@@ -250,6 +263,9 @@ namespace Caist.Framework.M2MQTT
                 DisposeClose();
             }
             MqtMessage("connect closed");
+            //如果断线了，销毁实时数据上传的线程，重连后启动历史数据线程补传数据完成后再启动实时数据上传
+            if (timer != null)
+                timer.Dispose();
             Task.Factory.StartNew(() =>
             {
                 ConnectWrap();

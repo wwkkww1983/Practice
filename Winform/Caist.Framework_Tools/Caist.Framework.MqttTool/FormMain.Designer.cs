@@ -85,6 +85,7 @@
             this.richMQT.Size = new System.Drawing.Size(839, 381);
             this.richMQT.TabIndex = 1;
             this.richMQT.Text = "";
+            this.richMQT.TextChanged += new System.EventHandler(this.richMQT_TextChanged);
             // 
             // toolStrip1
             // 
@@ -113,7 +114,6 @@
             // 
             // tsTbMqName
             // 
-            this.tsTbMqName.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.tsTbMqName.Name = "tsTbMqName";
             this.tsTbMqName.Size = new System.Drawing.Size(100, 25);
             // 
@@ -125,7 +125,6 @@
             // 
             // tsTbServer
             // 
-            this.tsTbServer.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.tsTbServer.Name = "tsTbServer";
             this.tsTbServer.Size = new System.Drawing.Size(100, 25);
             // 
@@ -137,7 +136,6 @@
             // 
             // tsTbMqPort
             // 
-            this.tsTbMqPort.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.tsTbMqPort.Name = "tsTbMqPort";
             this.tsTbMqPort.Size = new System.Drawing.Size(100, 25);
             // 
@@ -149,7 +147,6 @@
             // 
             // tsTbMqUserName
             // 
-            this.tsTbMqUserName.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F);
             this.tsTbMqUserName.Name = "tsTbMqUserName";
             this.tsTbMqUserName.Size = new System.Drawing.Size(100, 25);
             // 
@@ -187,10 +184,9 @@
             this.ClientSize = new System.Drawing.Size(863, 499);
             this.Controls.Add(this.tabControl1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
             this.Name = "FrmMian";
             this.Text = "MQTT数据上传工具";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMian_FormClosing);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FrmMian_FormClosed);
             this.Load += new System.EventHandler(this.FrmMian_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabMqtt.ResumeLayout(false);

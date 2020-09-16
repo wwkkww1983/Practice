@@ -31,6 +31,9 @@ namespace Caist.Framework.Mqtt
         public string mqtTimer = "MQTPushTimer".GetConfigrationStr();
         public DateTime? lastDateTime = null;
         bool IsFirstUpload = true;
+        public System.Threading.Timer _hisTimer;
+        //是否有历史数据
+        bool IsHistory = false;
         private void MqttStart_Click(object sender, EventArgs e)
         {
             this.MqttStart.Enabled = false;
@@ -55,22 +58,74 @@ namespace Caist.Framework.Mqtt
         /// 获取MQT登录信息
         /// </summary>
         /// <returns></returns>
-        private async Task LoadMqtt()
+        private async Task LoadMqtt(object sender, EventArgs e)
         {
-            var MqtList = await MqThemeBLL.GetList();
-            mqtOption = MqtList.Where(v => v.MqStutas == 1).FirstOrDefault();
-            tsTbMqName.Text = mqtOption?.MqCollieryName;
-            tsTbServer.Text = mqtOption?.MqHost;
-            tsTbMqPort.Text = mqtOption?.MqPort.ToString();
-            tsTbMqUserName.Text = mqtOption?.MqUser;
+            try
+            {
+                var MqtList = await MqThemeBLL.GetList();
+                mqtOption = MqtList.Where(v => v.MqStutas == 1).FirstOrDefault();
+                tsTbMqName.Text = mqtOption?.MqCollieryName;
+                tsTbServer.Text = mqtOption?.MqHost;
+                tsTbMqPort.Text = mqtOption?.MqPort.ToString();
+                tsTbMqUserName.Text = mqtOption?.MqUser;
+                if (!string.IsNullOrEmpty(tsTbMqName.Text))
+                    MqttStart_Click(sender, e);
+            }
+            catch (Exception ex)
+            {
+                Message("-----------------初始化数据异常----------------------");
+                Message(ex.Message);
+
+                Thread t = new Thread(o => Thread.Sleep(60000));
+                t.Start(this);
+                while (t.IsAlive)
+                {
+                    //防止UI假死
+                    Application.DoEvents();
+                }
+                await LoadMqtt(sender, e);            
+            }
+
         }
         void Work(object state)
         {
-            CancellationTokenSource ts = new CancellationTokenSource();
             Task.Run(async () =>
             {
                 await PushData(MqtCLient);
             });
+
+        }
+
+        void HistoryWork(object state)
+        {
+
+            if (DateTimeHelper.GetMinuteinterval(lastDateTime.Value, DateTime.Now) > 0.5 * 30)
+            {
+                IsHistory = true;
+
+                PushData(MqtCLient);
+            }
+            else
+            {
+                IsHistory = false;
+                //马上暂停
+                _hisTimer.Change(-1, 0);
+                MqtCLient.MqtMessage("-----------------历史数据补充上传完成----------------------");
+                Thread t = new Thread(o => Thread.Sleep(2000));//补录完成暂停2秒
+                t.Start(this);
+                while (t.IsAlive)
+                {
+                    //防止UI假死
+                    Application.DoEvents();
+                }
+                MqtCLient.MqtMessage("-------------------切换实时数据上传-----------------------");
+                //立即开启 定时推送数据 
+                _timer = new System.Threading.Timer(Work, "执行", TimeSpan.Zero, TimeSpan.FromSeconds(Convert.ToInt32(mqtTimer)));
+                //传输定时器，监测使用历史数据定时器还是实时数据定时器
+                MqtCLient.SetTimer(_timer, _hisTimer);
+
+            }
+
 
         }
         /// <summary>
@@ -92,7 +147,7 @@ namespace Caist.Framework.Mqtt
                 lastDateTime = mqtOption.LastUpdateTime; //同时更新当前记录时间
                 if (mqtOption.LastUpdateTime > DateTime.Now)  //避免最后更新时间超过当前时间
                 {
-                    mqtOption.LastUpdateTime = DateTime.Now;
+                    lastDateTime = mqtOption.LastUpdateTime = DateTime.Now;
                 }
                 try
                 {
@@ -134,22 +189,11 @@ namespace Caist.Framework.Mqtt
                     MqtCLient.MqtMessage("建立Mqtt连接成功:" + code);
                     ////创建重连监听
                     //M2Mqtt.ConnectWrap();
-            
+
                     getMqtSetting();
 
                     //历史数据上传
-                    while (DateTimeHelper.GetMinuteinterval(lastDateTime.Value, DateTime.Now) > 3 * 60)
-                    {
-                        mqtTimer = "60";  //历史数据默认1分钟间隔
-                        Work(null);
-                        Thread.Sleep(3000);
-                    }
-                    MqtCLient.MqtMessage("-----------------历史数据补充上传完成----------------------");
-                    //恢复原有间隔时间差
-                    mqtTimer = "MQTPushTimer".GetConfigrationStr();
-                    Thread.Sleep(3000); //补录数据完成，睡眠等待3秒
-                    //定时推送数据
-                    _timer = new System.Threading.Timer(Work, "执行", TimeSpan.Zero, TimeSpan.FromSeconds(Convert.ToInt32(mqtTimer)));
+                    history();
 
                 }
                 else
@@ -167,6 +211,12 @@ namespace Caist.Framework.Mqtt
             }
 
         }
+        //历史数据上传
+        private void history()
+        {
+            _hisTimer = new System.Threading.Timer(HistoryWork, "执行", TimeSpan.Zero, TimeSpan.FromSeconds(2));
+        }
+
         /// <summary>
         /// 推送数据逻辑
         /// </summary>
@@ -186,10 +236,10 @@ namespace Caist.Framework.Mqtt
                 DateTime lastUpTime = getMqtSetting();
                 #region
                 //并行推送上传数据  每次上传单个主题 =  单个系统数据
-                //Parallel.For(0, mkCodeList.Length, (i) =>
-                //{
-                for (int i = 0; i < mkCodeList.Length; i++)
+                Parallel.For(0, mkCodeList.Length, (i) =>
                 {
+                    //for (int i = 0; i < mkCodeList.Length; i++)
+                    //{
 
                     int sysCode = GetEnumValue(typeof(MkSystemCode), mkCodeList.GetValue(i).ToString());
                     //筛选出当前系统的配置  单个系统上传到单个主题，所以一次只上传一个系统的数据
@@ -199,9 +249,18 @@ namespace Caist.Framework.Mqtt
                         //发送数据   
                         //数据格式 {"timestamp[时间戳]":xxxx,"systemcode[系统编码]":"xxxx"，"values":[{"code[传感器编码]":" xxxx","v[实时值]":xxxx}]}
                         //如: {"timestamp":1523116807014,"systemcode":"03","values":[{"code":"5224230100600621101310301000","v":0}，{"code":"5224230100600621101310301001","v":0}{....}
-                        long timestamp = ConvertDateTimeToInt(lastUpTime);
-                        M2MqtPushEntity<float> PushData = new M2MqtPushEntity<float>();
-                        List<PushValues<float>> PushList = new List<PushValues<float>>();
+                        long timestamp = 0;
+                        if (!IsHistory)//不再是历史数据
+                        {
+                            timestamp = ConvertDateTimeToInt(DateTime.Now);
+                        }
+                        else
+                        {
+                            timestamp = ConvertDateTimeToInt(lastUpTime);
+                        }
+
+                        M2MqtPushEntity<decimal> PushData = new M2MqtPushEntity<decimal>();
+                        List<PushValues<decimal>> PushList = new List<PushValues<decimal>>();
 
                         #region  根据配置信息中的表名查询出数据
                         var pointValueList = MqttCodeSettingBLL.GetUpLoadDataList(SettingList.FirstOrDefault().TabName, lastUpTime);
@@ -214,6 +273,7 @@ namespace Caist.Framework.Mqtt
                             //采区编码  +地址类型编码	+安装设备地点编码 =地址编码
                             var SensorCode = mqtOption.MqCollieryCode + setting.AddressAreCode + setting.AddressTypeCode + setting.AddressDeviceCode + setting.SystemCode +
                             setting.DeviceCode + setting.SensorTypeCode;
+                            var test1 = pointValueList.Result;
                             var pointValue = pointValueList.Result.FindLast(n => n.DictId == setting.CodePointSetting);
                             #region  根据数据类型处理上传业务逻辑
                             if (setting.CodeType == 2) //报警数据
@@ -225,11 +285,22 @@ namespace Caist.Framework.Mqtt
                                     pointValue = pointValueList.Result.FindLast(n => n.DictId == alarm);
                                     if (pointValue != null)
                                     {
+                                        #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，有报警，在运行。 1：关闭，没有报警，停止运行
+                                        PointValueConvert(pointValue);
+
+                                        #endregion
+
                                         AlarmStatus = (pointValue != null && pointValue.DictValue.ParseToInt() == 0);
                                         if (AlarmStatus)
                                             break;
                                     }
 
+                                }
+                                //默认值 状态默认为false
+                                if (pointValue == null)
+                                {
+                                    pointValue = new MqtPlcDataEntity();
+                                    pointValue.DictValue = "1";
                                 }
                             }
                             else if (setting.CodeType == 3) // 运行总控 ： 通讯状态、运行状态 等1个或者多个的数据选择处理
@@ -239,45 +310,56 @@ namespace Caist.Framework.Mqtt
                                 foreach (var ctr in ctrs)
                                 {
                                     pointValue = pointValueList.Result.FindLast(n => n.DictId == ctr);
+                                    #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，有报警，在运行。 1：关闭，没有报警，停止运行
+                                    PointValueConvert(pointValue);
+
+                                    #endregion
                                     ctrStatus = (pointValue != null && pointValue.DictValue.ParseToInt() == 0);
                                     if (ctrStatus)
                                         break;
                                 }
+
+                                //默认值 状态默认为false
+                                if (pointValue == null)
+                                {
+                                    pointValue = new MqtPlcDataEntity();
+                                    pointValue.DictValue = "1";
+                                }
+
                             }
-                            #region 空值处理
-                            if (pointValue == null)
-                            {
-                                continue;
-                            }
-                            if (pointValue.DictValue == null)
-                            {
-                                continue;
-                            }
-                            #endregion
                             #endregion
 
+                            if (pointValue == null)
+                            {
+                                pointValue = new MqtPlcDataEntity();
+                                pointValue.DictValue = "0";
+                            }
                             if (pointValue != null && pointValue.DictValue != null)
                             {
-                                float upValue;
+                                decimal upValue;
                                 #region 数据格式转换
                                 if (setting.DecimalPlaces == 0) //整数  转换为int
                                 {
+                                    #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，有报警，在运行。 1：关闭，没有报警，停止运行
+                                    PointValueConvert(pointValue);
+                                    #endregion
+
                                     //没有小数位数的  是true 和 false 先转换为int  0,1  在转换成为没有小数位数的数值
-                                    upValue = pointValue.DictValue.ParseToInt().ParseToFloat().ToString("f" + setting.DecimalPlaces.ToString() + "").ParseToFloat();
+                                    upValue = Convert.ToDecimal(pointValue.DictValue.ParseToInt().ParseToFloat().ToString("f" + setting.DecimalPlaces.ToString() + ""));
 
                                 }
                                 else  //带小数
                                 {
                                     //没有小数位数的默认位0位
                                     //ChangeDataToD
-                                    upValue = pointValue.DictValue.ChangeDataToD().ParseToFloat().ToString("f" + setting.DecimalPlaces.ToString() + "").ParseToFloat();
+                                    upValue = Convert.ToDecimal(pointValue.DictValue.ChangeDataToD().ParseToFloat().ToString("f" + setting.DecimalPlaces.ToString() + ""));
                                 }
                                 if (upValue >= 0) //先转换 如果成功了表示数据是对
                                 {
                                     //判断总长度是否满足长度要求 总长度：除去小数点的数字位数
                                     if (upValue.ToString().Length <= setting.ValueLength + 1)
                                     {
-                                        PushList.Add(new PushValues<float>(SensorCode, upValue));
+                                        PushList.Add(new PushValues<decimal>(SensorCode, upValue));
                                     }
                                 }
 
@@ -298,7 +380,7 @@ namespace Caist.Framework.Mqtt
                             IsFirstUpload = false;
                             string pushdata = PushData.ToNoDecimalJson();
                             ushort result = M2Mqtt.Publish(Topic, pushdata);
-                            M2Mqtt.MqtMessage($"向主题：{Topic} 请求发送：{pushdata},线程id：{result}");
+                            M2Mqtt.MqtMessage($"向主题：{Topic} 请求发送{PushData.values.Count}个点位数据,线程id：{result}");
                             PushCount++; //记录有效推送次数
                         }
                         else
@@ -308,35 +390,10 @@ namespace Caist.Framework.Mqtt
 
                     }
 
-                }
-                //});
+                    //}
+                });
                 #endregion
-                #region 同步推送
-                //foreach (int myCode in Enum.GetValues(typeof(MkSystemCode)))
-                //{
-                //    string strName = Enum.GetName(typeof(MkSystemCode), myCode);//获取名称
-                //    int mkCode = myCode;
-                //    // 主题内容  使用数字+“/”组成，不可使用其它字符。  主题：/集团编码/矿井编码/系统编码。
-                //    string Topic = "/" + mqtOption.MqCode + "/" + mqtOption.MqCollieryCode + "/" + (mkCode < 10 ? "0" + mkCode.ToString() : mkCode.ToString());
-                //    // 订阅主题
-                //    M2Mqtt.Subscribe(new string[] { Topic }, new byte[] { 2 });
 
-                //    //发送数据   
-                //    //数据格式 {"timestamp[时间戳]":xxx,"values":[{ "code[点编码]":xxx,"v[实时值]": xxx}]}
-                //    //如: {"timestamp":1523116807014,"values":[{"code":030101001,"v":true}，{"code": 030101300,"v":2}，{……}]}
-                //    long timestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
-                //    M2MqtPushEntity<long> PushData = new M2MqtPushEntity<long>();
-                //    List<PushValues<long>> PushList = new List<PushValues<long>>();
-                //    PushList.Add(new PushValues<long>(030101001, 0));
-                //    PushData.timestamp = timestamp;
-
-                //    string PushMsg = M2Mqtt.AESEncrypt(PushData.ToJson(), M2Mqtt.ModifyStr(mqtOption.MqEncryption));
-
-                //    await M2Mqtt.Publish(Topic, PushMsg);
-
-                //    M2Mqtt.MqtMessage($"向主题：{Topic} 请求发送：{PushMsg}");
-                //}
-                #endregion
 
                 if (PushCount > 0)
                 {
@@ -344,7 +401,7 @@ namespace Caist.Framework.Mqtt
                 }
                 else
                 {
-                    if (PushCount==0 && !IsFirstUpload)  //之前有上传成功记录，表示本次上传没有获取到最新数据，跳过执行下一个时间段的上传
+                    if ((PushCount == 0 && !IsFirstUpload) || IsHistory)  //之前有上传成功记录，表示本次上传没有获取到最新数据，跳过执行下一个时间段的上传
                     {
                         getMqtSetting(true);
                     }
@@ -353,7 +410,24 @@ namespace Caist.Framework.Mqtt
 
         }
 
-
+        /// <summary>
+        /// 状态点位数值转换
+        /// </summary>
+        /// <param name="pointValue"></param>
+        private static void PointValueConvert(MqtPlcDataEntity pointValue)
+        {
+            if (pointValue != null)
+            {
+                if (pointValue.DictValue.ToLower() == "true")
+                {
+                    pointValue.DictValue = "0";
+                }
+                else if (pointValue.DictValue.ToLower() == "false")
+                {
+                    pointValue.DictValue = "1";
+                }
+            }
+        }
 
         public static int GetEnumValue(Type enumType, string enumName)
         {
@@ -381,25 +455,31 @@ namespace Caist.Framework.Mqtt
                 _timer.Dispose();
 
             //释放资源，避免重连
-            MqtCLient.Dispose();
-            if (MqtCLient.IsConnected)
+            if (MqtCLient != null)
             {
-                //释放mqt连接资源
-                MqtCLient.Disconnect();
+                if (MqtCLient.IsConnected)
+                    //释放mqt连接资源
+                    MqtCLient.Disconnect();
+                MqtCLient.Dispose();
             }
-
 
             //base.OnClosed(e);
         }
 
 
-        private void richMQT_TextChanged(object sender, EventArgs e)
+        private void Message(string str)
         {
-            LimitLine(200, this.richMQT);
-            this.richMQT.SelectionStart = this.richMQT.Text.Length;
-            this.richMQT.SelectionLength = 0;
+            if (!string.IsNullOrEmpty(str))
+            {
+                richMQT.Invoke(new Action(() =>
+                {
+                    string value = string.Format(">时间：{0}  内容：{1}\r", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
+                    richMQT.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
+                    richMQT.SelectionColor = System.Drawing.Color.Black;    //设置SelectionColor属性实现控件中的文本颜色为红色
+                    richMQT.AppendText(value);
+                }));
+            }
         }
-
         #endregion
     }
 }

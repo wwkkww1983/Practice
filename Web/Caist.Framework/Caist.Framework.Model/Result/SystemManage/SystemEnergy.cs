@@ -32,15 +32,4 @@ namespace Caist.Framework.Model.Result.SystemManage
     }
 
 
-    public class AlarmCure
-    {
-        public string SystemName { get; set; }
-        public string SystemId { get; set; }
-        public List<AlarmCount> Data { get; set; }
-    }
-    public class AlarmCount
-    {
-        public int Count { get; set; }
-        public string AlarmTime { get; set; }
-    }
 }

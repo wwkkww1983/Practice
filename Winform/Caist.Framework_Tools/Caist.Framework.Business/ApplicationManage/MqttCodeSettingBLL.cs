@@ -33,10 +33,10 @@ on mk_mqtt_code_setting.system_id = mk_device.system_id
         public static async Task<List<MqtPlcDataEntity>> GetUpLoadDataList(string TableName,DateTime lasTime)
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(@"select " + TableName + ".* from " + TableName+ " right join (SELECT dict_Id,MAX (id) id FROM " + TableName+" "+
-                "where datediff(n, create_time ,'" + lasTime.ToString("yyy-MM-dd HH:mm:ss") + "') <=1 and datediff(n, create_time , '" + lasTime.ToString("yyy-MM-dd HH:mm:ss") + "')>=0" +
-                "GROUP by dict_Id) a on a.id =" + TableName + ".id ");
-            builder.Append(@" "); //一分钟内的数据
+            builder.Append(@"select " + TableName + ".* from " + TableName+ " right join (SELECT dict_Id,MAX (id) id FROM " + TableName+
+                " where datediff(n, create_time ,'" + lasTime.ToString("yyy-MM-dd HH:mm:ss") + "') <=1 and datediff(n, create_time , '" + lasTime.ToString("yyy-MM-dd HH:mm:ss") + "')>=0" +
+                " and dict_Value<>'' " +
+                " GROUP by dict_Id) a on a.id =" + TableName + ".id ");
             using (var conn = Connect.GetConn("SQLServer"))
             {
                 DataTable dataTable = await conn.GetDataTableAsync(builder.ToString());

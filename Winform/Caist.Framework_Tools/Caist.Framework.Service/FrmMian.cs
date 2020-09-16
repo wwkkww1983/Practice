@@ -9,9 +9,9 @@ using Caist.Framework.Util;
 using Caist.Siemens;
 using Fleck;
 using Newtonsoft.Json;
-//using SyncFiles;
 using SyncUtil;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -42,6 +42,15 @@ namespace Caist.Framework.Service
         Stopwatch _stopwatch = new Stopwatch();
         //1分钟保存一次到历史记录表
         int SaveHistoryInterval = 1;
+        /// <summary>
+        /// 用于前端传入系统ID
+        /// </summary>
+        string _SystemId;
+        string _ClientFlag;
+        /// <summary>
+        /// 用于每分钟存入一次数据库临时对象
+        /// </summary>
+        static Dictionary<string, HistoryEntity> _tempDataList = new Dictionary<string, HistoryEntity>();
         #endregion
 
         #region 消息推送实例
@@ -73,9 +82,9 @@ namespace Caist.Framework.Service
 
                 //底部运行时间
                 this.sw.Start();
-                System.Timers.Timer timing = new System.Timers.Timer(1000);
-                timing.Elapsed += Timing_Elapsed;
-                timing.Start();
+                //System.Timers.Timer timing = new System.Timers.Timer(1000);
+                //timing.Elapsed += Timing_Elapsed;
+                //timing.Start();
 
                 //加载plc列表
                 DataServices.LoadDataDevice(TreeDevice.Nodes);
@@ -91,6 +100,8 @@ namespace Caist.Framework.Service
                 SiemensInit();
                 //初始化plc 指令列表
                 this.GetInit();
+                //初始化PLC状态
+                InitPlcStatus();
                 //对象映射
                 MappingModel();
 
@@ -206,8 +217,17 @@ namespace Caist.Framework.Service
                 siemensHelper.Port = d.Port;
                 siemensHelper.Init();
                 DictInstructs.Add(d, siemensHelper.ListInstructs);
+                InitDictInstructs(siemensHelper);
                 _siemensHelpers.Add(siemensHelper);
             });
+        }
+
+        private void InitDictInstructs(SiemensHelpers siemensHelper)
+        {
+            foreach (var item in siemensHelper.ListInstructs)
+            {
+                _dictInstructs.Add(item, siemensHelper);
+            }
         }
 
         /// <summary>
@@ -246,6 +266,27 @@ namespace Caist.Framework.Service
             }
         }
 
+        /// <summary>
+        /// 加载机器列表
+        /// </summary>
+        public void InitPlcStatus()
+        {
+            try
+            {
+                foreach (var helper in _siemensHelpers)
+                {
+                    var str = string.Format("【{0}-{1}:{2}】", helper.DeviceEntity.Name, helper.DeviceEntity.Host, helper.DeviceEntity.Port);
+                    ListViewItem lvitem = new ListViewItem(helper.DeviceEntity.Id);
+                    lvitem.SubItems.Add(str);
+                    lvitem.SubItems.Add("");
+                    lvlPlcStatus.Items.Add(lvitem);
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
         private void MappingModel()
         {
             Mapper.Initialize(cfg =>
@@ -267,18 +308,20 @@ namespace Caist.Framework.Service
         {
             try
             {
+                Task.Run(new Action(async () =>
+                {
+                    //启动Plc连接
+                    await PlcsStart();
+                }));
                 Task.Run(new Action(() =>
                 {
-                    //AlwaysRunPlcRead();
-                    //启动Plc连接
-                    PlcsStart();
                     webSocketStart_Click(null, null);
                 }));
+
                 //定时查询告警信息
-                IntervalCallAlert();
+                //IntervalCallAlert();
 
                 btnPLCStrats.Enabled = false;
-                _stopwatch.Start();
             }
             catch (Exception ex)
             {
@@ -311,69 +354,16 @@ namespace Caist.Framework.Service
             {
                 try
                 {
-                    var result = helper.Open(helper.DeviceEntity.PLCType, helper.DeviceEntity.Host, short.Parse(helper.DeviceEntity.Port), 0, short.Parse(helper.DeviceEntity.CPU_SlotNO));
-                    //if (_flag)
-                    //{
-                    if (!result)
-                    {
-                        txtMessage.Invoke(new Action(() =>
-                        {
-                            txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, helper.DeviceEntity.Name, helper.DeviceEntity.Host, helper.DeviceEntity.Port));
-                        }));
-                    }
-                    else
-                    {
-                        PlcTool.Invoke(new Action(() =>
-                        {
-                            txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接成功" + Environment.NewLine, helper.DeviceEntity.Name, helper.DeviceEntity.Host, helper.DeviceEntity.Port));
-                        }));
-                    }
-                    //}
+                    ConnectPlc(helper);
                 }
                 catch (Exception ex)
                 {
                     Common.LogError(ex);
-                    txtMessage.Invoke(new Action(() =>
-                    {
-                        txtMessage.AppendText(string.Format("PLC【{0}-{1}:{2}】连接失败" + Environment.NewLine, helper.DeviceEntity.Name, helper.DeviceEntity.Host, helper.DeviceEntity.Port));
-                    }));
-                }
-            });
-            //_flag = false;
-        }
 
-        private async Task PlcsSocketsStart(string sysId, string clientFlag)
-        {
-            _siemensHelpers.FindAll(p => p.DeviceEntity.SystemId == sysId).ForEach(helper =>
-            {
-                try
-                {
-                    if (!_timers.Any(p => p.ClientFlag == clientFlag && p.obj.IP == helper.IP))
-                    {
-                        CaistTimer timerMessage = new CaistTimer() { Interval = 100 };
-                        timerMessage.Elapsed += TimerMessage_Elapsed;
-                        timerMessage.obj = helper;
-                        timerMessage.ClientFlag = clientFlag;
-                        if (!_valuePairs.ContainsKey(helper))
-                        {
-                            _valuePairs.Add(helper, 0);
-                        }
-                        _timers.Add(timerMessage);
-                        timerMessage.Start();
-                    }
-                    else
-                    {
-                        _timers.FindAll(t => t.ClientFlag == clientFlag && t.obj.IP == helper.IP).ForEach(p =>//找到相关的plc设备把定时器打开
-                        {
-                            p.Start();
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Common.LogError(ex);
+                    ConnectPlcMsg(helper, "未连接");
                 }
             });
+            await AlwaysRunPlcRead();
         }
 
         bool _deviceStatusflag = true;
@@ -409,8 +399,8 @@ namespace Caist.Framework.Service
                             try
                             {
                                 var value = string.Empty;
-                            //true或者false 必须配位short类型
-                            if (GetSendDataType(instructs[1]) == SendDataType.Short)
+                                //true或者false 必须配位short类型
+                                if (GetSendDataType(instructs[1]) == SendDataType.Short)
                                 {
                                     value = entity.Read(instructs[0]);
                                 }
@@ -418,7 +408,7 @@ namespace Caist.Framework.Service
                                 {
                                     value = entity.Read(instructs[0], GetSendDataType(instructs[1]));
                                 }
-                                SendData(value, key, instructs[1], caistTimer.ClientFlag, entity.DeviceEntity);
+                                SendData(value, key, instructs[1], string.Empty);
                                 if (item != null)
                                 {
                                     item.SubItems[4].Text = value;
@@ -426,8 +416,8 @@ namespace Caist.Framework.Service
                             }
                             catch (Exception ex)
                             {
-                            //Common.LogError($"【{key}】:{ex}");
-                        }
+                                //Common.LogError($"【{key}】:{ex}");
+                            }
 
                         }));
                         i++;
@@ -469,7 +459,8 @@ namespace Caist.Framework.Service
         }
 
         StringBuilder _sb = new StringBuilder();
-        private async void SendData(string v, string key, string dataType, string clientFlag, DeviceEntity entity)
+        object _lockObject = new object();
+        private void SendData(string v, string key, string dataType, string clientFlag)
         {
             //true或者false 必须配位short类型
             if (GetSendDataType(dataType) != SendDataType.Short)
@@ -493,64 +484,29 @@ namespace Caist.Framework.Service
                         Alarm = list
                     };
                     var str = JsonConvert.SerializeObject(alarmModel);
-                    SendMessage(str, clientFlag);
-                    //保存异常数据到数据库
-                    await SaveAlarmData(item, val);
-                    //保存报警数据到历史记录表
-                    await SaveDataToHistoryTab(key, v, entity, InstructViewEnum.Alarm);
+                    SendEverySocket(str);
                 }
             }
-
-            _sb.Append("{");
-            if (GetSendDataType(dataType) == SendDataType.Short)
+            lock (_lockObject)
             {
-                var res = v.ToLower() == "false" ? 0 : 1;
-                _sb.AppendFormat("\"{0}\":\"{1}\"", key.Replace("\t", string.Empty), res);
-            }
-            else
-            {
-
-                _sb.AppendFormat("\"{0}\":\"{1}\"", key.Replace("\t", string.Empty), v.IndexOf(".") > -1 ? double.Parse(v).ToString("#0.00") : v);
-            }
-            _sb.Append("}");
-            SendMessage(_sb.ToString(), clientFlag);
-            _sb.Clear();
-
-            //1分钟保存一次到历史记录表
-            if (_stopwatch.Elapsed.Minutes == SaveHistoryInterval)
-            {
-                //保存数据到历史记录表
-                bool flag = await SaveDataToHistoryTab(key, v, entity, InstructViewEnum.Data);
-                _stopwatch.Restart();
+                _sb.Append("{");
+                if (GetSendDataType(dataType) == SendDataType.Short)
+                {
+                    var res = v.ToLower() == "false" ? 0 : 1;
+                    _sb.AppendFormat("\"{0}\":\"{1}\"", key.Replace("\t", string.Empty), res);
+                }
+                else
+                {
+                    //if (v != "非数字")
+                    //{
+                    _sb.AppendFormat("\"{0}\":\"{1}\"", key.Replace("\t", string.Empty), v.IndexOf(".") > -1 ? double.Parse(v).ToString("#0.00") : v);
+                    //}
+                }
+                _sb.Append("}");
+                SendMessage(_sb.ToString(), clientFlag);
+                _sb.Clear();
             }
         }
-
-        #region 处理数据异常方法
-        //private Decimal ChangeDataToD(string strData)
-        //{
-        //    Decimal dData = 0.0M;
-        //    if (strData.Contains("E"))
-        //    {
-        //        dData = Decimal.Parse(strData, System.Globalization.NumberStyles.Float);
-        //    }
-        //    return dData;
-        //}
-
-        //private static string ValueFormat(double v)
-        //{
-        //    var str = string.Empty;
-        //    if (v > 100000f)
-        //    {
-        //        var s = v.ToString();
-        //        str = s.Substring(0, 2) + ".00";
-        //    }
-        //    else
-        //    {
-        //        str = v.ToString("#0.00");
-        //    }
-        //    return str;
-        //}
-        #endregion
 
         private async Task<bool> SaveDataToHistoryTab(string key, string v, DeviceEntity device, InstructViewEnum instructType)
         {
@@ -727,6 +683,7 @@ namespace Caist.Framework.Service
 
         public async Task PushSpecifiedMsg(string message, string clientFlag)
         {
+            _ClientFlag = clientFlag;
             if (message.HasValue())
             {
                 try
@@ -735,7 +692,7 @@ namespace Caist.Framework.Service
                     if (reciveModel.RequestType == RequestType.GetPlcValues)//要发送plc 数据值的关键字集合
                     {
                         StopTimers(clientFlag);
-                        PlcsSocketsStart(reciveModel.SystemId, clientFlag);
+                        _SystemId = reciveModel.SystemId;
                     }
                     else if (reciveModel.RequestType == RequestType.PepolePosition)
                     {
@@ -757,7 +714,7 @@ namespace Caist.Framework.Service
                     }
                     else
                     {
-                        PlcsSocketsStart(reciveModel.SystemId, clientFlag);
+                        _SystemId = reciveModel.SystemId;
                         FrontCommands(reciveModel, clientFlag);
                     }
                 }
@@ -864,6 +821,8 @@ namespace Caist.Framework.Service
                     {
                         if (instruct.HasValue())
                         {
+                            //helper.Write(instruct, double.Parse(reciveModel.Value));
+                            //helper.Write(instruct, double.Parse(reciveModel.Value));
                             helper.Write(instruct, double.Parse(reciveModel.Value));
                             SendMsg("success", clientFlag);
 
@@ -950,8 +909,6 @@ namespace Caist.Framework.Service
                     ParamenterUnit = unit,
                     ParamenterInstructStart = first,
                     ParamenterInstructEnd = second,
-                    //ParamenterInstructStart_V = helper.Read(first),//从plc获取值
-                    //ParamenterInstructEnd_V = helper.Read(second),//从plc获取值
                     ParamenterName = dr["paramenter_name"].ToString(),
                     Id = dr["id"].ToString()
                 };
@@ -1236,6 +1193,17 @@ namespace Caist.Framework.Service
             if (dic_Sockets != null && dic_Sockets.FirstOrDefault(p => p.Key == clientFlag).Value != null)
             {
                 dic_Sockets.FirstOrDefault(p => p.Key == clientFlag).Value.Send(val);
+                //if (dic_Sockets != null && dic_Sockets.Count != 0)
+                //{
+                //    dic_Sockets.FirstOrDefault().Value.Send(val);
+                //}
+            }
+        }
+        public void SendMessage(string val)
+        {
+            if (dic_Sockets != null && dic_Sockets.Count > 0)
+            {
+                dic_Sockets.FirstOrDefault().Value.Send(val);
                 //if (dic_Sockets != null && dic_Sockets.Count != 0)
                 //{
                 //    dic_Sockets.FirstOrDefault().Value.Send(val);

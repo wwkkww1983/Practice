@@ -37,13 +37,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetAlarmCure(Caist.Framework.Model.Param.AlarmManage.ALarmReccordListParam)">
-            <summary>
-            首页获取告警统计量曲线图
-            </summary>
-            <param name="param"></param>
-            <returns></returns>
-        </member>
         <member name="M:Caist.Framework.WebApi.Controllers.CewenMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Cewenhistory.CewenMonitorParam)">
             <summary>
             获取Chouwen数据

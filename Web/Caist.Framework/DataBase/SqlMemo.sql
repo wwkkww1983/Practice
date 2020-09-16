@@ -438,5 +438,3 @@ create table mk_fiber_mark
 	[base_modifier_id] [bigint] NOT NULL,
 	[base_version] [int] NOT NULL,
 )
---增加动画参数控制字段
-alter table mk_view_paramenter add  Animation varchar(20) null
