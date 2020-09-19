@@ -106,7 +106,6 @@ namespace Caist.Framework.Service
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.webSend = new System.Windows.Forms.ToolStripButton();
             this.SystemImage = new System.Windows.Forms.ImageList(this.components);
-            this.timerSyncData = new System.Windows.Forms.Timer(this.components);
             this.SystemMenu.SuspendLayout();
             this.SystemStatus.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -419,10 +418,11 @@ namespace Caist.Framework.Service
             // 
             // btnPLCStop
             // 
+            this.btnPLCStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.None;
             this.btnPLCStop.Image = ((System.Drawing.Image)(resources.GetObject("btnPLCStop.Image")));
             this.btnPLCStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnPLCStop.Name = "btnPLCStop";
-            this.btnPLCStop.Size = new System.Drawing.Size(53, 22);
+            this.btnPLCStop.Size = new System.Drawing.Size(23, 22);
             this.btnPLCStop.Text = "停止";
             // 
             // toolStripSeparator1
@@ -432,10 +432,11 @@ namespace Caist.Framework.Service
             // 
             // toolStripButton1
             // 
+            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.None;
             this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(105, 22);
+            this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton1.Text = "手动发送指令";
             // 
             // tabDataBase
@@ -852,10 +853,6 @@ namespace Caist.Framework.Service
             this.SystemImage.Images.SetKeyName(3, "OperatingSyste_16x16.png");
             this.SystemImage.Images.SetKeyName(4, "Mqt-push.png");
             // 
-            // timerSyncData
-            // 
-            this.timerSyncData.Interval = 1000;
-            // 
             // FrmMian
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -956,7 +953,6 @@ namespace Caist.Framework.Service
         private System.Windows.Forms.RichTextBox webContent;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
         private System.Windows.Forms.ToolStripButton webSend;
-        private System.Windows.Forms.Timer timerSyncData;
         private System.Windows.Forms.TabPage tabMQT;
         private System.Windows.Forms.ToolStrip MqtTool;
         private System.Windows.Forms.ToolStripLabel toolStripLabel3;

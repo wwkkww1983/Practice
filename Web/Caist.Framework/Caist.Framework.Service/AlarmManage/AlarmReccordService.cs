@@ -2,6 +2,7 @@
 using Caist.Framework.Data.Repository;
 using Caist.Framework.Entity.AlarmManage;
 using Caist.Framework.Model.Param.AlarmManage;
+using Caist.Framework.Model.Result.SystemManage;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
@@ -40,6 +41,53 @@ namespace Caist.Framework.Service.AlarmManage
             return list.ToList();
         }
 
+
+        /// <summary>
+        /// 以小时为单位获取系统报警数据量
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<List<AlarmCount>> GetAlarmCureList(ALarmReccordListParam param)
+        {
+            var strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@"select DATEADD(HOUR, DATEDIFF(HOUR,0,alarm_time), 0) AlarmTime,count([mk_alarm_record].id) Count
+                                 FROM [mk_alarm_record] left join [mk_alarm_settings] b on [mk_alarm_record].alarm_id = b.id ");
+
+            if (param != null)
+            {
+                strSql.Append(" where 1=1 ");
+                if (!string.IsNullOrEmpty(param.SystemId))
+                {
+                    strSql.Append(" and b.system_models=@SystemId ");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemId", param.SystemId));
+                }
+                if (!string.IsNullOrEmpty(param.StartDate.ParseToString()) && !string.IsNullOrEmpty(param.EndDate.ParseToString()))
+                {
+                    strSql.Append(" and alarm_time between @StartDate and @EndDate ");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@StartDate", param.StartDate));
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@EndDate", param.EndDate));
+                }
+            }
+            strSql.Append(" group by DATEADD(HOUR, DATEDIFF(HOUR,0,alarm_time), 0) ");
+            var list = await this.BaseRepository().FindList<AlarmCount>(strSql.ToString(), parameter.ToArray());
+            return list.ToList();
+        }
+
+        /// <summary>
+        /// 获取有报警的系统名称
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<AlarmCure>> GetAlarmSystemNameList()
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(@"select c.system_nick_name as SystemName,c.id as SystemId  from [mk_alarm_record] a
+                        left join [mk_alarm_settings] b on a.alarm_id = b.id
+                        left join mk_system_setting c on b.system_models = c.id
+                        group by c.system_nick_name,c.id");
+            var list = await this.BaseRepository().FindList<AlarmCure>(strSql.ToString());
+            return list.ToList();
+        }
 
         #endregion
 

@@ -86,8 +86,9 @@ namespace Caist.Framework.Web.Areas.ApplicationManage.Controllers
         {
             var mqt = mqThemeBLL.GetList(new MqThemeListParam()).Result.Result.FirstOrDefault();
             #region 请求mqtt已上传数据
-            string result =  HttpHelper.HttpPost(Util.GlobalContext.SystemConfig.MqtUrl, 
-                "mkCode="+ mqt.MqCollieryCode + "&systemCode="+param.SystemId+ "&key="+ Util.GlobalContext.SystemConfig.MqtKey);
+
+            string postdata = "{\"mkCode\":\""+mqt.MqCollieryCode+"\",\"systemCode\":\""+ param.SystemId + "\",\"key\":\""+ Util.GlobalContext.SystemConfig.MqtKey + "\"}";
+            string result =  HttpHelper.HttpPost(Util.GlobalContext.SystemConfig.MqtUrl, postdata, contentType: "application/json");
             #endregion
             var data = JsonHelper.ToObject<MqtUploadResEntity>(result);
             TData<List<MqtUploadEntity>> obj = new TData<List<MqtUploadEntity>>();

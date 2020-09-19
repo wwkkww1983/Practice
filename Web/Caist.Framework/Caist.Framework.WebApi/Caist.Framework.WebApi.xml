@@ -37,6 +37,13 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.BaoJIngController.GetAlarmCure(Caist.Framework.Model.Param.AlarmManage.ALarmReccordListParam)">
+            <summary>
+            首页获取告警统计量曲线图
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
         <member name="M:Caist.Framework.WebApi.Controllers.CewenMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Cewenhistory.CewenMonitorParam)">
             <summary>
             获取Chouwen数据
@@ -152,6 +159,13 @@
         <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.GetPeopleInfo(Caist.Framework.Model.PeopleManage.RegionParam)">
             <summary>
             人员信息
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.PeopleArea">
+            <summary>
+            当天人员工作活动区域占比数据
             </summary>
             <param name="param"></param>
             <returns></returns>

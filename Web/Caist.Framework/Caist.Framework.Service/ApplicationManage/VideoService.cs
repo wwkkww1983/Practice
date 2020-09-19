@@ -87,10 +87,6 @@ namespace Caist.Framework.Service.ApplicationManage
                 {
                     expression = expression.And(t => t.Name == param.Name);
                 }
-                if (param.Area.HasValue())
-                {
-                    expression = expression.And(t => t.Area == param.Area);
-                }
                 if (param.Number.HasValue())
                 {
                     expression = expression.And(t => t.Number == param.Number);

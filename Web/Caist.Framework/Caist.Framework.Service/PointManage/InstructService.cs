@@ -95,6 +95,7 @@ namespace Caist.Framework.Service.PointManage
                                     a.output as Output,
                                     a.remark as Remark,
                                     a.instruct_group_id as InstructGroupId,
+                                    c.Device_Host as DeviceHost,
                                     b.name as InstructGroupName,
                                     b.group_name as GroupName");
             if (bSystemSettingContent)
@@ -116,6 +117,11 @@ namespace Caist.Framework.Service.PointManage
                 {
                     strSql.Append(" AND c.system_id =@SystemSettingId");
                     parameter.Add(DbParameterExtension.CreateDbParameter("@SystemSettingId", param.SystemSettingId));
+                }
+                if (!string.IsNullOrEmpty(param.GroupId))
+                {
+                    strSql.Append(" AND a.instruct_group_id =@GroupId");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@GroupId", param.GroupId));
                 }
             }
             return parameter;

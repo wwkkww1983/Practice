@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -263,9 +264,9 @@ namespace Caist.Framework.M2MQTT
                 DisposeClose();
             }
             MqtMessage("connect closed");
-            //如果断线了，销毁实时数据上传的线程，重连后启动历史数据线程补传数据完成后再启动实时数据上传
+            //如果断线了，立即停止实时数据上传的线程，重连后启动历史数据线程补传数据完成后再启动实时数据上传
             if (timer != null)
-                timer.Dispose();
+                timer.Change(Timeout.Infinite, Timeout.Infinite);
             Task.Factory.StartNew(() =>
             {
                 ConnectWrap();

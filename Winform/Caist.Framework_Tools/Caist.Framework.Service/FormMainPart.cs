@@ -3,7 +3,6 @@ using Caist.Framework.Entity;
 using Caist.Framework.ThreadPool;
 using Caist.Framework.Util;
 using Newtonsoft.Json;
-//using SyncFiles;
 using SyncLogic;
 using SyncUtil;
 using System;
@@ -18,14 +17,30 @@ namespace Caist.Framework.Service
         readonly int _millSeconds = 1000;
         string _interval;
         Sync sc;
-        //FormFiber _formFiber;
-        string _path = Common.GetConfigValue("SyncLogPath");
+        System.Timers.Timer timerSyncData;
+        System.Timers.Timer timerSync;
         public void InitSyncData()
         {
             sc = new Sync();
 
+            timerSyncData = new System.Timers.Timer();
             IntervalInit();
-            timerSyncData.Tick += Timer1_Tick;
+            timerSyncData.Elapsed += TimerSyncData_Elapsed;
+
+            timerSync = new System.Timers.Timer();
+            timerSync.Interval = GetInterval();
+            timerSync.Elapsed += TimerSync_Elapsed;
+        }
+
+        private void TimerSync_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            #region 人员定位定时存历史表
+            SavePeoplePositionToHistory();
+            #endregion
+
+            #region 光纤测温定时存历史表
+            SaveFiberToHistory();
+            #endregion
         }
 
         private void IntervalInit()
@@ -44,11 +59,11 @@ namespace Caist.Framework.Service
             return Convert.ToInt32(_interval) * _millSeconds;
         }
 
-        private void Timer1_Tick(object sender, System.EventArgs e)
+        private void TimerSyncData_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             try
             {
-                #region 通过HTTP读取
+                #region 通过HTTP读取安全监控(瓦斯监控)
                 if (bool.Parse("IsHttpRead".GetConfigrationStr()))
                 {
                     var model = HttpHelper.HttpGet("SecurityMonitorUrl".GetConfigrationStr());
@@ -57,6 +72,7 @@ namespace Caist.Framework.Service
                     DataServices.SaveSecurityMonitorData(listModel);
                 }
                 #endregion
+
                 Task.Run(async () =>
                 {
                     var tp = await sc.SyncDataAsync();
@@ -83,6 +99,7 @@ namespace Caist.Framework.Service
                     btnStart.Enabled = false;
                     lblHint.Visible = true;
                     timerSyncData.Start();
+                    timerSync.Start();
                     Task.Run(async () =>
                     {
                         var tp = await sc.SyncDataAsync();
@@ -92,12 +109,6 @@ namespace Caist.Framework.Service
                             Common.LogError(_res);
                         }
                     });
-                    //#region 光纤测温数据同步
-                    //_formFiber = new FormFiber();
-                    //_formFiber.Show();
-                    //_formFiber.Hide();
-                    //_formFiber.btnSync_Click(null, null); 
-                    //#endregion
                 }
                 catch (Exception ex)
                 {
@@ -129,10 +140,10 @@ namespace Caist.Framework.Service
         {
             try
             {
+                timerSync.Stop();
                 timerSyncData.Stop();
                 btnStart.Enabled = true;
                 lblHint.Visible = false;
-                //_formFiber._formFiberTimer.Stop();
             }
             catch (Exception ex)
             {
@@ -157,6 +168,20 @@ namespace Caist.Framework.Service
                 lblWaring.Text = "当前程序正在同步中，中途终止可能会导致同步数据出问题；\r\n如果不想再次进行同步，可以点击【定时停止】！";
                 e.Cancel = true;
             }
+        }
+
+        private async void SavePeoplePositionToHistory()
+        {
+           var pepoleEntities = await GetPepolePositionList();
+            //插入人员定位历史表
+            await DataServices.InsertMk_People_Position(pepoleEntities);
+        }
+
+        private async void SaveFiberToHistory()
+        {
+           var fibers = await GetFiberList();
+            //插入光纤测温历史表
+            await DataServices.InsertMk_Cable_Thermometry(fibers);
         }
     }
 }

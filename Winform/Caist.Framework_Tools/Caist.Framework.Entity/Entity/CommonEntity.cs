@@ -93,6 +93,7 @@ namespace Caist.Framework.Entity.Entity
         public string Ip { get; set; }
         public string Port { get; set; }
         public string SystemId { get; set; }
+        public string DataType { get; set; }
         public InstructViewEnum InstructType { get; set; }
         public RequestType RequestType { get; set; }
     }

@@ -3,6 +3,7 @@ using Caist.Framework.Data.Repository;
 using Caist.Framework.Entity.FiberManage;
 using Caist.Framework.Entity.PeopleManage;
 using Caist.Framework.Model.FiberManage;
+using Caist.Framework.Model.Result.SystemManage;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using System;
@@ -25,6 +26,27 @@ namespace Caist.Framework.Service.FiberManage
             var list = await this.BaseRepository().FindList<CableEntity>(strSql.ToString(), filter.ToArray());
             return list.ToList();
         }
+        /// <summary>
+        /// 获取指定区域最新数据
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<CableInfo> GetFiberAreaData(string AreaName)
+        {
+            var strSql = new StringBuilder();
+            strSql.Append(@"select top(1) 
+            area_Name as areaName,max_value as maxValue,min_Value as minValue,average_value as AverageValue,create_Time as createTime
+            from [dbo].[mk_cable_thermometry] ");
+
+            if (!string.IsNullOrEmpty(AreaName))
+            {
+                strSql.AppendFormat(@" where area_Name='{0}' ", AreaName);
+            }
+            strSql.Append(@" order by create_Time desc");
+            return await this.BaseRepository().FindObject<CableInfo>(strSql.ToString());
+          
+        }
+
         #endregion
 
         #region 提交数据
@@ -63,7 +85,7 @@ namespace Caist.Framework.Service.FiberManage
                     strSql.Append(" where area_Name=@AreaName");
                     parameter.Add(DbParameterExtension.CreateDbParameter("@AreaName", param.AreaName));
                 }
-               
+
             }
             return parameter;
         }

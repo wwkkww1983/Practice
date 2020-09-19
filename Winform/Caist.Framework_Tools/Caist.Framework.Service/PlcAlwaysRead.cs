@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using SyncUtil;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -21,16 +22,38 @@ namespace Caist.Framework.Service
     {
         private Stopwatch _swPlcHistory = new Stopwatch();
         private PlcConnects _plcStatus = new PlcConnects();
-
-        static Dictionary<string, SiemensHelpers> _dictInstructs = new Dictionary<string, SiemensHelpers>();
+        DataTable _sysData;
         static Dictionary<SiemensHelpers, CaistTimer> _dictReconnects = new Dictionary<SiemensHelpers, CaistTimer>();
+
+        DataRow[] _systems;
         #region 定时存储PLC数据
         public async Task AlwaysRunPlcRead()
         {
+            try
+            {
+                _sysData = await DataServices.GetSystemData();
+                _systems = _sysData.Select("device_instruction =1");//为1的需获取plc状态的系统
+            }
+            catch (Exception ex)
+            {
+                Common.LogError(ex);
+            }
+
+            int plcRead = 0;
+            try
+            {
+                int.TryParse("PlcReadTime".GetConfigrationStr(), out plcRead);
+                plcRead = plcRead == 0 ? 100 : plcRead;
+            }
+            catch (Exception ex)
+            {
+                plcRead = plcRead == 0 ? 100 : plcRead;
+                MessageBox.Show(ex.Message);
+            }
             #region 一直读取PLC进行相应的逻辑处理
             foreach (var helper in _siemensHelpers)
             {
-                CaistTimer timer = new CaistTimer() { Interval = 100 };
+                CaistTimer timer = new CaistTimer() { Interval = plcRead };
                 timer.Elapsed += Timer_Elapsed1;
                 timer.obj = helper;
                 if (!_valuePairs.ContainsKey(helper))
@@ -38,7 +61,7 @@ namespace Caist.Framework.Service
                     _valuePairs.Add(helper, 0);
                 }
                 timer.Start();
-            } 
+            }
             #endregion
 
             #region 定时保存到历史表
@@ -109,7 +132,7 @@ namespace Caist.Framework.Service
                     }
                     catch (Exception ex)
                     {
-                        Common.LogError(ex);
+                        //Common.LogError(ex);
                     }
 
                     if (val != "非数字")
@@ -173,49 +196,54 @@ namespace Caist.Framework.Service
         }
 
         #region plc连接状态
-        string[] _systemName = new string[] { "通风", "压风", "皮带", "泵", "局部" };
         //连接状态
         private async Task PlcConnectStatus()
         {
-            List<PlcConnect> plcConnects = new List<PlcConnect>();
-            foreach (var name in _systemName)
+            try
             {
-                var sims = _siemensHelpers.FindAll(p => p.DeviceEntity.Name.IndexOf(name) > -1);
-                PlcConnect plcConnect = new PlcConnect();
-                var flag = 0;
-                foreach (var item in sims)
+                List<PlcConnect> plcConnects = new List<PlcConnect>();
+                foreach (var dr in _systems)
                 {
-                    plcConnect.SysId = item.DeviceEntity.SystemId;
-                    plcConnect.PlcName = name;
-                    flag = item.IsConnected() ? 1 : 0;
-                    if (flag == 1)
+                    var sims = _siemensHelpers.FindAll(p => p.DeviceEntity.SystemId == dr["Id"].ToString());
+                    PlcConnect plcConnect = new PlcConnect();
+                    var flag = 0;
+                    foreach (var item in sims)
                     {
-                        break;
+                        plcConnect.SysId = item.DeviceEntity.SystemId;
+                        plcConnect.PlcName = dr["system_name"].ToString();
+                        flag = item.IsConnected() ? 1 : 0;
+                        if (flag == 1)
+                        {
+                            break;
+                        }
+                        if (!item.IsConnected())
+                        {
+                            ReconnectPlc(item);
+                        }
                     }
-                    if (!item.IsConnected())
-                    {
-                        ReconnectPlc(item);
-                    }
+                    plcConnect.PlcStatus = flag;
+                    plcConnects.Add(plcConnect);
                 }
-                plcConnect.PlcStatus = flag;
-                plcConnects.Add(plcConnect);
+                _plcStatus.PlcConnectStatus = plcConnects;
+                var strModel = JsonConvert.SerializeObject(_plcStatus);
+                await SendEverySocket(strModel);
             }
-            _plcStatus.PlcConnectStatus = plcConnects;
-            var strModel = JsonConvert.SerializeObject(_plcStatus);
-            await SendEverySocket(strModel);
+            catch (Exception ex)
+            {
+            }
         }
 
         private void ReconnectPlc(SiemensHelpers helper)
         {
             if (_dictReconnects.ContainsKey(helper))
             {
-                if(!_dictReconnects[helper].Enabled)
+                if (!_dictReconnects[helper].Enabled)
                     _dictReconnects[helper].Start();
             }
             else
             {
                 CaistTimer timerReconnect = new CaistTimer() { Interval = 1200 };
-                
+
                 timerReconnect.Elapsed += TimerReconnect_Elapsed;
                 timerReconnect.obj = helper;
                 if (!_valuePairs.ContainsKey(helper))
@@ -243,7 +271,7 @@ namespace Caist.Framework.Service
             }
             catch (Exception ex)
             {
-                Common.LogError(ex);
+                //Common.LogError(ex);
 
                 ConnectPlcMsg(helper, "未连接");
             }

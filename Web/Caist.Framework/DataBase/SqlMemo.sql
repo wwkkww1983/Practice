@@ -38,6 +38,9 @@ luzhenjie 2020年7月28日
 */
 
 --矿山led设备管理
+if exists(select * from sysobjects where name='mk_led_device')
+	drop table mk_led_device;
+go
 create table mk_led_device(
 	id bigint not null primary key,
 	Device_Uid varchar(50) not null,
@@ -51,6 +54,9 @@ create table mk_led_device(
 	[base_version] [int] NOT NULL,
 )
 --led信息发布数据表
+if exists(select * from sysobjects where name='mk_information_publish')
+	drop table mk_information_publish;
+go
 create table mk_information_publish(
 	id bigint not null primary key,
 	Device_Uid varchar(50) not null,
@@ -154,6 +160,9 @@ drop table [caist_mk_db].[dbo].[mk_plc_renyuan_values];
 luzhenjie 202年8月17日
 增加mqtt上传配置编码表
 */
+if exists(select * from sysobjects where name='mk_mqtt_code_setting')
+	drop table mk_mqtt_code_setting;
+go
 Create table mk_mqtt_code_setting
 (
 	id bigint not null primary key,
@@ -193,6 +202,9 @@ Create table mk_mqtt_code_setting
 	[base_version] [int] NOT NULL,
 )
 --地址类型编码表   用于筛选mqtt传感器编码的地址编码中的地址类型编码选择
+if exists(select * from sysobjects where name='mk_mqtt_address_type')
+	drop table mk_mqtt_address_type;
+go
 create table mk_mqtt_address_type
 (
 	id int IDENTITY(1,1) not null primary key,
@@ -297,7 +309,6 @@ create table mk_mqtt_sensor_setting
 (
 	id bigint not null primary key,
 	system_code varchar(20) not null,
-	sensor_id bigint not null,
 	code_type int not null,
 	name nvarchar(50) not null,
 	code varchar(20) not null,
@@ -405,6 +416,9 @@ ALTER TABLE [dbo].[mk_people_position] ADD out_mine_time datetime NULL;
 2020-09-07  luzhenjie
 增加人员定位标记坐标存储表
 */
+if exists(select * from sysobjects where name='mk_people_position_mark')
+	drop table mk_people_position_mark;
+go
 create table mk_people_position_mark
 (
 	id bigint not null primary key,
@@ -423,6 +437,9 @@ create table mk_people_position_mark
 /*
 增加光纤测温标记坐标存储表
 */
+if exists(select * from sysobjects where name='mk_fiber_mark')
+	drop table mk_fiber_mark;
+go
 create table mk_fiber_mark
 (
 	id bigint not null primary key,
@@ -438,3 +455,11 @@ create table mk_fiber_mark
 	[base_modifier_id] [bigint] NOT NULL,
 	[base_version] [int] NOT NULL,
 )
+--增加动画参数控制字段
+alter table mk_view_paramenter add  Animation varchar(20) null
+
+--添加系统设备指令 用于判断是否需要获取当前系统设备链接状态
+alter table mk_system_setting add device_instruction varchar(50) null
+
+--添加MQTT上传用得通道编号
+alter table mk_eb_video add channel_number varchar(50) null

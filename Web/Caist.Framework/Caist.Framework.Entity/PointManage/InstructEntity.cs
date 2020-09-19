@@ -34,5 +34,6 @@ namespace Caist.Framework.Entity.PointManage
 
         public string GroupName { get; set; }
 
+        public string DeviceHost { get; set; }
     }
 }

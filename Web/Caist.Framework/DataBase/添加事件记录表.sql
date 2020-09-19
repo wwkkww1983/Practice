@@ -5,6 +5,7 @@ CREATE TABLE [dbo].[mk_Event_Record](
 	[Operator] [nvarchar](50) NULL,
 	[Operator_time] [datetime] NULL,
 	[Operation_model] [nvarchar](50) NULL,
+	[System_Id] [bigint] null,
 	[base_is_delete] [int] NULL,
 	[base_create_time] [smalldatetime] NULL,
 	[base_modify_time] [smalldatetime] NULL,
@@ -18,8 +19,3 @@ CREATE TABLE [dbo].[mk_Event_Record](
 ) ON [PRIMARY]
 
 GO
-
-/*2020-08-27
-Ìí¼ÓÏµÍ³ID×Ö¶Î
-*/
-alter table [mk_Event_Record] add System_Id bigint null

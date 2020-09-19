@@ -13,6 +13,10 @@
                         <label>系统模块：</label>
                         <div id="systemSettingId" col="SystemSettingId" class="select"></div>
                     </li>
+                    <li class="select-select2">
+                        <label>PLC模块：</label>
+                        <div id="groupId" col="GroupId" class="select"></div>
+                    </li>
                     <li>
                         <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                     </li>
@@ -38,9 +42,19 @@
             key: "Id",
             value: "SystemName",
             class: "form-control",
-        });
+            onChange: GroupData,
+           });
+        GroupData();
     });
-
+    function GroupData() {
+        var selectSystem = $("#systemSettingId_select").find("option:selected").val();
+           $("#groupId").ysComboBox({
+               url: '@Url.Content("~/PointManage/InstructGroup/GetListJson")' + '?SystemId=' + selectSystem,
+               key: "Id",
+               value: "GroupName",
+               class: "form-control",
+           });
+    }
     function initGrid() {
         var queryUrl = '@Url.Content("~/PointManage/Instruct/GetPageListJson")';
         $('#gridTable').ysTable({
@@ -50,6 +64,17 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'Id', visible: false },
+                { field: 'GroupName', title: 'PLC模块' },
+                 {
+                     field: 'InstructGroupName', title: '点位', formatter: function (value, row, index) {
+                        if(row.InstructGroupName.indexOf("DB")> -1) {
+                            return row.DeviceHost + "-" + row.InstructGroupName + row.Name;
+                        }else {
+                            return row.DeviceHost + "-" + row.InstructGroupName + "." + row.Name;
+                        }
+                    }
+                },
+                { field: 'Remark', title: '描述' },
                 { field: 'InstructGroupName', title: '寄存器' },
                 { field: 'Name', title: '节点名称' },
                 {
@@ -76,8 +101,8 @@
                             return '<span class="badge badge-warning">' + "@InstructEnum.FLOAT.GetDescription()" + '</span>';
                         }
                     }
-                },
-                { field: 'Remark', title: '描述' }
+                }
+
             ],
             queryParams: function (params) {
                 var pagination = $('#gridTable').ysTable('getPagination', params);

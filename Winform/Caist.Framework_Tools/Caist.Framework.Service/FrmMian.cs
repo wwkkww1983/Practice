@@ -11,7 +11,6 @@ using Fleck;
 using Newtonsoft.Json;
 using SyncUtil;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -39,7 +38,6 @@ namespace Caist.Framework.Service
         FormSubstation _formSubstation;
         Dictionary<SiemensHelpers, int> _valuePairs = new Dictionary<SiemensHelpers, int>();
         public Dictionary<DeviceEntity, List<string>> DictInstructs { get; set; }
-        Stopwatch _stopwatch = new Stopwatch();
         //1分钟保存一次到历史记录表
         int SaveHistoryInterval = 1;
         /// <summary>
@@ -82,9 +80,9 @@ namespace Caist.Framework.Service
 
                 //底部运行时间
                 this.sw.Start();
-                //System.Timers.Timer timing = new System.Timers.Timer(1000);
-                //timing.Elapsed += Timing_Elapsed;
-                //timing.Start();
+                System.Timers.Timer timing = new System.Timers.Timer(1000);
+                timing.Elapsed += Timing_Elapsed;
+                timing.Start();
 
                 //加载plc列表
                 DataServices.LoadDataDevice(TreeDevice.Nodes);
@@ -217,17 +215,8 @@ namespace Caist.Framework.Service
                 siemensHelper.Port = d.Port;
                 siemensHelper.Init();
                 DictInstructs.Add(d, siemensHelper.ListInstructs);
-                InitDictInstructs(siemensHelper);
                 _siemensHelpers.Add(siemensHelper);
             });
-        }
-
-        private void InitDictInstructs(SiemensHelpers siemensHelper)
-        {
-            foreach (var item in siemensHelper.ListInstructs)
-            {
-                _dictInstructs.Add(item, siemensHelper);
-            }
         }
 
         /// <summary>
@@ -245,7 +234,15 @@ namespace Caist.Framework.Service
                         var tags = group.TagEntities;
                         foreach (TagEntity tag in tags)
                         {
-                            string Key = string.Format("{0}.{1}", group.Name, tag.Name);
+                            string Key = string.Empty;
+                            if (group.Name.StartsWith("DB"))
+                            {
+                                Key = string.Format("{0}.{1}", group.Name, tag.Name);
+                            }
+                            else
+                            {//其它不需要中间的点连接
+                                Key = string.Format("{0}{1}", group.Name, tag.Name);
+                            }
                             string Name = string.Format("{0}-{1}", siemens.IP, Key);
                             ListViewItem lvitem = new ListViewItem(Name);
                             lvitem.ToolTipText = Key;
@@ -261,8 +258,9 @@ namespace Caist.Framework.Service
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Common.LogError(ex);
             }
         }
 
@@ -346,8 +344,6 @@ namespace Caist.Framework.Service
         {
             PlcAlertStart();
         }
-
-        //bool _flag = true;
         private async Task PlcsStart()
         {
             _siemensHelpers.ForEach(helper =>
@@ -364,72 +360,6 @@ namespace Caist.Framework.Service
                 }
             });
             await AlwaysRunPlcRead();
-        }
-
-        bool _deviceStatusflag = true;
-        private void TimerMessage_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            try
-            {
-                _deviceStatusflag = true;
-                var caistTimer = (CaistTimer)sender;
-                SiemensHelpers entity = caistTimer.obj;
-                if (entity.IsConnected())
-                {
-                    txtStatus.Text = "已连接";
-                }
-                else
-                {
-                    txtStatus.Text = "未连接";
-                    _deviceStatusflag = false;
-                }
-                var i = _valuePairs[entity];
-
-                if (_deviceStatusflag)
-                {
-                    var list = DictInstructs[entity.DeviceEntity];
-                    if (list.HasValue())
-                    {
-                        //指令
-                        var instructs = list[i].Split(':');
-                        string key = string.Format("{0}-{1}", entity.DeviceEntity.Host, instructs[0]);
-                        lvPoint.Invoke(new Action(() =>
-                        {
-                            ListViewItem item = lvPoint.FindItemWithText(key);
-                            try
-                            {
-                                var value = string.Empty;
-                                //true或者false 必须配位short类型
-                                if (GetSendDataType(instructs[1]) == SendDataType.Short)
-                                {
-                                    value = entity.Read(instructs[0]);
-                                }
-                                else
-                                {
-                                    value = entity.Read(instructs[0], GetSendDataType(instructs[1]));
-                                }
-                                SendData(value, key, instructs[1], string.Empty);
-                                if (item != null)
-                                {
-                                    item.SubItems[4].Text = value;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                //Common.LogError($"【{key}】:{ex}");
-                            }
-
-                        }));
-                        i++;
-                        i = list.Count == i ? 0 : i;
-                        _valuePairs[entity] = i;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Common.LogError(ex);
-            }
         }
 
         private SendDataType GetSendDataType(string dataType)
@@ -730,6 +660,7 @@ namespace Caist.Framework.Service
             }
         }
 
+        //SiemensHelpers helper = new SiemensHelpers();
         private void FrontCommands(InstructModel reciveModel, string clientFlag)
         {
             /**
@@ -745,6 +676,12 @@ namespace Caist.Framework.Service
                 string first;
                 string second;
                 SiemensHelpers helper;
+                //var flags = helper.Open("S71200", "192.168.20.88", 102, 0, 1);
+                //if (!flags)
+                //{
+                //    MessageBox.Show("连接失败！");
+                //    return;
+                //}
                 var requesType = reciveModel.RequestType;
                 if (requesType == RequestType.GetCommandValues)//获取当前系统所有开关的状态
                 {
@@ -795,17 +732,17 @@ namespace Caist.Framework.Service
                     {
                         instructModelReturns = new List<InstructReturn>();
                         var dtd = DataServices.GetSingleCommandValue(reciveModel);
-                        if (dtd.HasData())
+                        if (dtd.HasData() && reciveModel.DataType.HasValue())
                         {
                             var m = new InstructReturn()
                             {
                                 ControlName = string.Empty,
                                 ParamenterUnit = dtd.Rows[0]["paramenter_unit"].ToString(),
                                 ParamenterInstruct = instruct,
-                                ParamenterName = dtd.Rows[0]["parameter_name"].ToString(),
+                                ParamenterName = dtd.Rows[0]["paramenter_name"].ToString(),
                                 Id = dtd.Rows[0]["Id"].ToString()
                             };
-                            GetPlcValueForType(instruct, helper, dtd.Rows[0]["paramenter_value_type"].ToString(), m);
+                            GetPlcValueForType(instruct, helper, reciveModel.DataType, m);
                             instructModelReturns.Add(m);
                             SendMessage(JsonConvert.SerializeObject(new InstructModelReturns()
                             {
@@ -814,16 +751,24 @@ namespace Caist.Framework.Service
                         }
                         else
                         {
-                            SendMsg("指令配置异常！", clientFlag);
+                            SendMsg("数据类型为空或指令配置异常！", clientFlag);
                         }
                     }
                     else if (requesType == RequestType.SetCommandValue)//发送单个控制命令:setCommandValue;
                     {
-                        if (instruct.HasValue())
+                        if (instruct.HasValue() && reciveModel.DataType.HasValue())
                         {
-                            //helper.Write(instruct, double.Parse(reciveModel.Value));
-                            //helper.Write(instruct, double.Parse(reciveModel.Value));
-                            helper.Write(instruct, double.Parse(reciveModel.Value));
+                            if (GetSendDataType(reciveModel.DataType) == SendDataType.Int)
+                            {
+                                var res = 0;
+                                int.TryParse(reciveModel.Value,out res);
+                                helper.Write(instruct, res);
+                            }
+                            else
+                            {
+                                bool res = reciveModel.Value == "1";
+                                helper.Write(instruct, res);
+                            }
                             SendMsg("success", clientFlag);
 
                             //保存数据到历史记录表
@@ -831,12 +776,12 @@ namespace Caist.Framework.Service
                         }
                         else
                         {
-                            SendMsg("前端发送指令异常！", clientFlag);
+                            SendMsg("指令或数据类型不能为空！", clientFlag);
                         }
                     }
                     else
                     {
-                        SendMsg("未知命令！", clientFlag);
+                        SendMsg("未知指令！", clientFlag);
                     }
                 }
             }
@@ -928,7 +873,7 @@ namespace Caist.Framework.Service
         }
 
         #region 人员定位
-        private async Task SendPepolePostionData(string clientFlag, bool flag = false)
+        public async Task SendPepolePostionData(string clientFlag, bool flag = false)
         {
             List<PepolePositionEntity> pepoleEntities = await GetPepolePositionList();
             var list = new List<PepolePostionContent>();
@@ -955,7 +900,7 @@ namespace Caist.Framework.Service
                     {
                         PepoleNumber = item.PepoleNumber,
                         PepoleName = item.PepoleName,
-                        TypeOfWorkName = item.TypeOfWorkName,
+                        TypeOfWorkName = item.TypeOfWork,
                         Post = item.Post,
                         Duty = item.Duty,
                         ManHour = res.Minutes
@@ -976,7 +921,7 @@ namespace Caist.Framework.Service
                     {
                         PepoleNumber = item.PepoleNumber,
                         PepoleName = item.PepoleName,
-                        TypeOfWorkName = item.TypeOfWorkName,
+                        TypeOfWorkName = item.TypeOfWork,
                         Post = item.Post,
                         Duty = item.Duty,
                         ManHour = res.Minutes
@@ -1005,21 +950,11 @@ namespace Caist.Framework.Service
                 {
                     _pepolePostionEntities = pepoleEntities;
                 }
-
-                //插入人员定位历史表
-                await DataServices.InsertMk_People_Position(pepoleEntities);
-                //InsertPeopleHistory();
             }
             list.Clear();
         }
 
-        private void InsertPeopleHistory()
-        {
-            //插入人员定位历史表
-            //await DataServices.InsertMk_People_Position(pepoleEntities);
-        }
-
-        private static async Task<List<PepolePositionEntity>> GetPepolePositionList()
+        private async Task<List<PepolePositionEntity>> GetPepolePositionList()
         {
             //几种读取方式
             var readWay = "PepolePositionReadWay".GetConfigrationStr();
@@ -1058,13 +993,6 @@ namespace Caist.Framework.Service
             foreach (var item in fibers)
             {
                 list.Add(Mapper.Map<FiberEntity, FiberContent>(item));
-                //list.Add(new FiberContent()
-                //{
-                //    AreaName = item.AreaName,
-                //    AverageValue = item.AverageValue,
-                //    MaxValue = item.MaxValue,
-                //    MinValue = item.MinValue,
-                //});
             }
             var fm = new FiberModel()
             {
@@ -1079,9 +1007,6 @@ namespace Caist.Framework.Service
                 {
                     _fiberEntities = fibers;
                 }
-                //插入光纤测温历史表
-                await DataServices.InsertMk_Cable_Thermometry(fibers);
-
             }
             list.Clear();
         }

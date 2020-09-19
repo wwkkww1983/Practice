@@ -22,8 +22,12 @@ namespace Caist.Framework.Model.Result.SystemManage
         /// </summary>
         public string PepoleName { get; set; }
         /// <summary>
-        /// 职位
+        /// 工种
         /// </summary>
-        public string TypeOfWorkName { get; set; }
+        public string TypeOfWork { get; set; }
+        /// <summary>
+        /// 带班领导
+        /// </summary>
+        public string Duty { get; set; }
     }
 }

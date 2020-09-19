@@ -79,11 +79,13 @@ namespace Caist.Framework.Mqtt
                 RegistryKey runKey = Local.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run\");
                 if (runKey.GetValue(keyName) == null)
                 {
+
                     runKey.SetValue(keyName, filePath);
                     Message("添加程序开启自启动成功！");
                 }
                 else
                 {
+                    //runKey.DeleteValue(keyName);
                     Message("本程序已加入开机自启动项！");
                 }
                 Local.Close();

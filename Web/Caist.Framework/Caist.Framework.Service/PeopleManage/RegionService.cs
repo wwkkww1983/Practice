@@ -2,6 +2,7 @@
 using Caist.Framework.Data.Repository;
 using Caist.Framework.Entity.PeopleManage;
 using Caist.Framework.Model.PeopleManage;
+using Caist.Framework.Model.Result.SystemManage;
 using Caist.Framework.Util.Extension;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,41 @@ namespace Caist.Framework.Service.PeopleManage
             var strSql = new StringBuilder();
             List<DbParameter> filter = GetPeopleInfoSQL(param, strSql);
             var list = await this.BaseRepository().FindList<RegionPeopleNumEntity>(strSql.ToString(), filter.ToArray());
+            return list.ToList();
+        }
+        /// <summary>
+        /// 当天人员工作活动区域占比数据
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<List<PeopleArea>> GetPeopleArea()
+        {
+            var strSql = new StringBuilder();
+            strSql.Append(@"SELECT station_address as Address,COUNT(id) as Count FROM mk_people_position
+                            where datediff(D, report_time , GETDATE())<=0
+                            GROUP BY station_address");
+
+            var list = await this.BaseRepository().FindList<PeopleArea>(strSql.ToString());
+            return list.ToList();
+        }
+
+        /// <summary>
+        /// 从历史表中获取最新人员定位数据
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<PublicPeopleRealTime>> GetPeopleRealTime()
+        {
+            var strSql = new StringBuilder();
+            strSql.Append(@"select 
+                                pepole_number as PepoleNumber, 
+                                current_station as  CurrentStation,
+                                station_address as StationAddress,
+                                people_name as PepoleName,
+                                type_of_work_name as TypeOfWork,
+                                duty as Duty
+                                from mk_people_position where report_time=(select top(1)report_time from mk_people_position order by report_time desc)");
+
+            var list = await this.BaseRepository().FindList<PublicPeopleRealTime>(strSql.ToString());
             return list.ToList();
         }
 
@@ -89,7 +125,6 @@ namespace Caist.Framework.Service.PeopleManage
 
             return parameter;
         }
-
         private List<DbParameter> GetPeopleInfoSQL(RegionParam param, StringBuilder strSql)
         {
             strSql.Append(@"SELECT w.Pepole_Number as PepoleNumber,m.Pepole_Name as PepoleName,c.Station_Address as StationAddress,w.Current_Station as CurrentStation,w.Down_Well_Time as DownWellTime FROM caist_mk_db.dbo.mk_real_data w inner JOIN caist_mk_db.dbo.mk_staff_information m ON w.Pepole_Number=m.Pepole_Number INNER JOIN caist_mk_db.dbo.mk_device_information c ON c.Station_Number=w.Current_Station where 1=1");

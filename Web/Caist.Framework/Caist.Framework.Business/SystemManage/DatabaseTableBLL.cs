@@ -120,7 +120,7 @@ namespace Caist.Framework.Business.SystemManage
         public async Task<string> DatabaseBackup(string backupPath)
         {
             string database = HtmlHelper.Resove(GlobalContext.Configuration.GetSection("DB:ConnectionString").Value, "Database =", ";");
-            await databaseTableService.DatabaseBackup(database, backupPath);
+            await databaseTableService.DatabaseBackup(database.Trim(), backupPath);
             return backupPath;
         }
 

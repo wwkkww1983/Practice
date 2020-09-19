@@ -22,7 +22,7 @@ CREATE TABLE [dbo].[mk_setting_value](
 	[base_version] [int] NULL,
 	[parameter_models] [nvarchar](50) NULL,
 	[parameter_controls] [nvarchar](50) NULL,
-	[parameter__type] [nvarchar](50) NULL,
+	[parameter_type] [nvarchar](50) NULL,
  CONSTRAINT [PK_mk_setting_value] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

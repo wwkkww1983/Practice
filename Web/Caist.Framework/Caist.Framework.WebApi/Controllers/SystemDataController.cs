@@ -8,6 +8,7 @@ using Caist.Framework.Model.Result.SystemManage;
 using Caist.Framework.Util.Extension;
 using Microsoft.AspNetCore.Mvc;
 using NPOI.HPSF;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -58,20 +59,21 @@ namespace Caist.Framework.WebApi.Controllers
             List<SystemEnergy> data = new List<SystemEnergy>();
             data.Add(new SystemEnergy
             {
+                
                 SystemName = "通风机能耗",
-                Value = tf * 60,  //数据库中1条数据为1分钟。能耗以小时为单位，所以诚意60为千瓦时
+                Value = Math.Round(tf * 60, 2),  //数据库中1条数据为1分钟。能耗以小时为单位，所以诚意60为千瓦时
                 Unit = "Kw‧h"
-            });
+            }); ;
             data.Add(new SystemEnergy
             {
                 SystemName = "压风机能耗",
-                Value = yf * 60,  //数据库中1条数据为1分钟。能耗以小时为单位，所以诚意60为千瓦时
+                Value = Math.Round(yf * 60, 2),  //数据库中1条数据为1分钟。能耗以小时为单位，所以诚意60为千瓦时
                 Unit = "Kw‧h"
             });
             data.Add(new SystemEnergy
             {
                 SystemName = "运输机能耗",
-                Value = pd * 60,  //数据库中1条数据为1分钟。能耗以小时为单位，所以诚意60为千瓦时
+                Value = Math.Round(pd * 60, 2),  //数据库中1条数据为1分钟。能耗以小时为单位，所以诚意60为千瓦时
                 Unit = "Kw‧h"
             });
             return data.RemoveNullValue();

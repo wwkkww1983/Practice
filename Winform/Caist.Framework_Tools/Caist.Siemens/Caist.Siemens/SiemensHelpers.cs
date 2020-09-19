@@ -39,7 +39,14 @@ namespace Caist.Siemens
                 {
                     if (v.Name.IndexOf("V") == -1 && x.Name.IndexOf("V") == -1)
                     {
-                        instructs.Add($"{this.IP}-{v.Name}.{x.Name}:{x.DataType}");
+                        if (v.Name.StartsWith("DB"))
+                        {
+                            instructs.Add($"{this.IP}-{v.Name}.{x.Name}:{x.DataType}");
+                        }
+                        else
+                        {//其它不需要中间的点连接
+                            instructs.Add($"{this.IP}-{v.Name}{x.Name}:{x.DataType}");
+                        }
                         listTags.Add(x);
                         num++;
                     }

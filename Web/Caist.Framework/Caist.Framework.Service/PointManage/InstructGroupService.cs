@@ -112,6 +112,16 @@ namespace Caist.Framework.Service.PointManage
                     strSql.Append(" AND a.Name like @Name");
                     parameter.Add(DbParameterExtension.CreateDbParameter("@Name", "%" + param.Name + "%"));
                 }
+                if (!string.IsNullOrEmpty(param.DeviceId))
+                {
+                    strSql.Append(" AND a.device_id = @DeviceId");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@DeviceId", param.DeviceId));
+                }
+                if (!string.IsNullOrEmpty(param.SystemId))
+                {
+                    strSql.Append(" AND b.system_id = @SystemId");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemId", param.SystemId));
+                }
             }
             return parameter;
         }

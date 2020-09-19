@@ -68,8 +68,10 @@ namespace Caist.Framework.Mqtt
                 tsTbServer.Text = mqtOption?.MqHost;
                 tsTbMqPort.Text = mqtOption?.MqPort.ToString();
                 tsTbMqUserName.Text = mqtOption?.MqUser;
+#if !DEBUG
                 if (!string.IsNullOrEmpty(tsTbMqName.Text))
                     MqttStart_Click(sender, e);
+#endif
             }
             catch (Exception ex)
             {
@@ -98,18 +100,19 @@ namespace Caist.Framework.Mqtt
 
         void HistoryWork(object state)
         {
-
             if (DateTimeHelper.GetMinuteinterval(lastDateTime.Value, DateTime.Now) > 0.5 * 30)
             {
                 IsHistory = true;
-
-                PushData(MqtCLient);
+                Task.Run(async () =>
+                {
+                    await PushData(MqtCLient);
+                });
             }
             else
             {
                 IsHistory = false;
+                _hisTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 //马上暂停
-                _hisTimer.Change(-1, 0);
                 MqtCLient.MqtMessage("-----------------历史数据补充上传完成----------------------");
                 Thread t = new Thread(o => Thread.Sleep(2000));//补录完成暂停2秒
                 t.Start(this);
@@ -119,10 +122,21 @@ namespace Caist.Framework.Mqtt
                     Application.DoEvents();
                 }
                 MqtCLient.MqtMessage("-------------------切换实时数据上传-----------------------");
-                //立即开启 定时推送数据 
-                _timer = new System.Threading.Timer(Work, "执行", TimeSpan.Zero, TimeSpan.FromSeconds(Convert.ToInt32(mqtTimer)));
-                //传输定时器，监测使用历史数据定时器还是实时数据定时器
-                MqtCLient.SetTimer(_timer, _hisTimer);
+                if (_timer!=null)
+                {
+                    //立即开启 定时推送数据 
+                    _timer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(Convert.ToInt32(mqtTimer)));
+                    //传输定时器，监测使用历史数据定时器还是实时数据定时器
+                    MqtCLient.SetTimer(_timer, _hisTimer);
+                }
+                else
+                {
+                    //立即开启 定时推送数据 
+                    _timer = new System.Threading.Timer(Work, "执行", TimeSpan.Zero, TimeSpan.FromSeconds(Convert.ToInt32(mqtTimer)));
+                    //传输定时器，监测使用历史数据定时器还是实时数据定时器
+                    MqtCLient.SetTimer(_timer, _hisTimer);
+                }
+              
 
             }
 
@@ -273,7 +287,6 @@ namespace Caist.Framework.Mqtt
                             //采区编码  +地址类型编码	+安装设备地点编码 =地址编码
                             var SensorCode = mqtOption.MqCollieryCode + setting.AddressAreCode + setting.AddressTypeCode + setting.AddressDeviceCode + setting.SystemCode +
                             setting.DeviceCode + setting.SensorTypeCode;
-                            var test1 = pointValueList.Result;
                             var pointValue = pointValueList.Result.FindLast(n => n.DictId == setting.CodePointSetting);
                             #region  根据数据类型处理上传业务逻辑
                             if (setting.CodeType == 2) //报警数据
@@ -285,9 +298,8 @@ namespace Caist.Framework.Mqtt
                                     pointValue = pointValueList.Result.FindLast(n => n.DictId == alarm);
                                     if (pointValue != null)
                                     {
-                                        #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，有报警，在运行。 1：关闭，没有报警，停止运行
+                                        #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，没有报警，在运行。 1：关闭，有报警，停止运行
                                         PointValueConvert(pointValue);
-
                                         #endregion
 
                                         AlarmStatus = (pointValue != null && pointValue.DictValue.ParseToInt() == 0);
@@ -310,7 +322,7 @@ namespace Caist.Framework.Mqtt
                                 foreach (var ctr in ctrs)
                                 {
                                     pointValue = pointValueList.Result.FindLast(n => n.DictId == ctr);
-                                    #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，有报警，在运行。 1：关闭，没有报警，停止运行
+                                    #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，没有报警，在运行。 1：关闭，有报警，停止运行
                                     PointValueConvert(pointValue);
 
                                     #endregion
@@ -340,7 +352,7 @@ namespace Caist.Framework.Mqtt
                                 #region 数据格式转换
                                 if (setting.DecimalPlaces == 0) //整数  转换为int
                                 {
-                                    #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，有报警，在运行。 1：关闭，没有报警，停止运行
+                                    #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，没有报警，在运行。 1：关闭，有报警，停止运行
                                     PointValueConvert(pointValue);
                                     #endregion
 

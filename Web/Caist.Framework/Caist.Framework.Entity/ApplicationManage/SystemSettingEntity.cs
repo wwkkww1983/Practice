@@ -39,5 +39,10 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// 是否显示在一级菜单
         /// </summary>
         public int MenuShow { get; set; }
+
+        /// <summary>
+        /// 设备指令 ---目前用来区分获取系统通讯状态
+        /// </summary>
+        public string DeviceInstruction { get; set; }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using Caist.Framework.Cache;
 using Caist.Framework.Entity.PeopleManage;
 using Caist.Framework.Model.PeopleManage;
+using Caist.Framework.Model.Result.SystemManage;
 using Caist.Framework.Service.PeopleManage;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -55,6 +57,35 @@ namespace Caist.Framework.Business.PeopleManage
         //    obj.Tag = 1;
         //    return obj;
         //}
+        /// <summary>
+        /// 当天人员工作活动区域占比数据
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public async Task<TData<List<PeopleArea>>> GetPeopleArea()
+        {
+            var obj = new TData<List<PeopleArea>>();
+            var list = await regionService.GetPeopleArea();
+            obj.Result = list;
+            obj.TotalCount = list.Count;
+            obj.Tag = 1;
+            return obj;
+        }
+
+        /// <summary>
+        /// 从历史表中获取最新人员定位数据
+        /// </summary>
+        /// <returns></returns>
+        public async Task<TData<List<PublicPeopleRealTime>>> GetPeopleRealTime()
+        {
+            var obj = new TData<List<PublicPeopleRealTime>>();
+            var list = await regionService.GetPeopleRealTime();
+            obj.Result = list;
+            obj.TotalCount = list.Count;
+            obj.Tag = 1;
+            return obj;
+        }
+
 
         public async Task<TData<RegionEntity>> GetEntity(long id)
         {

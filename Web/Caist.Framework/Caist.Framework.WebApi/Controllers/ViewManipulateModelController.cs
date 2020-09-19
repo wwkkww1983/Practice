@@ -5,6 +5,7 @@ using Caist.Framework.Util.Model;
 using Caist.Framework.WebApi.Handle;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Caist.Framework.WebApi.Controllers
@@ -21,6 +22,10 @@ namespace Caist.Framework.WebApi.Controllers
         public async Task<TData<List<ViewManipulateModelEntity>>> GetListJson([FromQuery] ViewManipulateModelListParam param)
         {
             TData<List<ViewManipulateModelEntity>> obj = await viewManipulateModelBLL.GetList(param);
+            if (obj.Result != null)
+            {
+                obj.Result = obj.Result.OrderBy(n => n.ManipulateModelSort).ToList();
+            }
             return obj;
         }
 
@@ -28,6 +33,10 @@ namespace Caist.Framework.WebApi.Controllers
         public async Task<TData<List<ViewManipulateModelEntity>>> GetPageListJson([FromQuery] ViewManipulateModelListParam param, [FromQuery] Pagination pagination)
         {
             TData<List<ViewManipulateModelEntity>> obj = await viewManipulateModelBLL.GetPageList(param, pagination);
+            if (obj.Result!=null)
+            {
+               obj.Result = obj.Result.OrderBy(n => n.ManipulateModelSort).ToList();
+            }
             return obj;
         }
 
