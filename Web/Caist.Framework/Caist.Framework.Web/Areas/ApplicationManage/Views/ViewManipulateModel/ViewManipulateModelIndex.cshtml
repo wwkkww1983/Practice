@@ -134,9 +134,10 @@
                 id = selectedRow[0].Id;
             }
         }
+        var viewFunctionId = $("#viewFunctionId").find("option:selected").val();
         ys.openDialog({
             title: id > 0 ? "编辑控制模块" : "添加控制模块",
-            content: '@Url.Content("~/ApplicationManage/ViewManipulateModel/ViewManipulateModelForm")' + '?id=' + id,
+            content: '@Url.Content("~/ApplicationManage/ViewManipulateModel/ViewManipulateModelForm")' + '?id=' + id + "&viewFunctionId=" + viewFunctionId,
             width: "768px",
             height: "450px",
             callback: function (index, layero) {

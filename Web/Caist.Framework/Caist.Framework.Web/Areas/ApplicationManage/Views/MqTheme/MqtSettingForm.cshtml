@@ -79,11 +79,12 @@
     </form>
 </div>
 <script type="text/javascript">
-        var id = ys.request("id");
+    var id = ys.request("id");
+    var systemId = ys.request("systemId");
     var FormData = null;
         $("#CodeType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(SensorEnum).EnumToDictionaryString())) });
         $(function () {
-            getForm();
+          
             $('input[name=CodeType_radiobox]').on('ifChecked', function (event) {
                 var CodeType = $(event.target).val();
                 viewTypeVisible(CodeType);
@@ -102,7 +103,7 @@
                 addressCode();
                 showSensor();
             });
-
+            getForm();
 
         });
     ///获取告警数据
@@ -198,6 +199,7 @@
                 showSensor();
                 var defaultData = {};
                 defaultData.CodeType = "@SensorEnum.Data.ParseToInt()";
+                defaultData.SystemId = systemId;
                 $("#form").setWebControls(defaultData);
             }
         }

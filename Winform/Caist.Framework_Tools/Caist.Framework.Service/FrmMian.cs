@@ -107,6 +107,10 @@ namespace Caist.Framework.Service
                 InitSyncData();
                 //初始化mqtt配置信息
                 LoadMqtt();
+#if !DEBUG
+
+                btnPLCStrats_Click(null, null);
+#endif
             }
             catch (Exception ex)
             {
@@ -115,7 +119,7 @@ namespace Caist.Framework.Service
         }
         private void DataBaseTimerInit(RequestType requestType, string clientFlag)
         {
-            #region 初始化websocket配置
+#region 初始化websocket配置
             var interval = _socketTimerValue.HasValue() ? _socketTimerValue : "1000";
             if (_dataBaseTimers.FindIndex(p => p.ClientFlag == clientFlag && p.Tag == requestType) == -1)
             {
@@ -134,16 +138,16 @@ namespace Caist.Framework.Service
                     f.Start();
                 });
             }
-            #endregion
+#endregion
         }
 
         private void Timing_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            ts = sw.Elapsed;
-            Task.Run(new Action(() =>
-            {
-                txttiming.Text = string.Format("{0}:{1}:{2}", ts.Hours.ToString("D5"), ts.Minutes.ToString("D2"), ts.Seconds.ToString().PadLeft(2, '0'));
-            }));
+            //ts = sw.Elapsed;
+            //Task.Run(new Action(() =>
+            //{
+            //    txttiming.Text = string.Format("{0}:{1}:{2}", ts.Hours.ToString("D5"), ts.Minutes.ToString("D2"), ts.Seconds.ToString().PadLeft(2, '0'));
+            //}));
         }
 
         private void InitWebsocketSend()
@@ -161,7 +165,7 @@ namespace Caist.Framework.Service
             }
         }
 
-        #region 定时器相关操作
+#region 定时器相关操作
         //socket 推送plc数据
         private void timer_Tick(object sender, EventArgs e)
         {
@@ -181,10 +185,10 @@ namespace Caist.Framework.Service
         }
         private void StopTimers(string clientFlag)
         {
-            #region 先暂停之前所有定时
+#region 先暂停之前所有定时
             StopDataBaseTimers(clientFlag);
             StopPlcTimers(clientFlag);
-            #endregion
+#endregion
         }
 
         private void StopDataBaseTimers(string clientFlag)
@@ -202,7 +206,7 @@ namespace Caist.Framework.Service
                 p.Stop();
             });
         }
-        #endregion
+#endregion
 
         private void SiemensInit()
         {
@@ -294,9 +298,9 @@ namespace Caist.Framework.Service
                 cfg.CreateMap<PepolePositionEntity, PepolePostionContent>();
             });
         }
-        #endregion
+#endregion
 
-        #region PLC读取
+#region PLC读取
         /// <summary>
         /// 开启PLC连接
         /// </summary>
@@ -500,9 +504,9 @@ namespace Caist.Framework.Service
         //1、整合推送到plc采集； 2、判断报警信息（存入报警表，发送特定消息给前端）；3、整合数据同步进来；
         //1、光纤测温websocket推送；2、供电站webscoket推送；3、建历史表；4、svn 外网映射；5、PLC联调
 
-        #endregion
+#endregion
 
-        #region PLC告警（点表点位设置的报警）
+#region PLC告警（点表点位设置的报警）
 
         public void PlcAlertStart()
         {
@@ -541,9 +545,9 @@ namespace Caist.Framework.Service
                 });
             });
         }
-        #endregion
+#endregion
 
-        #region WebSocket消息推送
+#region WebSocket消息推送
         /// <summary>
         /// 启动服务
         /// </summary>
@@ -761,7 +765,7 @@ namespace Caist.Framework.Service
                             if (GetSendDataType(reciveModel.DataType) == SendDataType.Int)
                             {
                                 var res = 0;
-                                int.TryParse(reciveModel.Value,out res);
+                                int.TryParse(reciveModel.Value, out res);
                                 helper.Write(instruct, res);
                             }
                             else
@@ -872,7 +876,7 @@ namespace Caist.Framework.Service
             SendMessage(msg, clientFlag);
         }
 
-        #region 人员定位
+#region 人员定位
         public async Task SendPepolePostionData(string clientFlag, bool flag = false)
         {
             List<PepolePositionEntity> pepoleEntities = await GetPepolePositionList();
@@ -976,16 +980,16 @@ namespace Caist.Framework.Service
 
             return pepolePositions;
         }
-        #endregion
+#endregion
 
-        #region 供配电
+#region 供配电
         private async Task SendSubStationData(string clientFlag)
         {
             _formSubstation.OpcStart(clientFlag);
         }
-        #endregion
+#endregion
 
-        #region 光纤测温
+#region 光纤测温
         private async Task SendFiberData(string clientFlag, bool flag = false)
         {
             List<FiberEntity> fibers = await GetFiberList();
@@ -1031,7 +1035,7 @@ namespace Caist.Framework.Service
 
             return fibers;
         }
-        #endregion
+#endregion
 
         private bool ListNotEqual<T>(List<T> entityies1, List<T> entityies2)
         {
@@ -1182,14 +1186,20 @@ namespace Caist.Framework.Service
             }
         }
 
-        #endregion
+#endregion
 
-        #region 全局窗口事件
+#region 全局窗口事件
         private void FrmMian_FormClosed(object sender, FormClosedEventArgs e)
         {
             MqtCLient?.Disconnect();
         }
-        #endregion
+#endregion
+
+        private void tsbRestart_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            this.Dispose();
+        }
     }
 
 }

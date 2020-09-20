@@ -64,6 +64,7 @@ namespace Caist.Framework.Service
             this.btnPLCStop = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.tsbRestart = new System.Windows.Forms.ToolStripButton();
             this.tabDataBase = new System.Windows.Forms.TabPage();
             this.lvSyncLog = new System.Windows.Forms.RichTextBox();
             this.lblwarn = new System.Windows.Forms.Label();
@@ -400,7 +401,8 @@ namespace Caist.Framework.Service
             this.btnPLCStrats,
             this.btnPLCStop,
             this.toolStripSeparator1,
-            this.toolStripButton1});
+            this.toolStripButton1,
+            this.tsbRestart});
             this.PlcTool.Location = new System.Drawing.Point(3, 4);
             this.PlcTool.Name = "PlcTool";
             this.PlcTool.Size = new System.Drawing.Size(990, 25);
@@ -424,6 +426,7 @@ namespace Caist.Framework.Service
             this.btnPLCStop.Name = "btnPLCStop";
             this.btnPLCStop.Size = new System.Drawing.Size(23, 22);
             this.btnPLCStop.Text = "停止";
+            this.btnPLCStop.Visible = false;
             // 
             // toolStripSeparator1
             // 
@@ -438,6 +441,16 @@ namespace Caist.Framework.Service
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
             this.toolStripButton1.Text = "手动发送指令";
+            this.toolStripButton1.Visible = false;
+            // 
+            // tsbRestart
+            // 
+            this.tsbRestart.Image = ((System.Drawing.Image)(resources.GetObject("tsbRestart.Image")));
+            this.tsbRestart.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbRestart.Name = "tsbRestart";
+            this.tsbRestart.Size = new System.Drawing.Size(79, 22);
+            this.tsbRestart.Text = "重新启动";
+            this.tsbRestart.Click += new System.EventHandler(this.tsbRestart_Click);
             // 
             // tabDataBase
             // 
@@ -983,6 +996,7 @@ namespace Caist.Framework.Service
         private System.Windows.Forms.ColumnHeader columnHeader7;
         private System.Windows.Forms.ColumnHeader columnHeader8;
         private System.Windows.Forms.ColumnHeader columnHeader9;
+        private System.Windows.Forms.ToolStripButton tsbRestart;
     }
 }
 

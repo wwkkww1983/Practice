@@ -32,15 +32,24 @@ namespace Caist.Framework.Service
             timerSync.Elapsed += TimerSync_Elapsed;
         }
 
-        private void TimerSync_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private async void TimerSync_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             #region 人员定位定时存历史表
-            SavePeoplePositionToHistory();
+            await SavePeoplePositionToHistory();
             #endregion
 
             #region 光纤测温定时存历史表
-            SaveFiberToHistory();
+            await SaveFiberToHistory();
             #endregion
+
+            #region 供配电定时存历史表
+            await SaveSubStationToHistory();
+            #endregion
+        }
+
+        private Task SaveSubStationToHistory()
+        {
+            throw new NotImplementedException();
         }
 
         private void IntervalInit()
@@ -170,14 +179,14 @@ namespace Caist.Framework.Service
             }
         }
 
-        private async void SavePeoplePositionToHistory()
+        private async Task SavePeoplePositionToHistory()
         {
            var pepoleEntities = await GetPepolePositionList();
             //插入人员定位历史表
             await DataServices.InsertMk_People_Position(pepoleEntities);
         }
 
-        private async void SaveFiberToHistory()
+        private async Task SaveFiberToHistory()
         {
            var fibers = await GetFiberList();
             //插入光纤测温历史表

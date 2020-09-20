@@ -89,6 +89,7 @@ namespace Caist.Framework.Service.PointManage
             strSql.Append(@"SELECT  a.id as Id,
                                     a.base_modify_time as BaseModifyTime,
                                     a.base_modifier_id as BaseModifierId,
+                                    a.base_create_time as BaseCreateTime,
                                     a.name as Name,
                                     a.address as Address,
                                     a.data_type as DataType,

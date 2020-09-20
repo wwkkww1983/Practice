@@ -59,7 +59,7 @@
         var queryUrl = '@Url.Content("~/PointManage/Instruct/GetPageListJson")';
         $('#gridTable').ysTable({
             url: queryUrl,
-            sortName: 'InstructGroupName',
+            sortName: 'BaseCreateTime',
             sortOrder: 'Asc',
             columns: [
                 { checkbox: true, visible: true },
@@ -68,9 +68,10 @@
                  {
                      field: 'InstructGroupName', title: '点位', formatter: function (value, row, index) {
                         if(row.InstructGroupName.indexOf("DB")> -1) {
-                            return row.DeviceHost + "-" + row.InstructGroupName + row.Name;
-                        }else {
                             return row.DeviceHost + "-" + row.InstructGroupName + "." + row.Name;
+                        } else {
+                            return row.DeviceHost + "-" + row.InstructGroupName + row.Name;
+                           
                         }
                     }
                 },

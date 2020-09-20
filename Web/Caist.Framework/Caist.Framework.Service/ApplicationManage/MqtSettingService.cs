@@ -82,7 +82,7 @@ namespace Caist.Framework.Service.ApplicationManage
             strSql.Append(@"SELECT  a.id as Id,
                                     a.system_id as SystemId,
                                     mk_system_setting.system_nick_name as SystemName,
-                                    a.code_type as Code,
+                                    a.code_type as CodeType,
                                     b.name as CodeName,
                                     a.code_point_setting as CodePointSetting,
                                     a.base_modify_time as BaseModifyTime,

@@ -60,6 +60,7 @@
             this.txtIP.Name = "txtIP";
             this.txtIP.Size = new System.Drawing.Size(159, 20);
             this.txtIP.TabIndex = 1;
+            this.txtIP.TextChanged += new System.EventHandler(this.txtIP_TextChanged);
             // 
             // rtbContent
             // 

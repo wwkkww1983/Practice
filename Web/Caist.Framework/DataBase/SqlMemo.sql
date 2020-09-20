@@ -463,3 +463,36 @@ alter table mk_system_setting add device_instruction varchar(50) null
 
 --添加MQTT上传用得通道编号
 alter table mk_eb_video add channel_number varchar(50) null
+
+
+/*
+2020-09-07  zhangmeiqing
+增加供配电实时表
+*/
+USE [caist_mk_db]
+GO
+if exists(select * from sysobjects where name='mk_substation_realTime')
+	drop table mk_substation_realTime;
+go
+/****** Object:  Table [dbo].[mk_substation_realTime]    Script Date: 2020/9/19 18:23:13 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[mk_substation_realTime](
+	[Id] [int] NOT NULL,
+	[Sys_Id] [int] NOT NULL,
+	[Dian_Wei] [varchar](32) NULL,
+	[F] [varchar](16) NULL,
+	[IA] [varchar](16) NULL,
+	[P] [varchar](16) NULL,
+	[Q] [varchar](16) NULL,
+	[COS] [varchar](16) NULL
+) ON [PRIMARY]
+GO
+
+
+---供配电历史表增加创建时间  zhangmeiqing  2020-09-19 
+alter table mk_substation add create_Time datetime not null default(getdate());

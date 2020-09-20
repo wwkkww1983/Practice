@@ -110,7 +110,16 @@
                         return mqtCode + row.AddressAreCode + row.AddressTypeCode + row.AddressDeviceCode + row.SystemCode + row.DeviceCode + row.SensorTypeCode;
                     }
                 },
-                { field: 'CodePointSetting', title: '数据点表地址' }
+                {
+                    field: 'CodePointSetting', title: '数据点表地址', formatter: function (value, row, index) {
+                        if (row.CodeType != 1) {
+                            return row.AlarmPoint;
+                        } else {
+                            return row.CodePointSetting;
+                        }
+                        
+                    } }
+                
             ],
             queryParams: function (params) {
                 var pagination = $('#gridTable').ysTable('getPagination', params);
@@ -136,9 +145,10 @@
                 id = selectedRow[0].Id;
             }
         }
+        var selectSystemId = $("#SystemId").find("option:selected").val();
         ys.openDialog({
             title: id > 0 ? "编辑" : "添加",
-            content: '@Url.Content("~/ApplicationManage/MqTheme/MqtSettingForm")' + '?id=' + id,
+            content: '@Url.Content("~/ApplicationManage/MqTheme/MqtSettingForm")' + '?id=' + id + "&systemId=" + selectSystemId,
             width: "768px",
             height: "500px",
             callback: function (index, layero) {

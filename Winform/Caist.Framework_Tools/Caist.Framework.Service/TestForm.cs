@@ -94,6 +94,7 @@ namespace Caist.Framework.Service
                 {
                     _helper = _siemensHelpers.FirstOrDefault(p => p.IP == _ip);
                     ConnectPlc(_helper);
+                    btnConnect.Enabled = false;
                 }
                 else
                 {
@@ -160,6 +161,12 @@ namespace Caist.Framework.Service
         private void btnClear_Click(object sender, EventArgs e)
         {
             rtbContent.Text = string.Empty;
+        }
+
+        private void txtIP_TextChanged(object sender, EventArgs e)
+        {
+            lblPlcStatus.Text = string.Empty;
+            btnConnect.Enabled = true;
         }
 
         private SendDataType GetSendDataType(string dataType)

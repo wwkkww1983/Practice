@@ -116,15 +116,23 @@ namespace Caist.Framework.Service
                         {
                             val = helper.Read(key, GetSendDataType(dataType));
                         }
-
+                        
                         #region DataGrid赋值
                         lvPoint.Invoke(new Action(() =>
                         {
+                            if (!val.HasValue())
+                            {
+                                Common.LogError("值等于空的键：" + uniqueKey + "-" + key);
+                            }
                             ListViewItem item = lvPoint.FindItemWithText(uniqueKey);
 
                             if (item != null)
                             {
                                 item.SubItems[4].Text = val;
+                                //if (uniqueKey == "192.168.20.202-DB12.DBD4")
+                                //{
+                                //    item.SubItems[4].Text = "111";
+                                //}
                             }
 
                         }));
@@ -132,7 +140,7 @@ namespace Caist.Framework.Service
                     }
                     catch (Exception ex)
                     {
-                        //Common.LogError(ex);
+                        //Common.LogError("【" + uniqueKey + "】" + ex);
                     }
 
                     if (val != "非数字")
@@ -176,7 +184,7 @@ namespace Caist.Framework.Service
             }
             catch (Exception ex)
             {
-                //Common.LogError(ex);
+                Common.LogError(ex);
             }
             i++;
             i = helper.ListInstructs.Count == i ? 0 : i;
@@ -271,22 +279,27 @@ namespace Caist.Framework.Service
             }
             catch (Exception ex)
             {
-                //Common.LogError(ex);
-
                 ConnectPlcMsg(helper, "未连接");
             }
         }
 
         private void ConnectPlc(SiemensHelpers helper)
         {
-            var result = helper.Open(helper.DeviceEntity.PLCType, helper.DeviceEntity.Host, short.Parse(helper.DeviceEntity.Port), 0, short.Parse(helper.DeviceEntity.CPU_SlotNO));
-            if (!result)
+            try
+            {
+                var result = helper.Open(helper.DeviceEntity.PLCType, helper.DeviceEntity.Host, short.Parse(helper.DeviceEntity.Port), 0, short.Parse(helper.DeviceEntity.CPU_SlotNO));
+                if (!result)
+                {
+                    ConnectPlcMsg(helper, "未连接");
+                }
+                else
+                {
+                    ConnectPlcMsg(helper, "已连接");
+                }
+            }
+            catch (Exception ex)
             {
                 ConnectPlcMsg(helper, "未连接");
-            }
-            else
-            {
-                ConnectPlcMsg(helper, "已连接");
             }
         }
 
