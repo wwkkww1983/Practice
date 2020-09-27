@@ -96,6 +96,7 @@ namespace Caist.Framework.Service.ApplicationManage
                                     a.paramenter_value_type as ParamenterValueType,
                                     a.Animation as Animation,
                                     a.paramenter_value as ParamenterValue,
+                                    a.control as Control,
                                     a.control_models as ControlModels");
             if (bSystemSettingContent)
             {
@@ -127,6 +128,11 @@ namespace Caist.Framework.Service.ApplicationManage
                 {
                     strSql.Append(" AND a.control_models = @ControlModels");
                     parameter.Add(DbParameterExtension.CreateDbParameter("@ControlModels", param.ControlModels));
+                }
+                if (param.ViewControlModelId.HasValue)
+                {
+                    strSql.Append(" AND a.view_control_model_id = @ViewControlModelId");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ViewControlModelId", param.ViewControlModelId));
                 }
             }
             return parameter;

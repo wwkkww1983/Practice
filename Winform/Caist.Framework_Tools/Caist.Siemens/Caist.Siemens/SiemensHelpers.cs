@@ -41,11 +41,11 @@ namespace Caist.Siemens
                     {
                         if (v.Name.StartsWith("DB"))
                         {
-                            instructs.Add($"{this.IP}-{v.Name}.{x.Name}:{x.DataType}");
+                            instructs.Add($"{this.IP}-{v.Name}.{x.Name}:{x.DataType}|{x.InstructType}");
                         }
                         else
                         {//其它不需要中间的点连接
-                            instructs.Add($"{this.IP}-{v.Name}{x.Name}:{x.DataType}");
+                            instructs.Add($"{this.IP}-{v.Name}{x.Name}:{x.DataType}|{x.InstructType}");
                         }
                         listTags.Add(x);
                         num++;
@@ -96,8 +96,8 @@ namespace Caist.Siemens
                 //if (!IsConnected())
                 //{
                 S7.Net.CpuType cpu = (S7.Net.CpuType)System.Enum.Parse(typeof(S7.Net.CpuType), plcType);
-                    SiemensPlc = new S7.Net.Plc(cpu, ipAddress, port, rack, slot);
-                    SiemensPlc.Open();
+                SiemensPlc = new S7.Net.Plc(cpu, ipAddress, port, rack, slot);
+                SiemensPlc.Open();
                 //}
                 return SiemensPlc.IsConnected;
             }
@@ -184,6 +184,7 @@ namespace Caist.Siemens
         /// </summary>
         /// <param name="variable">指令名称</param>
         /// <returns></returns>
+        readonly object _lock = new object();
         public string Read(string variable)
         {
             string values = string.Empty;
@@ -193,7 +194,37 @@ namespace Caist.Siemens
                 {
                     SiemensPlc.Open();
                 }
-                object obj = SiemensPlc.Read(variable);
+                lock (_lock)
+                {
+                    object obj = SiemensPlc.Read(variable);
+                    if (obj == null)
+                        values = "-9999";
+                    else
+                        values = obj.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                //Common.LogError(ex);
+            }
+            return values;
+        }
+
+        /// <summary>
+        /// 异步读取PLC指令值
+        /// </summary>
+        /// <param name="variable">指令名称</param>
+        /// <returns></returns>
+        public async Task<string> ReadAsync(string variable)
+        {
+            string values = string.Empty;
+            try
+            {
+                if (!SiemensPlc.IsConnected)
+                {
+                    SiemensPlc.Open();
+                }
+                object obj = await SiemensPlc.ReadAsync(variable);
                 if (obj == null)
                     values = "-9999";
                 else

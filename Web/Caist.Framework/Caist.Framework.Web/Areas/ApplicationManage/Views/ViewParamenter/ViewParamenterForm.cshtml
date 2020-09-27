@@ -32,7 +32,11 @@
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">指令类型</label>
-            <div class="col-sm-10" id="paramenterUnit" col="ParamenterUnit"></div>
+            <div class="col-sm-4" id="paramenterUnit" col="ParamenterUnit"></div>
+            <label class="col-sm-2 control-label">状态读取</label>
+            <div class="col-sm-4">
+                <input id="control" col="Control" type="text" class="form-control" />
+            </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">指令</label>
@@ -41,22 +45,14 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-2 control-label ">数据类型</label>
-            <div class="col-sm-4">
-                <select class="form-control select2" id="paramenterValueType" col="ParamenterValueType">
-                    <option value="">--请选择类型--</option>
-                    <option value="SHORT">SHORT</option>
-                    <option value="UINT32">UINT32</option>
-                    <option value="USHORT">USHORT</option>
-                    <option value="INT">INT</option>
-                    <option value="FLOAT">FLOAT</option>
-                </select>
-            </div>
-
             <label class="col-sm-2 control-label">值</label>
             <div class="col-sm-4">
                 <input id="paramenterValue" col="ParamenterValue" type="text" class="form-control" />
             </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">数据类型</label>
+            <div class="col-sm-10" id="paramenterValueType" col="ParamenterValueType"></div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">启动指令</label>
@@ -94,7 +90,8 @@
         var id = ys.request("id");
         var viewControlModelId = ys.request("viewControlModelId");
 
-        $(function () {
+    $(function () {
+        $("#paramenterValueType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructEnum1).EnumToDictionaryString())) });
             $("#paramenterUnit").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(ViewParamenterEnum).EnumToDictionaryString())) });
             $("#paramenterStatus").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(StatusEnum).EnumToDictionaryString())) });
             getForm();
@@ -120,7 +117,8 @@
             $("#form").validate({
                 rules: {
                     viewControlModelId: { required: true },
-                    paramenterName: { required: true }
+                    paramenterName: { required: true },
+                    paramenterValueType: { required: true }
                 }
             });
         });
@@ -136,7 +134,7 @@
                 $("#paramenterInstructEnd").parents(".form-group").show();
                // $("#paramenterValue").parents(".form-group").show();
                 $("#paramenterInstruct").parents(".form-group").hide();
-            } 
+            }
         }
 
         function getForm() {

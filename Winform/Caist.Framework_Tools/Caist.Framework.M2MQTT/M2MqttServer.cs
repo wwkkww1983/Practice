@@ -213,25 +213,33 @@ namespace Caist.Framework.M2MQTT
         {
             if (!string.IsNullOrEmpty(client) && !string.IsNullOrEmpty(str))
             {
-                richMQT.Invoke(new Action(() =>
+
+                if (!richMQT.IsDisposed)
                 {
-                    string value = string.Format("-{0} - 时间：{1}  内容：{2}\r", client, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
-                    richMQT.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
-                    richMQT.SelectionColor = System.Drawing.Color.Red;    //设置SelectionColor属性实现控件中的文本颜色为红色
-                    richMQT.AppendText(value);
-                }));
+                    richMQT.Invoke(new Action(() =>
+                    {
+                        string value = string.Format("-{0} - 时间：{1}  内容：{2}\r", client, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
+                        richMQT.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
+                        richMQT.SelectionColor = System.Drawing.Color.Red;    //设置SelectionColor属性实现控件中的文本颜色为红色
+                        richMQT.AppendText(value);
+                    }));
+                }
             }
             else
             {
                 if (!string.IsNullOrEmpty(str) && string.IsNullOrEmpty(client))
                 {
-                    richMQT.Invoke(new Action(() =>
+                    if (!richMQT.IsDisposed)
                     {
-                        string value = string.Format(">时间：{0}  内容：{1}\r", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
-                        richMQT.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
-                        richMQT.SelectionColor = System.Drawing.Color.Black;    //设置SelectionColor属性实现控件中的文本颜色为红色
-                        richMQT.AppendText(value);
-                    }));
+                        richMQT.Invoke(new Action(() =>
+                        {
+                            string value = string.Format(">时间：{0}  内容：{1}\r", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
+                            richMQT.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
+                            richMQT.SelectionColor = System.Drawing.Color.Black;    //设置SelectionColor属性实现控件中的文本颜色为红色
+                            richMQT.AppendText(value);
+                        }));
+                    }
+
                 }
             }
         }
@@ -249,7 +257,7 @@ namespace Caist.Framework.M2MQTT
         // sub后的操作
         public void client_MqttMsgSubscribed(object sender, MqttMsgSubscribedEventArgs e)
         {
-            MqtMessage("Subscribed for id = " + e.MessageId.ToString());
+            //MqtMessage("Subscribed for id = " + e.MessageId.ToString());
         }
         // 发布消息后的操作
         public void client_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
@@ -259,18 +267,20 @@ namespace Caist.Framework.M2MQTT
         // 关闭连接后的操作
         public void client_ConnectionClosed(object sender, EventArgs e)
         {
+            MqtMessage("connect closed");
             if (!MqttStart.Enabled)
             {
                 DisposeClose();
+
+                //如果断线了，立即停止实时数据上传的线程，重连后启动历史数据线程补传数据完成后再启动实时数据上传
+                if (timer != null)
+                    timer.Change(Timeout.Infinite, Timeout.Infinite);
+                Task.Factory.StartNew(() =>
+                {
+                    ConnectWrap();
+                });
             }
-            MqtMessage("connect closed");
-            //如果断线了，立即停止实时数据上传的线程，重连后启动历史数据线程补传数据完成后再启动实时数据上传
-            if (timer != null)
-                timer.Change(Timeout.Infinite, Timeout.Infinite);
-            Task.Factory.StartNew(() =>
-            {
-                ConnectWrap();
-            });
+
         }
         // 取消sub后的操作
         public void client_MqttMsgUnsubscribed(object sender, MqttMsgUnsubscribedEventArgs e)

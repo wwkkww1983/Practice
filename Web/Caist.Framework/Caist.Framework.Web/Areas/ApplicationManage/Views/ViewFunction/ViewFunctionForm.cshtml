@@ -103,6 +103,7 @@
                 type: "get",
                 success: function (obj) {
                     if (obj.Tag == 1) {
+                        viewTypeVisible(obj.Result.ViewType);
                         $("#form").setWebControls(obj.Result);
                     }
                 }
@@ -117,7 +118,9 @@
                         var defaultData = {};
                         defaultData.ViewStatus = "@StatusEnum.Yes.ParseToInt()";
                         defaultData.ViewSort = obj.Result;
-                        defaultData.ViewFunctionShowHome =  "@StatusEnum.Yes.ParseToInt()";
+                        defaultData.ViewFunctionShowHome = "@StatusEnum.Yes.ParseToInt()";
+                        defaultData.ViewType = "1";
+                        viewTypeVisible(defaultData.ViewType);
                         $("#form").setWebControls(defaultData);
                     }
                 }

@@ -22,5 +22,7 @@ namespace Caist.Framework.Entity.SettingValueManage
         public string ParameterModels { get; set; }
         public string ParameterControls { get; set; }
         public string ParameterType { get; set; }
+        [NotMapped]
+        public string SystemNickName { get; set; }
     }
 }

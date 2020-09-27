@@ -47,11 +47,6 @@ namespace Caist.Framework.Service
             #endregion
         }
 
-        private Task SaveSubStationToHistory()
-        {
-            throw new NotImplementedException();
-        }
-
         private void IntervalInit()
         {
             var str = Common.GetConfigValue("IntervalPath");
@@ -181,16 +176,91 @@ namespace Caist.Framework.Service
 
         private async Task SavePeoplePositionToHistory()
         {
-           var pepoleEntities = await GetPepolePositionList();
-            //插入人员定位历史表
-            await DataServices.InsertMk_People_Position(pepoleEntities);
+            try
+            {
+                var pepoleEntities = await GetPepolePositionList();
+                //插入人员定位历史表
+                await DataServices.InsertMk_People_Position(pepoleEntities);
+            }
+            catch (Exception ex)
+            {
+                Common.LogError($"【人员定位到历史表】：{ex}");
+            }
         }
 
         private async Task SaveFiberToHistory()
         {
-           var fibers = await GetFiberList();
-            //插入光纤测温历史表
-            await DataServices.InsertMk_Cable_Thermometry(fibers);
+            try
+            {
+                var fibers = await GetFiberList();
+                //插入光纤测温历史表
+                await DataServices.InsertMk_Cable_Thermometry(fibers);
+            }
+            catch (Exception ex)
+            {
+                Common.LogError($"【光纤测温到历史表】：{ex}");
+            }
+        }
+
+        private async Task SaveSubStationToHistory()
+        {
+            try
+            {
+                var substation = await GetSubStationOpcData();
+                if (substation != null && substation.Count > 0)
+                {
+                    Common.LogError("取到电力数据");
+                    List<SubStationEntity> list = new List<SubStationEntity>();
+                    foreach (var item in substation)
+                    {
+                        list.Add(new SubStationEntity()
+                        {
+                            SysId = "",
+                            DictId = item.Key,
+                            DictValue = item.Value,
+                            InstructType = "1"
+                        });
+                    }
+                    //插入光纤测温历史表
+                    await DataServices.InsertMK_Substation(list);
+                }
+            }
+            catch (Exception ex)
+            {
+                Common.LogError($"【保存供配电到历史表】：{ex}");
+            }
+        }
+
+        private async Task<Dictionary<string, string>> GetSubStationOpcData()
+        {
+            Common.LogError("调用opc开始！");
+            Dictionary<string, string> list = new Dictionary<string, string>();
+            try
+            {
+                if (_opcMachine.IsConnected)
+                {
+                    Common.LogError("_nodes：" + _nodes.Count);
+                    foreach (var item in _nodes)
+                    {
+                        foreach (var tag in item.Value)
+                        {
+                            var v = await _dASubClass.GetResultByTag(tag.Tag);
+
+                            list.Add(tag.Tag.Substring(tag.Tag.LastIndexOf("/") + 1), v.ToString());
+                        }
+                    }
+                }
+                else
+                {
+                    Common.LogError("opc未连接！");
+                    await _opcMachine.ConnectAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Common.LogError($"【供配电同步】：{ex}");
+            }
+            return list;
         }
     }
 }

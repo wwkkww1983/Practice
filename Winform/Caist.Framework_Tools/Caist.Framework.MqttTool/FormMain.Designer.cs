@@ -187,6 +187,8 @@
             this.MaximizeBox = false;
             this.Name = "FrmMian";
             this.Text = "MQTT数据上传工具";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMian_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FrmMian_FormClosed);
             this.Load += new System.EventHandler(this.FrmMian_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabMqtt.ResumeLayout(false);

@@ -81,4 +81,13 @@ namespace Caist.Framework.Model.Result.SystemManage
             get; set;
         }
     }
+
+    public class SubStationInfo
+    {
+        public string DictId { get; set; }
+
+        public string DictValue { get; set; }
+        public int InstructType { get; set; }
+        public DateTime? CreateTime { get; set; }
+    }
 }

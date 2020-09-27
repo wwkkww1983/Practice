@@ -95,13 +95,15 @@ namespace Caist.Framework.Service.ApplicationManage
                                     a.sensor_type_code as SensorTypeCode,
                                     a.value_length as ValueLength,
                                     a.decimal_places as DecimalPlaces,
-                                    a.alarm_point as AlarmPoint
+                                    a.alarm_point as AlarmPoint,
+                                    c.name as AddressTypeName 
                                     ");
 
             
             strSql.Append(@" FROM  mk_mqtt_code_setting a  ");
             strSql.Append(@" left join mk_system_setting on a.system_id = mk_system_setting.id ");
             strSql.Append(@" left join mk_mqtt_sensor_setting b on a.sensor_id = b.id ");
+            strSql.Append(@" left join mk_mqtt_address_type c on a.address_type_code = c.code ");
             
             var parameter = new List<DbParameter>();
             if (param != null)

@@ -8,6 +8,7 @@ using Caist.Framework.Model.Result.SystemManage;
 using Caist.Framework.Service.FiberManage;
 using Caist.Framework.Service.PeopleManage;
 using Caist.Framework.Service.PointManage;
+using Caist.Framework.Service.SubStation;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
@@ -32,6 +33,7 @@ namespace Caist.Framework.Business.AutoJob
         private DeviceService deviceService = new DeviceService();
         private RegionService regionService = new RegionService();
         private FiberService fiberService = new FiberService();
+        private SubStationService subStationService = new SubStationService();
         private readonly FtpClient ftpClient = new FtpClient(GlobalContext.SystemConfig.FTPServer,
             new NetworkCredential(GlobalContext.SystemConfig.FTPUser, GlobalContext.SystemConfig.FTPPwd));
         private readonly string TemplatePath = GlobalContext.SystemConfig.InformationPublishTemplatePath;
@@ -133,11 +135,13 @@ namespace Caist.Framework.Business.AutoJob
                         {
                             var dicts = dict.Split("-");
                             var value = GetFiberValue(dicts[0].ToString(), dicts[1].ToString());
-                            n.linkContent = n.linkContent.Replace("{{" + NextMatch.Value + "}}", value!=null ? value.Result : "--");
+                            n.linkContent = n.linkContent.Replace("{{" + NextMatch.Value + "}}", value.Result != null ? value.Result : "--");
                         }
-                        else if (dict.Contains("枢")) //供配电
+                        else if (dict.Contains("-yc") || dict.Contains("-yx")) //供配电遥测数据  遥测 遥信
                         {
-
+                            var dicts = dict.Split("-");
+                            var value = GetRealTimeData(dicts[1].ToString());
+                            n.linkContent = n.linkContent.Replace("{{" + NextMatch.Value + "}}", value.Result!=null ? value.Result : "--");
                         }
                         //针对PLC采集点表数据
                         else if (NextMatch.ToString().Contains("-DB"))
@@ -241,7 +245,17 @@ namespace Caist.Framework.Business.AutoJob
             }
             return value;
         }
-
+        /// <summary>
+        /// 获取电力指定点位最新数据
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <returns></returns>
+        private async Task<string> GetRealTimeData(string dict)
+        {
+            var value = await subStationService.GetRealTimeData(dict);
+            return value != null ? value.DictValue : "--";
+        }
+        
 
         //输出信息发布数据txt文件到指定得ftp服务器
         private bool WriteDirAndUplpadFtp(string path, string filename, string content)

@@ -41,13 +41,16 @@ namespace Caist.Framework.WebApi.Controllers
             return obj;
         }
 
+        /// <summary>
+        /// 设置参数后 修改参数设置得值，只做更新，不做插入数据
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<TData<string>> SaveForm([FromQuery]SettingValueEntity entity)
+        public async Task<TData<string>> SaveForm([FromQuery] SettingValueEntity entity)
         {
             TData<string> obj = new TData<string>();
-            await settingValueBLL.SaveForm(entity);
-            obj.Result = entity.Id.ParseToString();
-            obj.Tag = 1;
+            obj = await settingValueBLL.UpdateEntity(entity);
             return obj;
         }
 

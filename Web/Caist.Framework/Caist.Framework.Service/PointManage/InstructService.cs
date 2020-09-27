@@ -98,7 +98,8 @@ namespace Caist.Framework.Service.PointManage
                                     a.instruct_group_id as InstructGroupId,
                                     c.Device_Host as DeviceHost,
                                     b.name as InstructGroupName,
-                                    b.group_name as GroupName");
+                                    b.group_name as GroupName,
+                                    a.instruct_type as InstructType ");
             if (bSystemSettingContent)
             {
                 strSql.Append("");

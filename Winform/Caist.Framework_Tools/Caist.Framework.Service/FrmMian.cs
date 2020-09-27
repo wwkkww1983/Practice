@@ -4,10 +4,14 @@ using Caist.Framework.Entity;
 using Caist.Framework.Entity.Entity;
 using Caist.Framework.Entity.Enum;
 using Caist.Framework.Service.Control;
+using Caist.Framework.Service.Tools;
 using Caist.Framework.ThreadPool;
 using Caist.Framework.Util;
 using Caist.Siemens;
+using Communication.Common;
+using Communication.OPC.FBox;
 using Fleck;
+using Hylasoft.Opc.Common;
 using Newtonsoft.Json;
 using SyncUtil;
 using System;
@@ -26,6 +30,11 @@ namespace Caist.Framework.Service
     {
         /**{"key": "value"}**/
         #region 变量定义
+        //OpcDA
+        FBoxOpcDaMachine _opcMachine;
+        OpcDASubClass _dASubClass;
+        Dictionary<string, IEnumerable<Node>> _nodes;
+
         private Stopwatch sw = new Stopwatch();
         private TimeSpan ts = new TimeSpan();
         private List<PepolePositionEntity> _pepolePostionEntities = new List<PepolePositionEntity>();
@@ -35,7 +44,7 @@ namespace Caist.Framework.Service
         private List<DataBaseTimer> _dataBaseTimers = new List<DataBaseTimer>();
         string _socketTimerValue = "WebSocketTimer".GetConfigrationStr();
         public static FrmMian MyForm;
-        FormSubstation _formSubstation;
+        //FormSubstation _formSubstation;
         Dictionary<SiemensHelpers, int> _valuePairs = new Dictionary<SiemensHelpers, int>();
         public Dictionary<DeviceEntity, List<string>> DictInstructs { get; set; }
         //1分钟保存一次到历史记录表
@@ -63,7 +72,7 @@ namespace Caist.Framework.Service
         {
             InitializeComponent();
             MyForm = this;
-            _formSubstation = new FormSubstation(this);
+            //_formSubstation = new FormSubstation(this);
             Common.InitLog("PlcLogPath".GetConfigrationStr());
         }
 
@@ -111,15 +120,66 @@ namespace Caist.Framework.Service
 
                 btnPLCStrats_Click(null, null);
 #endif
+                //初始化OpcDA
+                InitOpcDA();
             }
             catch (Exception ex)
             {
                 Common.LogError(ex);
             }
         }
+
+        private async void InitOpcDA()
+        {
+            //OPC连接
+            try
+            {
+                _dASubClass = new OpcDASubClass("FBoxOpcDaHost".GetConfigrationStr(), true);
+                _opcMachine = new FBoxOpcDaMachine("0", "OpcLinkName".GetConfigrationStr(), null, true);
+                bool flag = _opcMachine.Connect();
+                var names = "OpcDAName".GetConfigrationStr();
+                if (flag && names.HasValue())
+                {
+                    Common.LogError($"names:{names}");
+                    var strs = names.Split(',');
+                    foreach (var name in strs)
+                    {
+                        //读取指令结构
+                        _opcMachine.GetAddresses = new List<AddressUnit>
+                        {
+                            new AddressUnit()
+                            {
+                                Id = "8",
+                                Name = name,
+                                Area = "0",
+                                Address = 8,
+                                DataType = typeof(float)
+                             }
+                        };
+                        await _opcMachine.GetDatasAsync(MachineGetDataType.Id);
+                        _nodes = await _dASubClass.SearchTags();
+
+                        Common.LogError($"_nodes:{_nodes.Count}");
+                    }
+                }
+                else
+                {
+                    flag = await _opcMachine.ConnectAsync();
+                    if (!flag)
+                    {
+                        Common.LogError("电力未连接！");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Common.LogError(ex);
+            }
+        }
+
         private void DataBaseTimerInit(RequestType requestType, string clientFlag)
         {
-#region 初始化websocket配置
+            #region 初始化websocket配置
             var interval = _socketTimerValue.HasValue() ? _socketTimerValue : "1000";
             if (_dataBaseTimers.FindIndex(p => p.ClientFlag == clientFlag && p.Tag == requestType) == -1)
             {
@@ -138,7 +198,7 @@ namespace Caist.Framework.Service
                     f.Start();
                 });
             }
-#endregion
+            #endregion
         }
 
         private void Timing_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -165,7 +225,7 @@ namespace Caist.Framework.Service
             }
         }
 
-#region 定时器相关操作
+        #region 定时器相关操作
         //socket 推送plc数据
         private void timer_Tick(object sender, EventArgs e)
         {
@@ -185,10 +245,10 @@ namespace Caist.Framework.Service
         }
         private void StopTimers(string clientFlag)
         {
-#region 先暂停之前所有定时
+            #region 先暂停之前所有定时
             StopDataBaseTimers(clientFlag);
             StopPlcTimers(clientFlag);
-#endregion
+            #endregion
         }
 
         private void StopDataBaseTimers(string clientFlag)
@@ -206,7 +266,7 @@ namespace Caist.Framework.Service
                 p.Stop();
             });
         }
-#endregion
+        #endregion
 
         private void SiemensInit()
         {
@@ -298,9 +358,9 @@ namespace Caist.Framework.Service
                 cfg.CreateMap<PepolePositionEntity, PepolePostionContent>();
             });
         }
-#endregion
+        #endregion
 
-#region PLC读取
+        #region PLC读取
         /// <summary>
         /// 开启PLC连接
         /// </summary>
@@ -423,23 +483,28 @@ namespace Caist.Framework.Service
             }
             lock (_lockObject)
             {
-                _sb.Append("{");
                 if (GetSendDataType(dataType) == SendDataType.Short)
                 {
                     var res = v.ToLower() == "false" ? 0 : 1;
-                    _sb.AppendFormat("\"{0}\":\"{1}\"", key.Replace("\t", string.Empty), res);
+                    GetStringFormat(key, res.ToString(), _sb);
                 }
                 else
                 {
                     //if (v != "非数字")
                     //{
-                    _sb.AppendFormat("\"{0}\":\"{1}\"", key.Replace("\t", string.Empty), v.IndexOf(".") > -1 ? double.Parse(v).ToString("#0.00") : v);
+                    GetStringFormat(key.Replace("\t", string.Empty), v.IndexOf(".") > -1 ? double.Parse(v).ToString("#0.00") : v, _sb);
                     //}
                 }
-                _sb.Append("}");
                 SendMessage(_sb.ToString(), clientFlag);
                 _sb.Clear();
             }
+        }
+
+        public void GetStringFormat(string key, string value, StringBuilder sb)
+        {
+            sb.Append("{");
+            sb.AppendFormat("\"{0}\":\"{1}\"", key.Replace("\t", string.Empty), value);
+            sb.Append("}");
         }
 
         private async Task<bool> SaveDataToHistoryTab(string key, string v, DeviceEntity device, InstructViewEnum instructType)
@@ -504,9 +569,9 @@ namespace Caist.Framework.Service
         //1、整合推送到plc采集； 2、判断报警信息（存入报警表，发送特定消息给前端）；3、整合数据同步进来；
         //1、光纤测温websocket推送；2、供电站webscoket推送；3、建历史表；4、svn 外网映射；5、PLC联调
 
-#endregion
+        #endregion
 
-#region PLC告警（点表点位设置的报警）
+        #region PLC告警（点表点位设置的报警）
 
         public void PlcAlertStart()
         {
@@ -545,9 +610,9 @@ namespace Caist.Framework.Service
                 });
             });
         }
-#endregion
+        #endregion
 
-#region WebSocket消息推送
+        #region WebSocket消息推送
         /// <summary>
         /// 启动服务
         /// </summary>
@@ -617,6 +682,9 @@ namespace Caist.Framework.Service
 
         public async Task PushSpecifiedMsg(string message, string clientFlag)
         {
+#if DEBUG
+            Common.LogError("【前端传入】：" + message);
+#endif
             _ClientFlag = clientFlag;
             if (message.HasValue())
             {
@@ -687,35 +755,29 @@ namespace Caist.Framework.Service
                 //    return;
                 //}
                 var requesType = reciveModel.RequestType;
-                if (requesType == RequestType.GetCommandValues)//获取当前系统所有开关的状态
+                if (requesType == RequestType.GetCommandsStatus)//获取当前系统所有开关的状态
                 {
                     List<InstructReturn> instructModelReturns = new List<InstructReturn>();
-                    var dtCommands = DataServices.GetSwitcCommands(reciveModel);//获取当前系统命令集合
+                    var dtCommands = DataServices.GetSwitcsStatus(reciveModel);//获取当前系统命令集合
                     if (dtCommands != null && dtCommands.Rows.Count > 0)
                     {
                         foreach (DataRow dr in dtCommands.Rows)
                         {
                             ip = dr["paramenter_ip"].ToString();
                             port = dr["paramenter_port"].ToString();
-                            var unit = dr["paramenter_unit"].ToString();
                             helper = _siemensHelpers.Find(p => p.DeviceEntity.Host == ip && p.DeviceEntity.Port == port);
 
-                            if (unit == "1")//单控
-                            {
-                                instruct = dr["paramenter_instruct"].ToString();
-                                BuildListToFront(instruct, helper, instructModelReturns, dr, unit, clientFlag);
-                            }
-                            else//双控
-                            {
-                                first = dr["paramenter_instruct_start"].ToString();
-                                second = dr["paramenter_instruct_end"].ToString();
-                                BuildListToFront(first, second, helper, instructModelReturns, dr, unit, clientFlag);
-                            }
+                            instruct = dr["paramenter_instruct"].ToString();
+                            BuildListToFront(instruct, helper, instructModelReturns, dr, clientFlag);
                         }
                         SendMessage(JsonConvert.SerializeObject(new InstructModelReturns()
                         {
                             InstructModelReturn = instructModelReturns
                         }), clientFlag);
+                        Common.LogError("【服务端返回】：" + JsonConvert.SerializeObject(new InstructModelReturns()
+                        {
+                            InstructModelReturn = instructModelReturns
+                        }));
                     }
                     else
                     {
@@ -725,6 +787,44 @@ namespace Caist.Framework.Service
                         }), clientFlag);
                     }
                 }
+                //else if (requesType == RequestType.GetCommandValues)
+                //{
+                //    List<InstructReturn> instructModelReturns = new List<InstructReturn>();
+                //    var dtCommands = DataServices.GetSwitcCommands(reciveModel);//获取当前系统命令集合
+                //    if (dtCommands != null && dtCommands.Rows.Count > 0)
+                //    {
+                //        foreach (DataRow dr in dtCommands.Rows)
+                //        {
+                //            ip = dr["paramenter_ip"].ToString();
+                //            port = dr["paramenter_port"].ToString();
+                //            var unit = dr["paramenter_unit"].ToString();
+                //            helper = _siemensHelpers.Find(p => p.DeviceEntity.Host == ip && p.DeviceEntity.Port == port);
+
+                //            if (unit == "1")//单控
+                //            {
+                //                instruct = dr["paramenter_instruct"].ToString();
+                //                BuildListToFront(instruct, helper, instructModelReturns, dr, unit, clientFlag);
+                //            }
+                //            else//双控
+                //            {
+                //                first = dr["paramenter_instruct_start"].ToString();
+                //                second = dr["paramenter_instruct_end"].ToString();
+                //                BuildListToFront(first, second, helper, instructModelReturns, dr, unit, clientFlag);
+                //            }
+                //        }
+                //        SendMessage(JsonConvert.SerializeObject(new InstructModelReturns()
+                //        {
+                //            InstructModelReturn = instructModelReturns
+                //        }), clientFlag);
+                //    }
+                //    else
+                //    {
+                //        SendMessage(JsonConvert.SerializeObject(new InstructModelReturns()
+                //        {
+                //            InstructModelReturn = null
+                //        }), clientFlag);
+                //    }
+                //}
                 else
                 {
                     List<InstructReturn> instructModelReturns;
@@ -741,7 +841,7 @@ namespace Caist.Framework.Service
                             var m = new InstructReturn()
                             {
                                 ControlName = string.Empty,
-                                ParamenterUnit = dtd.Rows[0]["paramenter_unit"].ToString(),
+                                //ParamenterUnit = dtd.Rows[0]["paramenter_unit"].ToString(),
                                 ParamenterInstruct = instruct,
                                 ParamenterName = dtd.Rows[0]["paramenter_name"].ToString(),
                                 Id = dtd.Rows[0]["Id"].ToString()
@@ -752,6 +852,11 @@ namespace Caist.Framework.Service
                             {
                                 InstructModelReturn = instructModelReturns
                             }), clientFlag);
+
+                            Common.LogError("【服务端返回】：" + JsonConvert.SerializeObject(new InstructModelReturns()
+                            {
+                                InstructModelReturn = instructModelReturns
+                            }));
                         }
                         else
                         {
@@ -796,25 +901,46 @@ namespace Caist.Framework.Service
             }
         }
 
-        private void BuildListToFront(string instruct, SiemensHelpers helper, List<InstructReturn> instructModelReturns, DataRow dr, string unit, string clientFlag)
+        //private void BuildListToFront(string instruct, SiemensHelpers helper, List<InstructReturn> instructModelReturns, DataRow dr, string unit, string clientFlag)
+        //{
+        //    if (instruct.HasValue())
+        //    {
+        //        var model = new InstructReturn()
+        //        {
+        //            ControlName = dr["control_name"].ToString(),
+        //            ParamenterUnit = unit,
+        //            ParamenterInstruct = instruct,
+        //            ParamenterName = dr["paramenter_name"].ToString(),
+        //            Id = dr["id"].ToString()
+        //        };
+        //        GetPlcValueForType(instruct, helper, dr["paramenter_value_type"].ToString(), model);
+        //        instructModelReturns.Add(model);
+        //    }
+        //    else
+        //    {
+        //        SendMsg("指令异常！", clientFlag);
+        //    }
+        //}
+
+        private void BuildListToFront(string instruct, SiemensHelpers helper, List<InstructReturn> instructModelReturns, DataRow dr, string clientFlag)
         {
-            if (instruct.HasValue())
+            //if (instruct.HasValue())
+            //{
+            var model = new InstructReturn()
             {
-                var model = new InstructReturn()
-                {
-                    ControlName = dr["control_name"].ToString(),
-                    ParamenterUnit = unit,
-                    ParamenterInstruct = instruct,
-                    ParamenterName = dr["paramenter_name"].ToString(),
-                    Id = dr["id"].ToString()
-                };
-                GetPlcValueForType(instruct, helper, dr["paramenter_value_type"].ToString(), model);
-                instructModelReturns.Add(model);
-            }
-            else
-            {
-                SendMsg("指令异常！", clientFlag);
-            }
+                ControlName = dr["control_name"].ToString(),
+                //ParamenterUnit = unit,
+                ParamenterInstruct = instruct,
+                ParamenterName = dr["paramenter_name"].ToString(),
+                Id = dr["id"].ToString()
+            };
+            GetPlcValueForType(instruct, helper, dr["paramenter_value_type"].ToString(), model);
+            instructModelReturns.Add(model);
+            //}
+            //else
+            //{
+            //    SendMsg("指令异常！", clientFlag);
+            //}
         }
 
         /// <summary>
@@ -822,53 +948,60 @@ namespace Caist.Framework.Service
         /// </summary>
         private void GetPlcValueForType(string instruct, SiemensHelpers helper, string dataType, InstructReturn model)
         {
-            if (GetSendDataType(dataType) == SendDataType.Short)
+            if (!instruct.HasValue())
             {
-                model.ParamenterInstruct_V = helper.Read(instruct);//从plc获取值
+                model.ParamenterInstructStatus = string.Empty;
             }
             else
             {
-                model.ParamenterInstruct_V = helper.Read(instruct, GetSendDataType(dataType));//从plc获取值
+                if (GetSendDataType(dataType) == SendDataType.Short)
+                {
+                    model.ParamenterInstructStatus = helper.Read(instruct);//从plc获取值
+                }
+                else
+                {
+                    model.ParamenterInstructStatus = helper.Read(instruct, GetSendDataType(dataType));//从plc获取值
+                }
             }
         }
         /// <summary>
         /// 根据数据类型来决定读取的方式
         /// </summary>
-        private void GetPlcValueForType(string first, string second, SiemensHelpers helper, string dataType, InstructReturn model)
-        {
-            if (GetSendDataType(dataType) == SendDataType.Short)
-            {
-                model.ParamenterInstructStart_V = helper.Read(first);//从plc获取值
-                model.ParamenterInstructEnd_V = helper.Read(second);//从plc获取值
-            }
-            else
-            {
-                model.ParamenterInstructStart_V = helper.Read(first, GetSendDataType(dataType));//从plc获取值
-                model.ParamenterInstructEnd_V = helper.Read(second, GetSendDataType(dataType));//从plc获取值
-            }
-        }
+        //private void GetPlcValueForType(string first, string second, SiemensHelpers helper, string dataType, InstructReturn model)
+        //{
+        //    if (GetSendDataType(dataType) == SendDataType.Short)
+        //    {
+        //        model.ParamenterInstructStart_V = helper.Read(first);//从plc获取值
+        //        model.ParamenterInstructEnd_V = helper.Read(second);//从plc获取值
+        //    }
+        //    else
+        //    {
+        //        model.ParamenterInstructStart_V = helper.Read(first, GetSendDataType(dataType));//从plc获取值
+        //        model.ParamenterInstructEnd_V = helper.Read(second, GetSendDataType(dataType));//从plc获取值
+        //    }
+        //}
 
-        private void BuildListToFront(string first, string second, SiemensHelpers helper, List<InstructReturn> instructModelReturns, DataRow dr, string unit, string clientFlag)
-        {
-            if (first.HasValue() && second.HasValue())
-            {
-                var model = new InstructReturn()
-                {
-                    ControlName = dr["control_name"].ToString(),
-                    ParamenterUnit = unit,
-                    ParamenterInstructStart = first,
-                    ParamenterInstructEnd = second,
-                    ParamenterName = dr["paramenter_name"].ToString(),
-                    Id = dr["id"].ToString()
-                };
-                GetPlcValueForType(first, second, helper, dr["paramenter_value_type"].ToString(), model);
-                instructModelReturns.Add(model);
-            }
-            else
-            {
-                SendMsg("指令异常！", clientFlag);
-            }
-        }
+        //private void BuildListToFront(string first, string second, SiemensHelpers helper, List<InstructReturn> instructModelReturns, DataRow dr, string unit, string clientFlag)
+        //{
+        //    if (first.HasValue() && second.HasValue())
+        //    {
+        //        var model = new InstructReturn()
+        //        {
+        //            ControlName = dr["control_name"].ToString(),
+        //            ParamenterUnit = unit,
+        //            ParamenterInstructStart = first,
+        //            ParamenterInstructEnd = second,
+        //            ParamenterName = dr["paramenter_name"].ToString(),
+        //            Id = dr["id"].ToString()
+        //        };
+        //        GetPlcValueForType(first, second, helper, dr["paramenter_value_type"].ToString(), model);
+        //        instructModelReturns.Add(model);
+        //    }
+        //    else
+        //    {
+        //        SendMsg("指令异常！", clientFlag);
+        //    }
+        //}
 
         private void SendMsg(string msg, string clientFlag)
         {
@@ -876,7 +1009,7 @@ namespace Caist.Framework.Service
             SendMessage(msg, clientFlag);
         }
 
-#region 人员定位
+        #region 人员定位
         public async Task SendPepolePostionData(string clientFlag, bool flag = false)
         {
             List<PepolePositionEntity> pepoleEntities = await GetPepolePositionList();
@@ -980,16 +1113,32 @@ namespace Caist.Framework.Service
 
             return pepolePositions;
         }
-#endregion
+        #endregion
 
-#region 供配电
+        #region 供配电
         private async Task SendSubStationData(string clientFlag)
         {
-            _formSubstation.OpcStart(clientFlag);
-        }
-#endregion
+            var substation = await GetSubStationOpcData();
+            if (substation != null && substation.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("{");
+                sb.AppendLine("\"SubStation\":[");
+                foreach (var item in substation)
+                {
+                    GetStringFormat(item.Key, item.Value, sb);
+                    sb.Append(",");
+                }
+                var str = sb.ToString().TrimEnd(',');
+                str += "]}";
+                SendMessage(str, clientFlag);
+                sb.Clear();
+            }
 
-#region 光纤测温
+        }
+        #endregion
+
+        #region 光纤测温
         private async Task SendFiberData(string clientFlag, bool flag = false)
         {
             List<FiberEntity> fibers = await GetFiberList();
@@ -1035,7 +1184,7 @@ namespace Caist.Framework.Service
 
             return fibers;
         }
-#endregion
+        #endregion
 
         private bool ListNotEqual<T>(List<T> entityies1, List<T> entityies2)
         {
@@ -1186,14 +1335,14 @@ namespace Caist.Framework.Service
             }
         }
 
-#endregion
+        #endregion
 
-#region 全局窗口事件
+        #region 全局窗口事件
         private void FrmMian_FormClosed(object sender, FormClosedEventArgs e)
         {
             MqtCLient?.Disconnect();
         }
-#endregion
+        #endregion
 
         private void tsbRestart_Click(object sender, EventArgs e)
         {

@@ -9,6 +9,10 @@
                     <li>
                         控制名称：<input id="paramenterName" col="ParamenterName" type="text" />
                     </li>
+                    <li class="select-select2">
+                        <label>所属模块：</label>
+                        <div id="viewControlModelId" col="ViewControlModelId" class="select"></div>
+                    </li>
                     <li>
                         <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                     </li>
@@ -29,6 +33,13 @@
 <script type="text/javascript">
     $(function () {
         initGrid();
+
+            $("#viewControlModelId").ysComboBox({
+                url: '@Url.Content("~/ApplicationManage/ViewControlModel/GetListJson")',
+                key: "Id",
+                value: "ControlName",
+                class: "form-control",
+            });
     });
 
     function initGrid() {
@@ -40,6 +51,7 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'Id', visible: false },
+                { field: 'ControlName', title: '控制模块' },
                 { field: 'ParamenterName', title: '控制名称' },
                 { field: 'ParamenterUnit', title: '控制单位',
                     formatter: function (value, item, index) {
@@ -61,7 +73,21 @@
                     }
                 },
                 { field: 'ParamenterIp', title: 'IP' },
-                { field: 'ParamenterValueType', title: '数据类型' },
+           {
+                field: 'ParamenterValueType', title: '数据类型', formatter: function (value, row, index) {
+                               if (row.ParamenterValueType == "@InstructEnum1.SHORT.ParseToInt()") {
+                                   return '<span class="badge badge-primary">' + "@InstructEnum1.SHORT.GetDescription()" + '</span>';
+                               } else if (row.ParamenterValueType == "@InstructEnum1.UINT32.ParseToInt()") {
+                            return '<span class="badge badge-secondary">' + "@InstructEnum1.UINT32.GetDescription()" + '</span>';
+                               } else if (row.ParamenterValueType == "@InstructEnum1.USHORT.ParseToInt()") {
+                            return '<span class="badge badge-success">' + "@InstructEnum1.USHORT.GetDescription()" + '</span>';
+                               } else if (row.ParamenterValueType == "@InstructEnum1.INT.ParseToInt()") {
+                            return '<span class="badge badge-danger">' + "@InstructEnum1.INT.GetDescription()" + '</span>';
+                               } else if (row.ParamenterValueType == "@InstructEnum1.FLOAT.ParseToInt()") {
+                            return '<span class="badge badge-warning">' + "@InstructEnum1.FLOAT.GetDescription()" + '</span>';
+                        }
+                    }
+                },
                 { field: 'ParamenterValue', title: '值' },
                 { field: 'ParamenterPort', title: '端口' },
                 { field: 'ParamenterSort', title: '排序' }
@@ -73,7 +99,6 @@
             }
         });
     }
-
     function searchGrid() {
         $('#gridTable').ysTable('search');
         resetToolbarStatus();

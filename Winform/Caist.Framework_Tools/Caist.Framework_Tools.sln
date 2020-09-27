@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29920.165
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1145
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01-Tools(工具层)", "01-Tools(工具层)", "{FD8BACEB-C7AF-4141-B862-2ED5AF9F069A}"
 EndProject
@@ -48,6 +48,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caist.Framework.MqttTool", "Caist.Framework.MqttTool\Caist.Framework.MqttTool.csproj", "{CBC7DD93-834F-406C-8249-5AAEF612C343}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caist.Framework.Video", "Caist.Framework.Video\Caist.Framework.Video.csproj", "{7D4DC9ED-3C64-4A58-AE1B-E28B449BDAE5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caist.Industrial", "Caist.Industrial\Caist.Industrial.csproj", "{59979508-01A2-4705-A6A4-33F10D8BAC0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -131,6 +133,10 @@ Global
 		{7D4DC9ED-3C64-4A58-AE1B-E28B449BDAE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D4DC9ED-3C64-4A58-AE1B-E28B449BDAE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D4DC9ED-3C64-4A58-AE1B-E28B449BDAE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59979508-01A2-4705-A6A4-33F10D8BAC0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59979508-01A2-4705-A6A4-33F10D8BAC0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59979508-01A2-4705-A6A4-33F10D8BAC0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59979508-01A2-4705-A6A4-33F10D8BAC0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,6 +158,7 @@ Global
 		{74CB20A4-A37D-45B1-990F-37A66F3F2A1A} = {11EEBDB9-5ECC-4712-9AAA-E35C999C3122}
 		{DA70273B-908A-4067-A801-18B1C0C7F2D3} = {FD8BACEB-C7AF-4141-B862-2ED5AF9F069A}
 		{B5BC0E0E-2945-474D-81B6-02B1F0807348} = {FD8BACEB-C7AF-4141-B862-2ED5AF9F069A}
+		{59979508-01A2-4705-A6A4-33F10D8BAC0E} = {FD8BACEB-C7AF-4141-B862-2ED5AF9F069A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5FA37BBD-5115-450A-BF7A-68279FFDF24C}

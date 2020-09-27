@@ -2,6 +2,6 @@
 {
     public class SubStationParam
     {
-        public string Dianwei { get; set; }
+        public string DictId { get; set; }
     }
 }

@@ -98,12 +98,5 @@ namespace Caist.Framework.Mqtt
             return true;
         }
 
-        private void richMQT_TextChanged(object sender, EventArgs e)
-        {
-            LimitLine(10000, this.richMQT);
-            this.richMQT.SelectionStart = this.richMQT.Text.Length;
-            this.richMQT.SelectionLength = 0;
-
-        }
     }
 }

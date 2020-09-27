@@ -62,9 +62,9 @@ namespace Caist.Framework.Business
                                 b.manipulate_model_name as DictName,
                                 d.system_name as SystemName
                         from {0} a
-                        left join mk_view_manipulate_model b on a.dict_id  = b.manipulate_model_mark
+                        inner join mk_view_manipulate_model b on a.dict_id  = b.manipulate_model_mark
                         left join mk_view_function c on b.view_function_id = c.id
-                        left join mk_system_setting d on c.system_setting_id = d.id where Instruct_type = -1 ", param.TabName));
+                        left join mk_system_setting d on c.system_setting_id = d.id where a.Instruct_type = 0 ", param.TabName));
             var parameter = new List<DbParameter>();
             if (param!=null)
             {

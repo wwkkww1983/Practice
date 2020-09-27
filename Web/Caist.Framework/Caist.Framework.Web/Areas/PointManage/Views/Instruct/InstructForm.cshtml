@@ -46,6 +46,10 @@
             <label class="col-sm-2 control-label">数据类型</label>
             <div class="col-sm-10" id="dataType" col="DataType"></div>
         </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">点位类型</label>
+            <div class="col-sm-10" id="instructType" col="InstructType"></div>
+        </div>
     </form>
 </div>
 
@@ -54,14 +58,16 @@
     var instructGroupId = ys.request("instructGroupId");
     $(function () {
         $("#dataType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructEnum).EnumToDictionaryString())) });
-        $("#output").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructParamEnum).EnumToDictionaryString())) });        
-        getForm();
+        $("#output").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructParamEnum).EnumToDictionaryString())) });
+        $("#instructType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructViewEnum).EnumToDictionaryString())) });
+
         $("#instructGroupId").ysComboBox({
             url: '@Url.Content("~/PointManage/InstructGroup/GetListJson")',
             key: "Id",
             value: "GroupName",
             class: "form-control",
         });
+        getForm();
         $("#form").validate({
             rules: {
                 name: { required: true },
@@ -101,6 +107,12 @@
                     }
                 }
             });
+        } else {
+
+
+            var defaultData = {};
+            defaultData.InstructGroupId = instructGroupId;
+            $("#form").setWebControls(defaultData);
         }
     }
 

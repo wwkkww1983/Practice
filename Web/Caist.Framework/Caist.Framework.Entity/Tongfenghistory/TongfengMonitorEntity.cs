@@ -12,6 +12,7 @@ namespace Caist.Framework.Entity.Tongfenghistory
     public class TongfengMonitorEntity : BaseEntity
     {
         public string dictId { get; set; }
+        public string ManipulateModelName { get; set; }
         public string sysId { get; set; }
         public string dictValue { get; set; }
         public DateTime? createTime { get; set; }

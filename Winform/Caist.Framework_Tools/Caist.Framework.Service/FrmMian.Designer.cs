@@ -186,12 +186,14 @@ namespace Caist.Framework.Service
             this.SystemStatus.Size = new System.Drawing.Size(1006, 22);
             this.SystemStatus.TabIndex = 1;
             this.SystemStatus.Text = "statusStrip1";
+            this.SystemStatus.Visible = false;
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(98, 17);
             this.toolStripStatusLabel1.Text = "当前运行时长：";
+            this.toolStripStatusLabel1.Visible = false;
             // 
             // txttiming
             // 
@@ -228,7 +230,7 @@ namespace Caist.Framework.Service
             this.tabControl1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1006, 526);
+            this.tabControl1.Size = new System.Drawing.Size(1006, 548);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.tabControl1.TabIndex = 2;
             // 
@@ -242,7 +244,7 @@ namespace Caist.Framework.Service
             this.tabPLC.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPLC.Name = "tabPLC";
             this.tabPLC.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPLC.Size = new System.Drawing.Size(998, 493);
+            this.tabPLC.Size = new System.Drawing.Size(998, 515);
             this.tabPLC.TabIndex = 0;
             this.tabPLC.Text = "PLC采集";
             this.tabPLC.UseVisualStyleBackColor = true;
@@ -261,7 +263,7 @@ namespace Caist.Framework.Service
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
-            this.splitContainer1.Size = new System.Drawing.Size(990, 458);
+            this.splitContainer1.Size = new System.Drawing.Size(990, 480);
             this.splitContainer1.SplitterDistance = 282;
             this.splitContainer1.TabIndex = 1;
             // 
@@ -274,7 +276,7 @@ namespace Caist.Framework.Service
             this.TreeDevice.Location = new System.Drawing.Point(0, 0);
             this.TreeDevice.Name = "TreeDevice";
             this.TreeDevice.SelectedImageIndex = 0;
-            this.TreeDevice.Size = new System.Drawing.Size(280, 456);
+            this.TreeDevice.Size = new System.Drawing.Size(280, 478);
             this.TreeDevice.TabIndex = 0;
             // 
             // ImageDevice
@@ -302,8 +304,8 @@ namespace Caist.Framework.Service
             // 
             this.splitContainer2.Panel2.Controls.Add(this.lvlPlcStatus);
             this.splitContainer2.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.splitContainer2.Size = new System.Drawing.Size(704, 458);
-            this.splitContainer2.SplitterDistance = 258;
+            this.splitContainer2.Size = new System.Drawing.Size(704, 480);
+            this.splitContainer2.SplitterDistance = 270;
             this.splitContainer2.SplitterWidth = 5;
             this.splitContainer2.TabIndex = 1;
             // 
@@ -325,7 +327,7 @@ namespace Caist.Framework.Service
             this.lvPoint.Location = new System.Drawing.Point(0, 0);
             this.lvPoint.MultiSelect = false;
             this.lvPoint.Name = "lvPoint";
-            this.lvPoint.Size = new System.Drawing.Size(702, 256);
+            this.lvPoint.Size = new System.Drawing.Size(702, 268);
             this.lvPoint.TabIndex = 0;
             this.lvPoint.UseCompatibleStateImageBehavior = false;
             this.lvPoint.View = System.Windows.Forms.View.Details;
@@ -373,7 +375,7 @@ namespace Caist.Framework.Service
             this.lvlPlcStatus.HideSelection = false;
             this.lvlPlcStatus.Location = new System.Drawing.Point(0, 0);
             this.lvlPlcStatus.Name = "lvlPlcStatus";
-            this.lvlPlcStatus.Size = new System.Drawing.Size(702, 193);
+            this.lvlPlcStatus.Size = new System.Drawing.Size(702, 203);
             this.lvlPlcStatus.TabIndex = 1;
             this.lvlPlcStatus.UseCompatibleStateImageBehavior = false;
             this.lvlPlcStatus.View = System.Windows.Forms.View.Details;

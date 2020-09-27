@@ -81,6 +81,7 @@
 <script type="text/javascript">
     var id = ys.request("id");
     var systemId = ys.request("systemId");
+    var AlarmPointValue = "";
     var FormData = null;
         $("#CodeType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(SensorEnum).EnumToDictionaryString())) });
         $(function () {
@@ -115,7 +116,7 @@
                 key: "ManipulateModelMark",
                 value: "ManipulateModelName",
                 class: "form-control",
-                multiple: true
+                multiple: true,
             });
 
     }
@@ -125,7 +126,7 @@
       
             $("#AlarmPoint").ysComboBox({
                 url: '@Url.Content("~/ApplicationManage/Video/GetListJson")',
-                key: "ChannelNumber",
+                key: "Id",
                 value: "Name",
                 class: "form-control"
             });
@@ -188,6 +189,7 @@
                             addressCode();
                             showSensor();
                             viewTypeVisible(obj.Result.CodeType);
+                            AlarmPointValue = obj.Result.AlarmPoint;
                             $("#form").setWebControls(obj.Result);
                         }
                     }
@@ -204,9 +206,13 @@
             }
         }
 
-        function saveForm(index) {
+    function saveForm(index) {
             if ($("#form").validate().form()) {
                 var postData = $("#form").getWebControls({ Id: id });
+                if(postData.AlarmPoint == "" && id > 0) {  //修改的时候 如果模型没有修改则不要对模型数据属性进行更新至，将旧的的数据赋给表单
+                    postData.AlarmPoint = AlarmPointValue;
+                }
+
                 ys.ajax({
                     url: '@Url.Content("~/ApplicationManage/MqTheme/SaveSettingFormJson")',
                     type: "post",

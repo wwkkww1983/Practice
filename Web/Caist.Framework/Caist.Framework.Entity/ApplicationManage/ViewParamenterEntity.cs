@@ -67,6 +67,10 @@ namespace Caist.Framework.Entity.ApplicationManage
         public string ControlModels { get; set; }
 
         /// <summary>
+        /// 控制
+        /// </summary>
+        public string Control { get; set; }
+        /// <summary>
         /// 控制模块
         /// </summary>
         [NotMapped]

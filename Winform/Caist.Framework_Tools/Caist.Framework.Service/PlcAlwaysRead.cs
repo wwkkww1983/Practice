@@ -32,7 +32,7 @@ namespace Caist.Framework.Service
             try
             {
                 _sysData = await DataServices.GetSystemData();
-                _systems = _sysData.Select("device_instruction =1");//为1的需获取plc状态的系统
+                _systems = _sysData.Select("device_instruction ='1'");//为1的需获取plc状态的系统
             }
             catch (Exception ex)
             {
@@ -104,7 +104,9 @@ namespace Caist.Framework.Service
                     string val = string.Empty;
                     var uniqueKey = tempStr[0];
                     var key = tempStr[0].Split('-')[1];
-                    var dataType = tempStr[1];
+                    var dataTypes = tempStr[1].Split('|');
+                    var dataType = dataTypes[0];
+                    var instructType = dataTypes[1];
                     //true或者false 必须配位short类型
                     try
                     {
@@ -116,14 +118,19 @@ namespace Caist.Framework.Service
                         {
                             val = helper.Read(key, GetSendDataType(dataType));
                         }
-                        
+
+                        //if (uniqueKey == "192.168.20.23-DB18.DBX13.7")
+                        //{
+                        //    Common.LogError("【原始指令】：" + tempKey + "【值】：" + val);
+                        //}
+
                         #region DataGrid赋值
                         lvPoint.Invoke(new Action(() =>
                         {
-                            if (!val.HasValue())
-                            {
-                                Common.LogError("值等于空的键：" + uniqueKey + "-" + key);
-                            }
+                            //if (!val.HasValue())
+                            //{
+                            //    Common.LogError("值等于空的键：" + uniqueKey + "-" + key);
+                            //}
                             ListViewItem item = lvPoint.FindItemWithText(uniqueKey);
 
                             if (item != null)
@@ -159,7 +166,7 @@ namespace Caist.Framework.Service
                                 DictId = uniqueKey,
                                 DictValue = val.ToString(),
                                 TabName = helper.DeviceEntity.TabName,
-                                InstructType = (int)InstructViewEnum.Data// 0:数据;1:控制;2:告警;3:启动;4:停止;9:参数设置
+                                InstructType = int.Parse(instructType)// 0:数据;1:控制;2:告警;3:启动;4:停止;9:参数设置
                             };
                             lock (_lockObj)
                             {

@@ -29,15 +29,18 @@ namespace Caist.Framework.Mqtt
         private M2MqttServer MqtCLient;
         public System.Threading.Timer _timer;
         public string mqtTimer = "MQTPushTimer".GetConfigrationStr();
+        public static string isDs = "IsDS".GetConfigrationStr();
         public DateTime? lastDateTime = null;
         bool IsFirstUpload = true;
         public System.Threading.Timer _hisTimer;
+        public DateTime? VideoTime;
         //是否有历史数据
         bool IsHistory = false;
         private void MqttStart_Click(object sender, EventArgs e)
         {
             this.MqttStart.Enabled = false;
             this.MqttStop.Enabled = true;
+
             Task.Run(async () =>
             {
                 await StartMqtt();
@@ -85,7 +88,7 @@ namespace Caist.Framework.Mqtt
                     //防止UI假死
                     Application.DoEvents();
                 }
-                await LoadMqtt(sender, e);            
+                await LoadMqtt(sender, e);
             }
 
         }
@@ -100,7 +103,7 @@ namespace Caist.Framework.Mqtt
 
         void HistoryWork(object state)
         {
-            if (DateTimeHelper.GetMinuteinterval(lastDateTime.Value, DateTime.Now) > 0.5 * 30)
+            if (DateTimeHelper.GetMinuteinterval(lastDateTime.Value, DateTime.Now) > 30)
             {
                 IsHistory = true;
                 Task.Run(async () =>
@@ -122,7 +125,7 @@ namespace Caist.Framework.Mqtt
                     Application.DoEvents();
                 }
                 MqtCLient.MqtMessage("-------------------切换实时数据上传-----------------------");
-                if (_timer!=null)
+                if (_timer != null)
                 {
                     //立即开启 定时推送数据 
                     _timer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(Convert.ToInt32(mqtTimer)));
@@ -136,7 +139,7 @@ namespace Caist.Framework.Mqtt
                     //传输定时器，监测使用历史数据定时器还是实时数据定时器
                     MqtCLient.SetTimer(_timer, _hisTimer);
                 }
-              
+
 
             }
 
@@ -193,6 +196,10 @@ namespace Caist.Framework.Mqtt
         {
             try
             {
+                if (tsTbServer.IsDisposed)
+                {
+                    return;
+                }
                 //建立mqtt连接
                 string BrokerAddress = tsTbServer.Text;
                 MqtCLient = new M2MqttServer(BrokerAddress, Convert.ToInt32(tsTbMqPort.Text), mqtOption.MqClientid, mqtOption.MqUser, mqtOption.MqPassword, this.MqttStart, this.richMQT);
@@ -221,7 +228,14 @@ namespace Caist.Framework.Mqtt
             {
 
                 MqtCLient.MqtMessage("连接失败:" + ex.Message);
-                this.MqttStop_Click(null, null);
+                Thread t = new Thread(o => Thread.Sleep(10000));
+                t.Start(this);
+                while (t.IsAlive)
+                {
+                    //防止UI假死
+                    Application.DoEvents();
+                }
+                this.MqttStart_Click(null, null); //初始化连接失败 开始递归建立连接
             }
 
         }
@@ -258,6 +272,7 @@ namespace Caist.Framework.Mqtt
                     int sysCode = GetEnumValue(typeof(MkSystemCode), mkCodeList.GetValue(i).ToString());
                     //筛选出当前系统的配置  单个系统上传到单个主题，所以一次只上传一个系统的数据
                     var SettingList = settingCodeList.Where(n => n.SystemCode == (sysCode < 10 ? "0" + sysCode.ToString() : sysCode.ToString()));
+
                     if (SettingList != null && SettingList.Count() > 0)
                     {
                         //发送数据   
@@ -277,7 +292,60 @@ namespace Caist.Framework.Mqtt
                         List<PushValues<decimal>> PushList = new List<PushValues<decimal>>();
 
                         #region  根据配置信息中的表名查询出数据
-                        var pointValueList = MqttCodeSettingBLL.GetUpLoadDataList(SettingList.FirstOrDefault().TabName, lastUpTime);
+                        List<MqtPlcDataEntity> pointValueList = new List<MqtPlcDataEntity>();
+                        if (SettingList.ToList()[0].SystemCode == "09")  //视频
+                        {
+                            if (!VideoTime.HasValue)  //启动程序后得首次上传
+                            {
+                                VideoTime = DateTime.Now;
+                                timestamp = ConvertDateTimeToInt(VideoTime.Value);
+                                pointValueList = MqttCodeSettingBLL.GetVideoList();
+                                VideoTime = DateTime.Now.AddMinutes(10); //加10分钟  因为间隔10分钟上传一次
+                            }
+                            else
+                            {
+                                if (VideoTime < DateTime.Now)  //判断是否到了需要上传视频得时间点  
+                                {
+                                    timestamp = ConvertDateTimeToInt(VideoTime.Value);
+                                    pointValueList = MqttCodeSettingBLL.GetVideoList();
+                                    VideoTime = DateTime.Now.AddMinutes(10); //加10分钟  因为间隔10分钟上传一次
+                                }
+                                else
+                                {
+                                    return;
+                                }
+
+                            }
+                        }
+                        else if (SettingList.ToList()[0].SystemCode == "08") //供配电
+                        {
+                            pointValueList = MqttCodeSettingBLL.GetUpLoadDataList("mk_substation", lastUpTime);
+                        }
+                        else
+                        {
+
+                            if (SettingList.ToList()[0].SystemCode == "05")
+                            {
+                                #region 通风系统包含 主扇 和局扇  需要将两个系统的数据组合为一个配置
+                                var tongfengList = MqttCodeSettingBLL.GetUpLoadDataList("mk_plc_tongfeng_values", lastUpTime);
+                                var jushanList = MqttCodeSettingBLL.GetUpLoadDataList("mk_plc_jushan_values", lastUpTime);
+                                if (tongfengList != null && tongfengList.Count > 0)
+                                {
+                                    //合并数据
+                                    pointValueList = pointValueList.Union(tongfengList).ToList<MqtPlcDataEntity>();
+                                }
+                                if (jushanList != null && jushanList.Count > 0)
+                                {
+                                    //合并数据
+                                    pointValueList = pointValueList.Union(jushanList).ToList<MqtPlcDataEntity>();
+                                }
+                                #endregion
+                            }
+                            else
+                            {
+                                pointValueList = MqttCodeSettingBLL.GetUpLoadDataList(SettingList.FirstOrDefault().TabName, lastUpTime);
+                            }
+                        }
                         #endregion
                         //循环组装单个系统需要上传的数据
                         foreach (var setting in SettingList)
@@ -287,7 +355,7 @@ namespace Caist.Framework.Mqtt
                             //采区编码  +地址类型编码	+安装设备地点编码 =地址编码
                             var SensorCode = mqtOption.MqCollieryCode + setting.AddressAreCode + setting.AddressTypeCode + setting.AddressDeviceCode + setting.SystemCode +
                             setting.DeviceCode + setting.SensorTypeCode;
-                            var pointValue = pointValueList.Result.FindLast(n => n.DictId == setting.CodePointSetting);
+                            var pointValue = pointValueList.FindLast(n => n.DictId == setting.CodePointSetting);
                             #region  根据数据类型处理上传业务逻辑
                             if (setting.CodeType == 2) //报警数据
                             {
@@ -295,7 +363,7 @@ namespace Caist.Framework.Mqtt
                                 var AlarmPointS = setting.AlarmPoint.Split(',');
                                 foreach (var alarm in AlarmPointS) //报警为多个数据中有任意一个状态为true则上传
                                 {
-                                    pointValue = pointValueList.Result.FindLast(n => n.DictId == alarm);
+                                    pointValue = pointValueList.FindLast(n => n.DictId == alarm);
                                     if (pointValue != null)
                                     {
                                         #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，没有报警，在运行。 1：关闭，有报警，停止运行
@@ -306,7 +374,6 @@ namespace Caist.Framework.Mqtt
                                         if (AlarmStatus)
                                             break;
                                     }
-
                                 }
                                 //默认值 状态默认为false
                                 if (pointValue == null)
@@ -321,7 +388,7 @@ namespace Caist.Framework.Mqtt
                                 var ctrs = setting.AlarmPoint.Split(',');
                                 foreach (var ctr in ctrs)
                                 {
-                                    pointValue = pointValueList.Result.FindLast(n => n.DictId == ctr);
+                                    pointValue = pointValueList.FindLast(n => n.DictId == ctr);
                                     #region  bool值类型转换  0是 true  1是 false  数据管理平台规定  0就是开启，没有报警，在运行。 1：关闭，有报警，停止运行
                                     PointValueConvert(pointValue);
 
@@ -330,7 +397,6 @@ namespace Caist.Framework.Mqtt
                                     if (ctrStatus)
                                         break;
                                 }
-
                                 //默认值 状态默认为false
                                 if (pointValue == null)
                                 {
@@ -338,6 +404,23 @@ namespace Caist.Framework.Mqtt
                                     pointValue.DictValue = "1";
                                 }
 
+                            }
+                            else if (setting.CodeType == 4)
+                            {
+                                //视频默认取维护到数据表中的点位为上传值
+                                pointValue = new MqtPlcDataEntity();
+                                pointValue.DictValue = setting.AlarmPoint;
+                                if (setting.SensorTypeCode == "101")  //101为通道ID  通道ID AlarmPoint 存储的是视频的ID  所以需要根据ID 查找视频数据中的 通道ID
+                                    pointValue = pointValueList.FindLast(n => n.DictId == setting.AlarmPoint); //数据库中 当前字段存储的是视频数据的ID
+                            }
+                            #endregion
+
+
+                            #region  处理通讯状态数据
+                            if (setting.SensorTypeCode == "000") //000为通讯状态传感器  现在暂时默认都给通讯正常
+                            {
+                                pointValue = new MqtPlcDataEntity();
+                                pointValue.DictValue = "0";
                             }
                             #endregion
 
@@ -370,6 +453,10 @@ namespace Caist.Framework.Mqtt
                                 {
                                     //判断总长度是否满足长度要求 总长度：除去小数点的数字位数
                                     if (upValue.ToString().Length <= setting.ValueLength + 1)
+                                    {
+                                        PushList.Add(new PushValues<decimal>(SensorCode, upValue));
+                                    }
+                                    else if (setting.DecimalPlaces == setting.ValueLength)  //  n1,1 整数位数1位，小数位数1位。  cos  最大值不超过1的值
                                     {
                                         PushList.Add(new PushValues<decimal>(SensorCode, upValue));
                                     }
@@ -439,6 +526,46 @@ namespace Caist.Framework.Mqtt
                     pointValue.DictValue = "1";
                 }
             }
+            if (!string.IsNullOrEmpty(isDs))
+            {
+                DSPointValueConvert(pointValue);
+            }
+        }
+
+        /// <summary>
+        /// 针对陡山特殊数据处理
+        /// </summary>
+        /// <param name="pointValue"></param>
+        /// <returns></returns>
+        private static void DSPointValueConvert(MqtPlcDataEntity pointValue)
+        {
+            if (pointValue != null && pointValue.DictId!=null)
+            {
+
+                if (pointValue.DictId.Contains("DB1.DBW80") || pointValue.DictId.Contains("DB1.DBW108") || pointValue.DictId.Contains("DB1.DBW136")) //压风运行状态
+                {
+                    if (pointValue.DictValue!="0" || pointValue.DictValue != "1") 
+                    {
+                        pointValue.DictValue = "0";
+                    }
+                    else
+                    {
+                        pointValue.DictValue = "1";
+                    }
+                }
+                else if (pointValue.DictId.Contains("DB1.DBW170") || pointValue.DictId.Contains("DB1.DBW200")) //通风运行状态
+                {
+                    if (pointValue.DictValue == "2"  || pointValue.DictValue == "3")  //  2、3  正转中、反转中
+                    {
+                        pointValue.DictValue = "0";
+                    }
+                    else
+                    {
+                        pointValue.DictValue = "1";
+                    }
+                }
+              
+            }
         }
 
         public static int GetEnumValue(Type enumType, string enumName)
@@ -462,9 +589,11 @@ namespace Caist.Framework.Mqtt
         }
         private void StopMqtt(EventArgs e)
         {
-            if (_timer != null)
+            if (_timer != null) //释放实时数据定时器
                 //释放定时器
                 _timer.Dispose();
+            if (_hisTimer != null) //释放历史数据定时器
+                _hisTimer.Dispose();
 
             //释放资源，避免重连
             if (MqtCLient != null)
@@ -478,6 +607,12 @@ namespace Caist.Framework.Mqtt
             //base.OnClosed(e);
         }
 
+        private void richMQT_TextChanged(object sender, EventArgs e)
+        {
+            LimitLine(10000, this.richMQT);
+            this.richMQT.SelectionStart = this.richMQT.Text.Length;
+            this.richMQT.SelectionLength = 0;
+        }
 
         private void Message(string str)
         {

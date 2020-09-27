@@ -1,36 +1,4 @@
-
-/*
-* zhangmeiqing 2020-7-28 9:16
-*/
-USE [caist_mk_db]
-GO
-
-/****** Object:  Table [dbo].[mk_plc_cewen_values]    Script Date: 2020-07-28 9:13:36 AM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE TABLE [dbo].[mk_plc_cewen_values](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[area_name] [nvarchar](50) NULL,
-	[max_value] [nvarchar](50) NULL,
-	[min_value] [nvarchar](50) NULL,
-	[average_value] [nvarchar](50) NULL,
-	[create_Time] [datetime] NOT NULL,
- CONSTRAINT [PK_mk_plc_cewen_values] PRIMARY KEY CLUSTERED 
-(
-	[id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-
-GO
-
-ALTER TABLE [dbo].[mk_plc_cewen_values] ADD  CONSTRAINT [DF_mk_plc_cewen_values_create_Time]  DEFAULT (getdate()) FOR [create_Time]
-GO
-
-
+~~~~~避免不小心F5
 
 /*
 luzhenjie 2020年7月28日
@@ -38,9 +6,9 @@ luzhenjie 2020年7月28日
 */
 
 --矿山led设备管理
-if exists(select * from sysobjects where name='mk_led_device')
-	drop table mk_led_device;
-go
+--if exists(select * from sysobjects where name='mk_led_device')
+--	drop table mk_led_device;
+--go
 create table mk_led_device(
 	id bigint not null primary key,
 	Device_Uid varchar(50) not null,
@@ -54,9 +22,9 @@ create table mk_led_device(
 	[base_version] [int] NOT NULL,
 )
 --led信息发布数据表
-if exists(select * from sysobjects where name='mk_information_publish')
-	drop table mk_information_publish;
-go
+--if exists(select * from sysobjects where name='mk_information_publish')
+--	drop table mk_information_publish;
+--go
 create table mk_information_publish(
 	id bigint not null primary key,
 	Device_Uid varchar(50) not null,
@@ -77,21 +45,14 @@ alter table mk_view_manipulate_model add manipulate_model_show_home int not null
 alter table mk_region_pepole_count add View_Function_Id bigint not null default(0);
 
 /*
-zhangmeiqing 2020年8月12日
-删掉无用的两张人员定位表
-*/
-drop table [dbo].[peoplePosition];
-drop table [dbo].[人员定位];
-
-/*
 zhangmeiqing 2020年8月17日
 修改人员定位表历史表
 */
 USE [caist_mk_db]
 GO
-if exists(select * from sysobjects where name='mk_people_position')
-	drop table mk_people_position;
-go
+--if exists(select * from sysobjects where name='mk_people_position')
+--	drop table mk_people_position;
+--go
 /****** Object:  Table [dbo].[mk_people_position]    Script Date: 2020-08-17 10:28:36 AM ******/
 SET ANSI_NULLS ON
 GO
@@ -122,9 +83,9 @@ zhangmeiqing 2020年8月17日
 USE [caist_mk_db]
 GO
 
-if exists(select * from sysobjects where name ='mk_cable_thermometry')
-	drop table mk_cable_thermometry;
-go
+--if exists(select * from sysobjects where name ='mk_cable_thermometry')
+--	drop table mk_cable_thermometry;
+--go
 
 /****** Object:  Table [dbo].[mk_cable_thermometry]    Script Date: 2020-08-17 8:07:47 PM ******/
 SET ANSI_NULLS ON
@@ -150,19 +111,12 @@ GO
 
 
 /*
-zhangmeiqing 2020年8月17日
-删除光纤测温和人员定位之前的历史表
-*/
-drop table [caist_mk_db].[dbo].[mk_plc_cewen_values];
-drop table [caist_mk_db].[dbo].[mk_plc_renyuan_values];
-
-/*
 luzhenjie 202年8月17日
 增加mqtt上传配置编码表
 */
-if exists(select * from sysobjects where name='mk_mqtt_code_setting')
-	drop table mk_mqtt_code_setting;
-go
+--if exists(select * from sysobjects where name='mk_mqtt_code_setting')
+--	drop table mk_mqtt_code_setting;
+--go
 Create table mk_mqtt_code_setting
 (
 	id bigint not null primary key,
@@ -202,9 +156,9 @@ Create table mk_mqtt_code_setting
 	[base_version] [int] NOT NULL,
 )
 --地址类型编码表   用于筛选mqtt传感器编码的地址编码中的地址类型编码选择
-if exists(select * from sysobjects where name='mk_mqtt_address_type')
-	drop table mk_mqtt_address_type;
-go
+--if exists(select * from sysobjects where name='mk_mqtt_address_type')
+--	drop table mk_mqtt_address_type;
+--go
 create table mk_mqtt_address_type
 (
 	id int IDENTITY(1,1) not null primary key,
@@ -464,6 +418,11 @@ alter table mk_system_setting add device_instruction varchar(50) null
 --添加MQTT上传用得通道编号
 alter table mk_eb_video add channel_number varchar(50) null
 
+--增加点位配置的数据类型(0:数据;1:控制;2:告警;3:启动;4:停止)
+alter table mk_instruct add instruct_type int not null default(0)
+
+--控制指令对应得状态读取指令
+alter table mk_view_paramenter add [control] nvarchar(50) null
 
 /*
 2020-09-07  zhangmeiqing
@@ -482,17 +441,38 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE TABLE [dbo].[mk_substation_realTime](
-	[Id] [int] NOT NULL,
+	[Id] [int] NOT NULL primary key identity(1,1),
 	[Sys_Id] [int] NOT NULL,
-	[Dian_Wei] [varchar](32) NULL,
-	[F] [varchar](16) NULL,
-	[IA] [varchar](16) NULL,
-	[P] [varchar](16) NULL,
-	[Q] [varchar](16) NULL,
-	[COS] [varchar](16) NULL
-) ON [PRIMARY]
+	[dict_Id] varchar(32) not null,
+	[dict_Value] varchar(50),
+	[Instruct_type] int null,
+	[create_Time] smalldatetime null default(getdate())
+	
+)
 GO
 
 
----供配电历史表增加创建时间  zhangmeiqing  2020-09-19 
-alter table mk_substation add create_Time datetime not null default(getdate());
+/*
+2020/09/21
+删除原有供配电历史表结构重新创建
+*/
+USE [caist_mk_db]
+GO
+if exists(select * from sysobjects where name='mk_substation')
+	drop table mk_substation;
+go
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[mk_substation](
+	[Id] [int] NOT NULL primary key identity(1,1),
+	[Sys_Id] [int] NOT NULL,
+	[dict_Id] varchar(32) not null,
+	[dict_Value] varchar(50),
+	Instruct_type int null,
+	[create_Time] smalldatetime null default(getdate())
+)
+GO
