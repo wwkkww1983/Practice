@@ -8,7 +8,9 @@ namespace ConsoleApp1
         static float _result = 0;
         static void Main(string[] args)
         {
-            string str = "2+7*(3+-3/6-5*22.02)--5-(528*9-3.69)";
+            //string str = "2+7*(3+-3/6-5*22.02)--5-(528*9-3.69)";
+            //string str = "2+7*3+-3/6-5*22.02--5-528*9-3.69";
+            string str = "2+7*3/3/6-5*22.02";
             Calc(str);
             Console.WriteLine(_result.ToString());
             Console.ReadKey();
