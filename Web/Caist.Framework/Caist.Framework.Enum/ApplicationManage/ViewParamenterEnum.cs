@@ -10,4 +10,17 @@ namespace Caist.Framework.Enum.ApplicationManage
         [Description("双控")]
         Both = 2
     }
+    public enum InstructEnum1
+    {
+        [Description("SHORT")]
+        SHORT = 0,
+        [Description("UINT32")]
+        UINT32 = 1,
+        [Description("USHORT")]
+        USHORT = 2,
+        [Description("INT")]
+        INT = 3,
+        [Description("FLOAT")]
+        FLOAT = 4
+    }
 }

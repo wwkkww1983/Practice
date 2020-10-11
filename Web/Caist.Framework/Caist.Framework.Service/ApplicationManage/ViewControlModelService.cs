@@ -96,6 +96,11 @@ namespace Caist.Framework.Service.ApplicationManage
             var parameter = new List<DbParameter>();
             if (param != null)
             {
+                if (!string.IsNullOrEmpty(param.SystemId))
+                {
+                    strSql.Append(" AND b.system_setting_id = @SystemId");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@SystemId", param.SystemId));
+                }
                 if (!string.IsNullOrEmpty(param.ControlName))
                 {
                     strSql.Append(" AND a.control_name like @ControlName");

@@ -2,58 +2,81 @@
     Layout = "~/Views/Shared/_FormWhite.cshtml";
 }
 
-    <div class="wrapper animated fadeInRight">
-        <form id="form" class="form-horizontal m">
-            <div class="form-group">
-                <label class="col-sm-2 control-label ">视图配置</label>
-                <div class="col-sm-10">
-                    <div id="viewFunctionId" col="ViewFunctionId"></div>
-                </div>
+<div class="wrapper animated fadeInRight">
+    <form id="form" class="form-horizontal m">
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">视图配置</label>
+            <div class="col-sm-10">
+                <div id="viewFunctionId" col="ViewFunctionId"></div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label class="col-sm-2 control-label">控制名称<font class="red"> *</font></label>
-                <div class="col-sm-10">
-                    <input id="manipulateModelName" col="ManipulateModelName" type="text" class="form-control" />
-                </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">控制名称<font class="red"> *</font></label>
+            <div class="col-sm-10">
+                <input id="manipulateModelName" col="ManipulateModelName" type="text" class="form-control" />
             </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">显示排序</label>
-                <div class="col-sm-10">
-                    <input id="manipulateModelSort" col="ManipulateModelSort" type="text" class="form-control" />
-                </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">显示排序</label>
+            <div class="col-sm-10">
+                <input id="manipulateModelSort" col="ManipulateModelSort" type="text" class="form-control" />
             </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">标识</label>
-                <div class="col-sm-4">
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label ">传感器</label>
+            <div class="col-sm-4">
+                <div id="instructGroupId" col="InstructGroupId"></div>
+            </div>
+            <label class="col-sm-2 control-label ">点位</label>
+            <div class="col-sm-4">
+                <div id="instruct" col="instruct"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">标识</label>
+            <div class="col-sm-4">
                     <input id="manipulateModelMark" col="ManipulateModelMark" type="text" class="form-control" />
                 </div>
-                <label class="col-sm-2 control-label">单位</label>
-                <div class="col-sm-4">
-                    <input id="manipulateModelUnit" col="ManipulateModelUnit" type="text" class="form-control" />
-                </div>
+            <label class="col-sm-2 control-label">单位</label>
+            <div class="col-sm-4">
+                <input id="manipulateModelUnit" col="ManipulateModelUnit" type="text" class="form-control" />
             </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">状态</label>
-                <div class="col-sm-4" id="manipulateModelStutas" col="ManipulateModelStutas"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">状态</label>
+            <div class="col-sm-4" id="manipulateModelStutas" col="ManipulateModelStutas"></div>
 
-                <label class="col-sm-2 control-label">是否显示首页</label>
-                <div class="col-sm-4" id="ManipulateModelShowHome" col="ManipulateModelShowHome"></div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-2 control-label">展示类型</label>
-                <div class="col-sm-10" id="instructView" col="InstructView"></div>
-            </div>
-        </form>
-    </div>
-    <script type="text/javascript">
+            <label class="col-sm-2 control-label">是否显示首页</label>
+            <div class="col-sm-4" id="ManipulateModelShowHome" col="ManipulateModelShowHome"></div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">展示类型</label>
+            <div class="col-sm-10" id="instructView" col="InstructView"></div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
         var funId_global;
         var id = ys.request("id");
         var viewFunctionId = ys.request("viewFunctionId");
+        var SystemId = ys.request("systemId");
         $(function () {
             $("#manipulateModelStutas").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(IsEnum).EnumToDictionaryString())) });
             $("#ManipulateModelShowHome").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(IsEnum).EnumToDictionaryString())) });
             $("#instructView").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructViewEnum).EnumToDictionaryString())) });
+
+             $("#instructGroupId").ysComboBox({
+                 url: '@Url.Content("~/PointManage/InstructGroup/GetListJson")' + "?SystemId=" + SystemId,
+                 key: "Id",
+                 value: "GroupName",
+                 unit: "Name",
+                 class: "form-control",
+                 onChange: getInstruct
+             });
+
+            getInstruct();
             $("#viewFunctionId").ysComboBox({
                 url: '@Url.Content("~/ApplicationManage/ViewFunction/GetListJson")',
                 key: "Id",
@@ -68,6 +91,31 @@
                 }
             });
         });
+
+    function getInstruct() {
+        var selectValue = $("#instructGroupId").find("option:selected").val();
+           $("#instruct").ysComboBox({
+               url: '@Url.Content("~/PointManage/instruct/GetListJson")' + "?GroupId="+selectValue,
+               key: "Name",
+               value: "Remark",
+               unit: "DeviceHost",
+               class: "form-control",
+               onChange: getPointValue
+           });
+    }
+    function getPointValue() {
+        var Host = $("#instruct").find("option:selected").attr("unit");
+        var Name = $("#instructGroupId").find("option:selected").attr("unit");
+        var point = $("#instruct").find("option:selected").val();
+        var pointText = "";
+        if (Name.indexOf("DB") > -1) {
+            pointText = Host + "-" + Name + "." + point;
+        } else {
+            pointText = Host + "-" + Name + + point;
+        }
+        $("#manipulateModelMark").val(pointText)
+
+    }
         function getForm() {
             if (id > 0) {
                 ys.ajax({
@@ -90,6 +138,7 @@
                             var defaultData = {};
                             defaultData.ManipulateModelStutas = "@StatusEnum.Yes.ParseToInt()";
                             defaultData.ManipulateModelSort = obj.Result;
+                            defaultData.ViewFunctionId = viewFunctionId;
                             $("#form").setWebControls(defaultData);
                         }
                     }
@@ -117,4 +166,4 @@
                 });
             }
         }
-    </script>
+</script>

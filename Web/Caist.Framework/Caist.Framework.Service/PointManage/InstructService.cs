@@ -89,14 +89,17 @@ namespace Caist.Framework.Service.PointManage
             strSql.Append(@"SELECT  a.id as Id,
                                     a.base_modify_time as BaseModifyTime,
                                     a.base_modifier_id as BaseModifierId,
+                                    a.base_create_time as BaseCreateTime,
                                     a.name as Name,
                                     a.address as Address,
                                     a.data_type as DataType,
                                     a.output as Output,
                                     a.remark as Remark,
                                     a.instruct_group_id as InstructGroupId,
+                                    c.Device_Host as DeviceHost,
                                     b.name as InstructGroupName,
-                                    b.group_name as GroupName");
+                                    b.group_name as GroupName,
+                                    a.instruct_type as InstructType ");
             if (bSystemSettingContent)
             {
                 strSql.Append("");
@@ -116,6 +119,11 @@ namespace Caist.Framework.Service.PointManage
                 {
                     strSql.Append(" AND c.system_id =@SystemSettingId");
                     parameter.Add(DbParameterExtension.CreateDbParameter("@SystemSettingId", param.SystemSettingId));
+                }
+                if (!string.IsNullOrEmpty(param.GroupId))
+                {
+                    strSql.Append(" AND a.instruct_group_id =@GroupId");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@GroupId", param.GroupId));
                 }
             }
             return parameter;

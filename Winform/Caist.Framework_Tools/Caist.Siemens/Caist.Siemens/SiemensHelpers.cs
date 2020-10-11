@@ -1,7 +1,5 @@
 ﻿using Caist.Framework.Entity;
 using Caist.Framework.Entity.Entity;
-using Caist.Siemens.Types;
-using SyncUtil;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +16,7 @@ namespace Caist.Siemens
         public string Port { get; set; }
         public DeviceEntity DeviceEntity { get; set; }
         public List<string> ListInstructs { get; set; }
-        private Plc SiemensPlc;
+        private S7.Net.Plc SiemensPlc;
         /// <summary>
         /// 获取值
         /// </summary>
@@ -41,7 +39,14 @@ namespace Caist.Siemens
                 {
                     if (v.Name.IndexOf("V") == -1 && x.Name.IndexOf("V") == -1)
                     {
-                        instructs.Add($"{v.Name}.{x.Name}:{x.DataType}");
+                        if (v.Name.StartsWith("DB"))
+                        {
+                            instructs.Add($"{this.IP}-{v.Name}.{x.Name}:{x.DataType}|{x.InstructType}");
+                        }
+                        else
+                        {//其它不需要中间的点连接
+                            instructs.Add($"{this.IP}-{v.Name}{x.Name}:{x.DataType}|{x.InstructType}");
+                        }
                         listTags.Add(x);
                         num++;
                     }
@@ -90,9 +95,9 @@ namespace Caist.Siemens
                 ShutDownServiceS7oiehsx64();
                 //if (!IsConnected())
                 //{
-                    CpuType cpu = (CpuType)System.Enum.Parse(typeof(CpuType), plcType);
-                    SiemensPlc = new Plc(cpu, ipAddress, port, rack, slot);
-                    SiemensPlc.Open();
+                S7.Net.CpuType cpu = (S7.Net.CpuType)System.Enum.Parse(typeof(S7.Net.CpuType), plcType);
+                SiemensPlc = new S7.Net.Plc(cpu, ipAddress, port, rack, slot);
+                SiemensPlc.Open();
                 //}
                 return SiemensPlc.IsConnected;
             }
@@ -115,8 +120,8 @@ namespace Caist.Siemens
             try
             {
                 ShutDownServiceS7oiehsx64();
-                CpuType cpu = (CpuType)System.Enum.Parse(typeof(CpuType), plcType);
-                SiemensPlc = new Plc(cpu, ipAddress, port, rack, slot);
+                S7.Net.CpuType cpu = (S7.Net.CpuType)System.Enum.Parse(typeof(S7.Net.CpuType), plcType);
+                SiemensPlc = new S7.Net.Plc(cpu, ipAddress, port, rack, slot);
                 await SiemensPlc.OpenAsync();
                 return SiemensPlc.IsConnected;
             }
@@ -165,7 +170,7 @@ namespace Caist.Siemens
         /// PLC批量写入值
         /// </summary>
         /// <param name="dataItems">指令集合</param>
-        public void Write(params DataItem[] dataItems)
+        public void Write(params S7.Net.Types.DataItem[] dataItems)
         {
             if (!SiemensPlc.IsConnected)
             {
@@ -179,6 +184,7 @@ namespace Caist.Siemens
         /// </summary>
         /// <param name="variable">指令名称</param>
         /// <returns></returns>
+        readonly object _lock = new object();
         public string Read(string variable)
         {
             string values = string.Empty;
@@ -188,7 +194,37 @@ namespace Caist.Siemens
                 {
                     SiemensPlc.Open();
                 }
-                object obj = SiemensPlc.Read(variable);
+                lock (_lock)
+                {
+                    object obj = SiemensPlc.Read(variable);
+                    if (obj == null)
+                        values = "-9999";
+                    else
+                        values = obj.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                //Common.LogError(ex);
+            }
+            return values;
+        }
+
+        /// <summary>
+        /// 异步读取PLC指令值
+        /// </summary>
+        /// <param name="variable">指令名称</param>
+        /// <returns></returns>
+        public async Task<string> ReadAsync(string variable)
+        {
+            string values = string.Empty;
+            try
+            {
+                if (!SiemensPlc.IsConnected)
+                {
+                    SiemensPlc.Open();
+                }
+                object obj = await SiemensPlc.ReadAsync(variable);
                 if (obj == null)
                     values = "-9999";
                 else
@@ -241,14 +277,14 @@ namespace Caist.Siemens
         /// </summary>
         /// <param name="variable">指令名称</param>
         /// <returns></returns>
-        public string Read(string variable, VarType varType)
+        public string Read(string variable, S7.Net.VarType varType)
         {
             string values = string.Empty;
             if (!SiemensPlc.IsConnected)
             {
                 SiemensPlc.Open();
             }
-            object obj = SiemensPlc.Read(variable, varType);
+            object obj = SiemensPlc.Read(variable);
             if (obj == null)
                 values = "-9999";
             else
@@ -268,7 +304,7 @@ namespace Caist.Siemens
         /// <param name="varType">要读取的变量/s的类型</param>
         /// <param name="bitAdr">地址。如果要读取DB1.DBX200.6，请将6设置为该参数。</param>
         /// <param name="varCount"></param>
-        public async Task<string> Read(DataType dataType, int db, int startByteAdr, VarType varType, int varCount, byte bitAdr = 0)
+        public async Task<string> Read(S7.Net.DataType dataType, int db, int startByteAdr, S7.Net.VarType varType, int varCount, byte bitAdr = 0)
         {
             string values = string.Empty;
             if (!SiemensPlc.IsConnected)

@@ -87,6 +87,27 @@ namespace Caist.Framework.DataAccess
                 }
             }
             return flag;
+        } 
+        /// <summary>
+        /// 数据插入电力系统历史表
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<bool> InsertMK_Substation(List<SubStationEntity> list)
+        {
+            bool flag = false;
+            StringBuilder builder = new StringBuilder();
+            if (list.HasValue())
+            {
+                foreach (var item in list)
+                {
+                    builder.Append($"INSERT INTO [dbo].[mk_substation]([Sys_Id],[dict_Id],[dict_Value],[Instruct_type],[create_Time])VALUES('{item.SysId}','{item.DictId}','{item.DictValue}',{item.InstructType},'{DateTime.Now}');");
+                }
+                using (var conn = Connect.GetConn("SQLServer"))
+                {
+                    flag = await conn.ExcuteSQLAsync(builder.ToString()) > 0;
+                }
+            }
+            return flag;
         }
 
         /// <summary>
@@ -120,7 +141,7 @@ namespace Caist.Framework.DataAccess
             {
                 foreach (var item in list)
                 {
-                    builder.Append($"INSERT INTO [caist_mk_db].[dbo].[mk_people_position]([pepole_number],[people_name],[type_of_work_name],[current_station],[station_address],[report_time],[post],[duty],[in_mine_time])VALUES({item.PepoleNumber},'{item.PepoleName}','{item.TypeOfWorkName}','{item.CurrentStation}','{item.StationAddress}','{DateTime.Now}','{item.Post}','{item.Duty}','{item.InMineTime}');");
+                    builder.Append($"INSERT INTO [caist_mk_db].[dbo].[mk_people_position]([pepole_number],[people_name],[type_of_work_name],[current_station],[station_address],[report_time],[post],[duty],[in_mine_time])VALUES({item.PepoleNumber},'{item.PepoleName}','{item.TypeOfWork}','{item.CurrentStation}','{item.StationAddress}','{DateTime.Now}','{item.Post}','{item.Duty}','{item.InMineTime}');");
                 }
                 using (var conn = Connect.GetConn("SQLServer"))
                 {
@@ -134,17 +155,14 @@ namespace Caist.Framework.DataAccess
         /// 获取供电站的数据
         /// </summary>
         /// <returns></returns>
-        public static async Task<List<SubStationEntity>> GetSubStationData()
+        public static async Task<DataTable> GetSystemData()
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(@"SELECT Id ,Sys_Id,Dian_Wei,F,IA,P,Q,COS
-                          FROM dbo.mk_substation");
+            builder.Append(@"select * from mk_system_setting where base_is_delete=0;");
 
             using (var conn = Connect.GetConn("SQLServer"))
             {
-                DataTable dataTable = await conn.GetDataTableAsync(builder.ToString());
-                builder.Clear();
-                return DataConvert.DataTableToList<SubStationEntity>(dataTable).ToList();
+                return await conn.GetDataTableAsync(builder.ToString());
             }
         }
 
@@ -157,6 +175,24 @@ namespace Caist.Framework.DataAccess
         {
             StringBuilder builder = new StringBuilder();
             builder.Append($"INSERT INTO [dbo].{history.TabName} ([dict_Id],[dict_value],[instruct_type])VALUES('{history.DictId}','{history.DictValue}',{history.InstructType})");
+
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                return await conn.ExcuteSQLAsync(builder.ToString()) > 0;
+            }
+        }
+
+        /// <summary>
+        /// 保存plc数据到相应的历史表
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<bool> SaveHistoryData(List<HistoryEntity> historys)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (var item in historys)
+            {
+                builder.Append($"INSERT INTO [dbo].{item.TabName} ([dict_Id],[dict_value],[instruct_type])VALUES('{item.DictId}','{item.DictValue}',{item.InstructType});");
+            }
 
             using (var conn = Connect.GetConn("SQLServer"))
             {
@@ -190,14 +226,24 @@ namespace Caist.Framework.DataAccess
                 return conn.GetDataTable(builder.ToString());
             }
         }
+        public static DataTable GetSwitcsStatus(InstructModel model)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendFormat(@"select m.control_name,m.control_stutas,p.id,p.paramenter_name,p.control as paramenter_instruct,
+                                    p.paramenter_value_type,p.paramenter_unit,p.paramenter_ip,p.paramenter_port
+                                    from [dbo].[mk_view_paramenter] p inner join 
+                                    [dbo].[mk_view_control_model] m on p.view_control_model_id = m.id
+                                    where p.base_is_delete=0 and exists(
+                                    select id from mk_view_function v where v.id=m.view_function_id and  exists(
+                                    select id from mk_system_setting s where id={0} and s.id=v.system_setting_id));", model.SystemId);
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                return conn.GetDataTable(builder.ToString());
+            }
+        }
         public static DataTable GetSingleCommandValue(InstructModel model)
         {
-            //var addrs = model.Instruct.Split('.');
             StringBuilder builder = new StringBuilder();
-            //builder.AppendFormat(@"select i.id as instructId,g.id as groupID from [dbo].[mk_instruct] i inner join [dbo].[mk_instruct_group] g on i.instruct_group_id=g.id where 
-            //                    i.name='{0}' and g.name ='{1}' and exists
-            //                    (select id from [dbo].[mk_device] d where d.system_id={2} and d.Device_Host='{3}' 
-            //                    and d.Device_Port='{4}' and d.id=g.device_id);", addrs[1], addrs[0], model.SystemId, model.Ip, model.Port);
             builder.AppendFormat(@"select  [id]
       ,[base_is_delete]
       ,[base_create_time]
@@ -218,7 +264,7 @@ namespace Caist.Framework.DataAccess
       ,[paramenter_value_type]
       ,[paramenter_value]
       ,[Animation]
-      ,[control_models] from mk_view_paramenter v where v.paramenter_ip='{0}' and v.paramenter_port={1} and paramenter_instruct='{2}';", model.Ip, model.Port, model.Instruct);
+      ,[control_models] from mk_view_paramenter v where v.paramenter_ip='{0}' and v.paramenter_port={1} and (paramenter_instruct='{2}' or paramenter_instruct_start='{2}' or paramenter_instruct_end='{2}');", model.Ip, model.Port, model.Instruct);
             using (var conn = Connect.GetConn("SQLServer"))
             {
                 return conn.GetDataTable(builder.ToString());
@@ -243,6 +289,18 @@ namespace Caist.Framework.DataAccess
                 tree.ImageIndex = 0;
             });
         }
+        public static void LoadDataDevice()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(@"SELECT  a.tab_name,a.id as Id, a.Device_Name as Name, a.Device_Host as Host, a.Device_Port as Port, a.Slot_No as CPU_SlotNO, a.PLCType as PLCType,a.system_id,
+                            a.Local as LocalTASP,  a.Remote as RemoteTASP, a.parent_id as ParentId,a.tab_name as TabName  FROM mk_device a WHERE a.base_is_delete = 0 and tab_name is not null and tab_name <> ''
+                            ;");//and a.Device_Host in ('192.168.200.53')
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                DataTable dataTable = conn.GetDataTable(builder.ToString());
+                PublicEntity.DeviceEntities = DataConvert.DataTableToList<DeviceEntity>(dataTable).ToList();
+            }
+        }
 
         public static void LoadDataTagGroup(string id = null)
         {
@@ -263,7 +321,7 @@ namespace Caist.Framework.DataAccess
         public static void LoadDataTag(string id = null)
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(@"select a.id as Id,a.Name as Name,a.instruct_group_id as TagGroup,a.address as Address,a.data_type as DataType,a.output as Output,a.remark as [Desc] 
+            builder.Append(@"select a.id as Id,a.Name as Name,a.instruct_group_id as TagGroup,a.address as Address,a.data_type as DataType,a.output as Output,a.remark as [Desc],instruct_Type
                              from mk_instruct a where a.base_is_delete = 0;");
             if (!string.IsNullOrEmpty(id))
             {

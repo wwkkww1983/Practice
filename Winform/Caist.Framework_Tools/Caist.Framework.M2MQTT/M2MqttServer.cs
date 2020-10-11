@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
@@ -30,6 +31,8 @@ namespace Caist.Framework.M2MQTT
         private int Port;
         private ToolStripButton MqttStart;
         private RichTextBox richMQT;
+        private System.Threading.Timer timer;
+        private System.Threading.Timer hisTimer;
         public bool IsConnected
         {
             get
@@ -41,7 +44,6 @@ namespace Caist.Framework.M2MQTT
 
             }
         }
-
 
 
         public M2MqttServer(string Host, int Port, string ClientId, string UserName, string PassWord, ToolStripButton MqttStart, RichTextBox richMQT)
@@ -57,6 +59,15 @@ namespace Caist.Framework.M2MQTT
             Initializer();
 
 
+        }
+        /// <summary>
+        /// 监视定时器 短线重连停止定时器
+        /// </summary>
+        /// <param name="_timer"></param>
+        public void SetTimer(System.Threading.Timer _timer, System.Threading.Timer _hisTimer)
+        {
+            this.timer = _timer;
+            this.hisTimer = _hisTimer;
         }
         /// <summary>
         /// 初始化链接构造器
@@ -158,6 +169,9 @@ namespace Caist.Framework.M2MQTT
                             this.ClientId,
                             this.UserName,
                             this.PassWord);
+                        //重连成功开始历史数据补传
+                        if (this.client != null && this.client.IsConnected && this.hisTimer != null)
+                            this.hisTimer.Change(0, 2);
                         //tmp = FrmMian.client.Connect(
                         //    FrmMian.mqtOption.MqClientid,
                         //   "admin",
@@ -199,25 +213,33 @@ namespace Caist.Framework.M2MQTT
         {
             if (!string.IsNullOrEmpty(client) && !string.IsNullOrEmpty(str))
             {
-                richMQT.Invoke(new Action(() =>
+
+                if (!richMQT.IsDisposed)
                 {
-                    string value = string.Format("-{0} - 时间：{1}  内容：{2}\r", client, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
-                    richMQT.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
-                    richMQT.SelectionColor = System.Drawing.Color.Red;    //设置SelectionColor属性实现控件中的文本颜色为红色
-                    richMQT.AppendText(value);
-                }));
+                    richMQT.Invoke(new Action(() =>
+                    {
+                        string value = string.Format("-{0} - 时间：{1}  内容：{2}\r", client, DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
+                        richMQT.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
+                        richMQT.SelectionColor = System.Drawing.Color.Red;    //设置SelectionColor属性实现控件中的文本颜色为红色
+                        richMQT.AppendText(value);
+                    }));
+                }
             }
             else
             {
                 if (!string.IsNullOrEmpty(str) && string.IsNullOrEmpty(client))
                 {
-                    richMQT.Invoke(new Action(() =>
+                    if (!richMQT.IsDisposed)
                     {
-                        string value = string.Format(">时间：{0}  内容：{1}\r", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
-                        richMQT.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
-                        richMQT.SelectionColor = System.Drawing.Color.Black;    //设置SelectionColor属性实现控件中的文本颜色为红色
-                        richMQT.AppendText(value);
-                    }));
+                        richMQT.Invoke(new Action(() =>
+                        {
+                            string value = string.Format(">时间：{0}  内容：{1}\r", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), str);
+                            richMQT.SelectionFont = new Font("宋体", 10, FontStyle.Regular);  //设置SelectionFont属性实现控件中的文本为楷体，大小为12，字样是粗体
+                            richMQT.SelectionColor = System.Drawing.Color.Black;    //设置SelectionColor属性实现控件中的文本颜色为红色
+                            richMQT.AppendText(value);
+                        }));
+                    }
+
                 }
             }
         }
@@ -226,8 +248,8 @@ namespace Caist.Framework.M2MQTT
         //  客户端收到来自服务端的消息后触发
         public void client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
-            string ReceivedMessage = Encoding.UTF8.GetString(e.Message);
-            MqtMessage($"上传主题：{e.Topic} 数据:{ReceivedMessage}成功，收到服务器回调");
+            //string ReceivedMessage = Encoding.UTF8.GetString(e.Message);
+            MqtMessage($"上传主题：{e.Topic} 数据成功，收到服务器回调");
         }
 
 
@@ -235,7 +257,7 @@ namespace Caist.Framework.M2MQTT
         // sub后的操作
         public void client_MqttMsgSubscribed(object sender, MqttMsgSubscribedEventArgs e)
         {
-            MqtMessage("Subscribed for id = " + e.MessageId.ToString());
+            //MqtMessage("Subscribed for id = " + e.MessageId.ToString());
         }
         // 发布消息后的操作
         public void client_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
@@ -245,15 +267,20 @@ namespace Caist.Framework.M2MQTT
         // 关闭连接后的操作
         public void client_ConnectionClosed(object sender, EventArgs e)
         {
+            MqtMessage("connect closed");
             if (!MqttStart.Enabled)
             {
                 DisposeClose();
+
+                //如果断线了，立即停止实时数据上传的线程，重连后启动历史数据线程补传数据完成后再启动实时数据上传
+                if (timer != null)
+                    timer.Change(Timeout.Infinite, Timeout.Infinite);
+                Task.Factory.StartNew(() =>
+                {
+                    ConnectWrap();
+                });
             }
-            MqtMessage("connect closed");
-            Task.Factory.StartNew(() =>
-            {
-                ConnectWrap();
-            });
+
         }
         // 取消sub后的操作
         public void client_MqttMsgUnsubscribed(object sender, MqttMsgUnsubscribedEventArgs e)

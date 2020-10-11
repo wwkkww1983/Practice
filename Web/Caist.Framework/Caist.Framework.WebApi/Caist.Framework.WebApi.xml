@@ -163,6 +163,13 @@
             <param name="param"></param>
             <returns></returns>
         </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.PeoplePositioningController.PeopleArea">
+            <summary>
+            当天人员工作活动区域占比数据
+            </summary>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
         <member name="M:Caist.Framework.WebApi.Controllers.PidaiMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Pidaihistory.PidaiMonitorParam)">
             <summary>
             获取pidai数据
@@ -182,6 +189,13 @@
             获取安全检测列表
             </summary>
             <param name="param">SecurityMonitorParam</param>
+            <returns></returns>
+        </member>
+        <member name="M:Caist.Framework.WebApi.Controllers.SettingValueController.SaveForm(Caist.Framework.Entity.SettingValueManage.SettingValueEntity)">
+            <summary>
+            设置参数后 修改参数设置得值，只做更新，不做插入数据
+            </summary>
+            <param name="entity"></param>
             <returns></returns>
         </member>
         <member name="M:Caist.Framework.WebApi.Controllers.ShuibengMonitorController.GetSecurityInfoList(Caist.Framework.Model.Param.Shuibenghistory.ShuibengMonitorParam)">

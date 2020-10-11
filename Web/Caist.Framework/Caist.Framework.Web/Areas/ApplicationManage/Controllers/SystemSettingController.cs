@@ -6,6 +6,7 @@ using Caist.Framework.Web.Code;
 using Caist.Framework.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Caist.Framework.Web.Areas.ApplicationManage.Controllers
@@ -35,6 +36,10 @@ namespace Caist.Framework.Web.Areas.ApplicationManage.Controllers
         public async Task<IActionResult> GetListJson(SystemSettingListParam param)
         {
             TData<List<SystemSettingEntity>> obj = await systemSettingBLL.GetList(param);
+            if (param.DataType == "Publish")  //信息发布
+            {
+              obj.Result =  obj.Result.Where(n=> !n.SystemName.Contains("视频") && !n.SystemName.Contains("安全")).ToList();
+            }
             return Json(obj);
         }
 

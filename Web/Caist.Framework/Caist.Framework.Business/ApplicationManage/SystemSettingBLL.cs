@@ -5,6 +5,7 @@ using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Caist.Framework.Business.ApplicationManage
@@ -20,16 +21,18 @@ namespace Caist.Framework.Business.ApplicationManage
             obj.Result = await systemSettingService.GetList(param);
             if (obj.Result != null)
             {
-                obj.Result.ForEach(n => {
+                obj.Result.ForEach(n =>
+                {
                     if (!n.SystemImage.Contains("http"))
                     {
                         n.SystemImage = GlobalContext.SystemConfig.WebUrI + n.SystemImage;
                     }
-                    if (n.SystemModel!=null && !n.SystemModel.Contains("http"))
+                    if (n.SystemModel != null && !n.SystemModel.Contains("http"))
                     {
                         n.SystemModel = GlobalContext.SystemConfig.WebUrI + n.SystemModel;
                     }
                 });
+                obj.Result = obj.Result.OrderBy(n=>n.SystemSort).ToList();
             }
             obj.TotalCount = obj.Result.Count;
             obj.Tag = 1;

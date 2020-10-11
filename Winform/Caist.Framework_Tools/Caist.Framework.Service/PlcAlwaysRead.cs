@@ -1,11 +1,20 @@
-﻿using Caist.Framework.Entity;
+﻿using Caist.Framework.DataAccess;
+using Caist.Framework.Entity;
 using Caist.Framework.Entity.Entity;
 using Caist.Framework.Entity.Enum;
+using Caist.Framework.Service.Control;
+using Caist.Framework.ThreadPool;
+using Caist.Siemens;
 using Newtonsoft.Json;
+using SyncUtil;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Caist.Framework.Service
 {
@@ -13,120 +22,339 @@ namespace Caist.Framework.Service
     {
         private Stopwatch _swPlcHistory = new Stopwatch();
         private PlcConnects _plcStatus = new PlcConnects();
+        DataTable _sysData;
+        static Dictionary<SiemensHelpers, CaistTimer> _dictReconnects = new Dictionary<SiemensHelpers, CaistTimer>();
+
+        DataRow[] _systems;
         #region 定时存储PLC数据
         public async Task AlwaysRunPlcRead()
         {
-            System.Timers.Timer timer = new System.Timers.Timer();
-            timer.Interval = 1000;
-            timer.Elapsed += Timer_Elapsed1;
-            timer.Start();
-        }
-
-        private void Timer_Elapsed1(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            ReadPlc_RealTime();
-
-            PlcConnectStatus();
-        }
-
-        string[] _systemName = new string[] { "通风", "压风", "皮带", "泵", "局部" };
-        //连接状态
-        private async Task PlcConnectStatus()
-        {
-            List<PlcConnect> plcConnects = new List<PlcConnect>();
-            foreach (var name in _systemName)
-            {
-                var sims = _siemensHelpers.FindAll(p => p.DeviceEntity.Name.IndexOf(name) > -1);
-                PlcConnect plcConnect = new PlcConnect();
-                var flag = 0;
-                foreach (var item in sims)
-                {
-                    plcConnect.SysId = item.DeviceEntity.SystemId;
-                    plcConnect.PlcName = name;
-                    flag = item.IsConnected() ? 1 : 0;
-                    if (flag == 1)
-                    {
-                        break;
-                    }
-                }
-                plcConnect.PlcStatus = flag;
-                plcConnects.Add(plcConnect);
-            }
-            _plcStatus.PlcConnectStatus = plcConnects;
-            var strModel = JsonConvert.SerializeObject(_plcStatus);
-            await SendEverySocket(strModel);
-        }
-
-        private PlcConnect GetPlcConnect()
-        {
-            var pct = new PlcConnect()
-            {
-
-            };
-
-            return pct;
-        }
-
-        private void ReadPlc_RealTime()
-        {
             try
             {
-                _siemensHelpers.ForEach(helper =>
-                {
-                    var groups = helper.DeviceEntity.TagGroupsEntities;
-                    double val;
-                    groups.ForEach(g =>
-                    {
-                        var tags = g.TagEntities;
-                        tags.ForEach(async t =>
-                        {
-                            var key = $"{g.Name}.{t.Name}";
-                            //读取数据
-                            double.TryParse(helper.Read(key), out val);
-                            //报警数据处理
-                            AbnormalDataHandle(val, key, helper.DeviceEntity);
-                            //1分钟保存一次到历史记录表
-                            if (_swPlcHistory.Elapsed.Minutes == SaveHistoryInterval)
-                            {
-                                //保存数据到历史记录表
-                                await SaveDataToHistoryTab(key, val.ToString(), helper.DeviceEntity, InstructViewEnum.Data);
-                                _stopwatch.Restart();
-                            }
-
-                        });
-                    });
-                });
+                _sysData = await DataServices.GetSystemData();
+                _systems = _sysData.Select("device_instruction ='1'");//为1的需获取plc状态的系统
             }
             catch (Exception ex)
             {
-                //Common.LogError(ex);
+                Common.LogError(ex);
+            }
+
+            int plcRead = 0;
+            try
+            {
+                int.TryParse("PlcReadTime".GetConfigrationStr(), out plcRead);
+                plcRead = plcRead == 0 ? 100 : plcRead;
+            }
+            catch (Exception ex)
+            {
+                plcRead = plcRead == 0 ? 100 : plcRead;
+                MessageBox.Show(ex.Message);
+            }
+            #region 一直读取PLC进行相应的逻辑处理
+            foreach (var helper in _siemensHelpers)
+            {
+                CaistTimer timer = new CaistTimer() { Interval = plcRead };
+                timer.Elapsed += Timer_Elapsed1;
+                timer.obj = helper;
+                if (!_valuePairs.ContainsKey(helper))
+                {
+                    _valuePairs.Add(helper, 0);
+                }
+                timer.Start();
+            }
+            #endregion
+
+            #region 定时保存到历史表
+            System.Timers.Timer timerHistory = new System.Timers.Timer() { Interval = 1000 };
+            timerHistory.Elapsed += TimerHistory_Elapsed;
+            timerHistory.Start();
+            #endregion
+            #region 定时读取PLC连接状态
+            System.Timers.Timer timerConnect = new System.Timers.Timer() { Interval = 1000 };
+            timerConnect.Elapsed += TimerConnect_Elapsed;
+            timerConnect.Start();
+            #endregion
+            _swPlcHistory.Start();
+        }
+
+        private async void TimerConnect_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            await PlcConnectStatus();
+        }
+
+        private async void TimerHistory_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            await SaveDataForOneMinutes();
+        }
+
+        object _lockObj = new object();
+        private async void Timer_Elapsed1(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            var helper = ((CaistTimer)sender).obj;
+            //每个单独的索引
+            var i = _valuePairs[helper];
+            try
+            {
+                if (helper.IsConnected())
+                {
+                    //192.168.20.18-DB16.DBD1:0
+                    var tempKey = helper.ListInstructs.ElementAt(i);
+
+                    var tempStr = tempKey.Split(':');
+                    string val = string.Empty;
+                    var uniqueKey = tempStr[0];
+                    var key = tempStr[0].Split('-')[1];
+                    var dataTypes = tempStr[1].Split('|');
+                    var dataType = dataTypes[0];
+                    var instructType = dataTypes[1];
+                    //true或者false 必须配位short类型
+                    try
+                    {
+                        if (GetSendDataType(dataType) == SendDataType.Short)
+                        {
+                            val = helper.Read(key);
+                        }
+                        else
+                        {
+                            val = helper.Read(key, GetSendDataType(dataType));
+                        }
+
+                        //if (uniqueKey == "192.168.20.23-DB18.DBX13.7")
+                        //{
+                        //    Common.LogError("【原始指令】：" + tempKey + "【值】：" + val);
+                        //}
+
+                        #region DataGrid赋值
+                        lvPoint.Invoke(new Action(() =>
+                        {
+                            //if (!val.HasValue())
+                            //{
+                            //    Common.LogError("值等于空的键：" + uniqueKey + "-" + key);
+                            //}
+                            ListViewItem item = lvPoint.FindItemWithText(uniqueKey);
+
+                            if (item != null)
+                            {
+                                item.SubItems[4].Text = val;
+                                //if (uniqueKey == "192.168.20.202-DB12.DBD4")
+                                //{
+                                //    item.SubItems[4].Text = "111";
+                                //}
+                            }
+
+                        }));
+                        #endregion
+                    }
+                    catch (Exception ex)
+                    {
+                        //Common.LogError("【" + uniqueKey + "】" + ex);
+                    }
+
+                    if (val != "非数字")
+                    {
+                        //只推送相关的系统ID的值
+                        if (helper.DeviceEntity.SystemId == _SystemId)
+                        {
+                            SendData(val, uniqueKey, dataType, _ClientFlag);
+                        }
+
+                        #region 历史记录保存
+                        if (val.ToString().HasValue())
+                        {
+                            var history = new HistoryEntity()
+                            {
+                                DictId = uniqueKey,
+                                DictValue = val.ToString(),
+                                TabName = helper.DeviceEntity.TabName,
+                                InstructType = int.Parse(instructType)// 0:数据;1:控制;2:告警;3:启动;4:停止;9:参数设置
+                            };
+                            lock (_lockObj)
+                            {
+                                if (_tempDataList.ContainsKey(uniqueKey))
+                                {
+                                    _tempDataList[uniqueKey] = history;
+                                }
+                                else
+                                {
+                                    _tempDataList.Add(uniqueKey, history);
+                                }
+                            }
+                        }
+
+                        #endregion
+
+                        //报警数据处理
+                        await AbnormalDataHandle(val, uniqueKey, helper.DeviceEntity, dataType);
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Common.LogError(ex);
+            }
+            i++;
+            i = helper.ListInstructs.Count == i ? 0 : i;
+            _valuePairs[helper] = i;
+        }
+
+        private async Task SaveDataForOneMinutes()
+        {
+            //1分钟保存一次到历史记录表
+            if (_swPlcHistory.Elapsed.Minutes == SaveHistoryInterval)
+            {
+                _swPlcHistory.Restart();
+                //保存数据到历史记录表
+                await DataServices.SaveHistoryData(_tempDataList.Values.ToList());
+                _tempDataList.Clear();
             }
         }
 
-        private async void AbnormalDataHandle(double v, string key, DeviceEntity device)
+        #region plc连接状态
+        //连接状态
+        private async Task PlcConnectStatus()
         {
-            var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < v || p.MinValue > v) && p.ManipulateModelMark == key);
-            if (item != null)
+            try
             {
-                var list = new List<AlarmContent>();
-                list.Add(new AlarmContent()
+                List<PlcConnect> plcConnects = new List<PlcConnect>();
+                foreach (var dr in _systems)
                 {
-                    SysId = item.SysId,
-                    ModuleId = item.ModuleId,
-                    Name = item.SystemName,
-                    Message = item.BroadCastContent,
-                    Type = true
-                });
-                var alarmModel = new AlarmModel()
-                {
-                    Alarm = list
-                };
-                var strModel = JsonConvert.SerializeObject(alarmModel);
-                //保存异常数据到数据库
-                await SaveAlarmData(item, v);
-                //保存报警数据到历史记录表
-                await SaveDataToHistoryTab(key, v.ToString(), device, InstructViewEnum.Alarm);
+                    var sims = _siemensHelpers.FindAll(p => p.DeviceEntity.SystemId == dr["Id"].ToString());
+                    PlcConnect plcConnect = new PlcConnect();
+                    var flag = 0;
+                    foreach (var item in sims)
+                    {
+                        plcConnect.SysId = item.DeviceEntity.SystemId;
+                        plcConnect.PlcName = dr["system_name"].ToString();
+                        flag = item.IsConnected() ? 1 : 0;
+                        if (flag == 1)
+                        {
+                            break;
+                        }
+                        if (!item.IsConnected())
+                        {
+                            ReconnectPlc(item);
+                        }
+                    }
+                    plcConnect.PlcStatus = flag;
+                    plcConnects.Add(plcConnect);
+                }
+                _plcStatus.PlcConnectStatus = plcConnects;
+                var strModel = JsonConvert.SerializeObject(_plcStatus);
                 await SendEverySocket(strModel);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        private void ReconnectPlc(SiemensHelpers helper)
+        {
+            if (_dictReconnects.ContainsKey(helper))
+            {
+                if (!_dictReconnects[helper].Enabled)
+                    _dictReconnects[helper].Start();
+            }
+            else
+            {
+                CaistTimer timerReconnect = new CaistTimer() { Interval = 1200 };
+
+                timerReconnect.Elapsed += TimerReconnect_Elapsed;
+                timerReconnect.obj = helper;
+                if (!_valuePairs.ContainsKey(helper))
+                {
+                    _valuePairs.Add(helper, 0);
+                }
+                timerReconnect.Start();
+                _dictReconnects.Add(helper, timerReconnect);
+            }
+        }
+
+        private void TimerReconnect_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            var helper = ((CaistTimer)sender).obj;
+            try
+            {
+                if (!helper.IsConnected())
+                {
+                    ConnectPlc(helper);
+                }
+                else
+                {
+                    _dictReconnects[helper].Stop();
+                }
+            }
+            catch (Exception ex)
+            {
+                ConnectPlcMsg(helper, "未连接");
+            }
+        }
+
+        private void ConnectPlc(SiemensHelpers helper)
+        {
+            try
+            {
+                var result = helper.Open(helper.DeviceEntity.PLCType, helper.DeviceEntity.Host, short.Parse(helper.DeviceEntity.Port), 0, short.Parse(helper.DeviceEntity.CPU_SlotNO));
+                if (!result)
+                {
+                    ConnectPlcMsg(helper, "未连接");
+                }
+                else
+                {
+                    ConnectPlcMsg(helper, "已连接");
+                }
+            }
+            catch (Exception ex)
+            {
+                ConnectPlcMsg(helper, "未连接");
+            }
+        }
+
+        private void ConnectPlcMsg(SiemensHelpers helper, string msg)
+        {
+            lvlPlcStatus.Invoke(new Action(() =>
+            {
+                ListViewItem item = lvlPlcStatus.FindItemWithText(helper.DeviceEntity.Id);
+                if (item != null)
+                {
+                    item.SubItems[2].ForeColor = msg == "未连接" ? Color.Red : Color.Green;
+                    item.SubItems[2].Text = msg;
+                }
+            }));
+        }
+
+        #endregion
+
+        private async Task AbnormalDataHandle(string v, string key, DeviceEntity device, string dataType)
+        {
+            if (GetSendDataType(dataType) != SendDataType.Short)
+            {
+                double t = 0;
+                double.TryParse(v, out t);
+                var item = PublicEntity.AlarmEntities.Find(p => (p.MaxValue < t || p.MinValue > t) && p.ManipulateModelMark == key);
+                if (item != null)
+                {
+                    var list = new List<AlarmContent>();
+                    list.Add(new AlarmContent()
+                    {
+                        SysId = item.SysId,
+                        ModuleId = item.ModuleId,
+                        Name = item.SystemName,
+                        Message = item.BroadCastContent,
+                        Type = true
+                    });
+                    var alarmModel = new AlarmModel()
+                    {
+                        Alarm = list
+                    };
+                    var strModel = JsonConvert.SerializeObject(alarmModel);
+                    //保存异常数据到数据库
+                    await SaveAlarmData(item, t);
+                    //保存报警数据到历史记录表
+                    await DataServices.SaveHistoryData(_tempDataList.Values.ToList());
+                    await SaveDataToHistoryTab(key, v.ToString(), device, InstructViewEnum.Alarm);
+                    await SendEverySocket(strModel);
+                }
             }
         }
 
@@ -137,10 +365,13 @@ namespace Caist.Framework.Service
         /// <returns></returns>
         private async Task SendEverySocket(string msg)
         {
-            foreach (var socket in dic_Sockets)
+            if (dic_Sockets != null && dic_Sockets.Count > 0)
             {
-                //每个socket都推送
-                await socket.Value.Send(msg);
+                foreach (var socket in dic_Sockets)
+                {
+                    //每个socket都推送
+                    await socket.Value.Send(msg);
+                }
             }
         }
         #endregion

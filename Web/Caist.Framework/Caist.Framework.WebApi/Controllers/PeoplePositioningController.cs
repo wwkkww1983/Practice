@@ -1,10 +1,12 @@
 ﻿using Caist.Framework.Business.PeopleManage;
 using Caist.Framework.Entity.PeopleManage;
 using Caist.Framework.Model.PeopleManage;
+using Caist.Framework.Model.Result.SystemManage;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
 using Caist.Framework.WebApi.Handle;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Caist.Framework.WebApi.Controllers
@@ -80,6 +82,19 @@ namespace Caist.Framework.WebApi.Controllers
         //    var obj = await regionBLL.PeopleInfo(param);
         //    return obj;
         //}
+        /// <summary>
+        /// 当天人员工作活动区域占比数据
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<string> PeopleArea()
+        {
+            var obj = await regionBLL.GetPeopleArea();
+
+            return obj.RemoveNullValue();
+        }
+
         #endregion
 
         #region 提交数据

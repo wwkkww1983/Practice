@@ -1,6 +1,7 @@
 ﻿using Caist.Framework.Util;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
 
 namespace Caist.Framework.Entity.PointManage
 {
@@ -16,7 +17,11 @@ namespace Caist.Framework.Entity.PointManage
         [JsonConverter(typeof(StringJsonConverter))]
         public long? InstructGroupId { get; set; }
         public string InstructGroupName { get; set; }
+
+        public int InstructType { get; set; }
         //public string GroupName { get; set; }
+        [NotMapped]
+        public string DeviceHost { get; set; }
 
     }
 
@@ -34,5 +39,8 @@ namespace Caist.Framework.Entity.PointManage
 
         public string GroupName { get; set; }
 
+        public string DeviceHost { get; set; }
+
+        public int InstructType { get; set; }
     }
 }

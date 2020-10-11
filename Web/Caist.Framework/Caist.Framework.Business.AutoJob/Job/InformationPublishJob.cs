@@ -5,7 +5,10 @@ using Caist.Framework.Enum;
 using Caist.Framework.Model.Param.ApplicationManage;
 using Caist.Framework.Model.Param.OrganizationManage;
 using Caist.Framework.Model.Result.SystemManage;
+using Caist.Framework.Service.FiberManage;
+using Caist.Framework.Service.PeopleManage;
 using Caist.Framework.Service.PointManage;
+using Caist.Framework.Service.SubStation;
 using Caist.Framework.Util;
 using Caist.Framework.Util.Extension;
 using Caist.Framework.Util.Model;
@@ -28,6 +31,9 @@ namespace Caist.Framework.Business.AutoJob
         private ViewManipulateModelBLL viewManipulateModelBLL = new ViewManipulateModelBLL();
         private InformationPublishBLL InformationPublishBLL = new InformationPublishBLL();
         private DeviceService deviceService = new DeviceService();
+        private RegionService regionService = new RegionService();
+        private FiberService fiberService = new FiberService();
+        private SubStationService subStationService = new SubStationService();
         private readonly FtpClient ftpClient = new FtpClient(GlobalContext.SystemConfig.FTPServer,
             new NetworkCredential(GlobalContext.SystemConfig.FTPUser, GlobalContext.SystemConfig.FTPPwd));
         private readonly string TemplatePath = GlobalContext.SystemConfig.InformationPublishTemplatePath;
@@ -68,23 +74,32 @@ namespace Caist.Framework.Business.AutoJob
             TempList.ForEach((n) =>
             {
                 //正则匹配点位 根据点位匹配数据
-                MatchCollection Matches = Regex.Matches(n.linkContent, @"(?<=\{\{)[^}]*(?=\}\})", RegexOptions.Multiline);
-                SystemDataParam param = new SystemDataParam();
+
                 if (n.linkContent.Contains("井下实时人员数量")) //人员信息联动
                 {
-
-                    string result = HttpHelper.HttpPost(Util.GlobalContext.SystemConfig.PeopleRealTime, "");
-                    if (!string.IsNullOrEmpty(result))
+                    string result = "";
+                    List<PublicPeopleRealTime> data = null;
+                    //是否有实时数据接口
+                    if (!string.IsNullOrEmpty(Util.GlobalContext.SystemConfig.PeopleRealTime))
                     {
-                        var data = JsonHelper.ToObject<List<PublicPeopleRealTime>>(result);
+                        result = HttpHelper.HttpPost(Util.GlobalContext.SystemConfig.PeopleRealTime, "");
+                        if (!string.IsNullOrEmpty(result))
+                            data = JsonHelper.ToObject<List<PublicPeopleRealTime>>(result);
+                    }
+                    else  //数据库读取
+                    {
+                        data = regionService.GetPeopleRealTime().Result;
+                    }
+                    if (data != null)
+                    {
                         StringBuilder sb = new StringBuilder();
                         sb.AppendFormat("井下实时人员数量：{0}人 \r\n", data.Count);
                         sb.AppendFormat("编 号   姓 名      职位           位  置\r\n");
                         foreach (var item in data)
                         {
-                            item.TypeOfWorkName = !string.IsNullOrEmpty(item.TypeOfWorkName) ? item.TypeOfWorkName : "普通职工";
+                            item.TypeOfWork = !string.IsNullOrEmpty(item.TypeOfWork) ? item.TypeOfWork : "普工";
                             #region 处理文字长度
-                            if ((4 - item.PepoleName.Length)!= 0)
+                            if ((4 - item.PepoleName.Length) != 0)
                             {
                                 var length = 4 - item.PepoleName.Length;
                                 for (int i = 0; i < length; i++)
@@ -92,28 +107,44 @@ namespace Caist.Framework.Business.AutoJob
                                     item.PepoleName += "  ";
                                 }
                             }
-                           
-                            if ((5 - item.TypeOfWorkName.Length) != 0)
+
+                            if ((5 - item.TypeOfWork.Length) != 0)
                             {
-                                var length = 5 - item.TypeOfWorkName.Length;
+                                var length = 5 - item.TypeOfWork.Length;
                                 for (int i = 0; i < length; i++)
                                 {
-                                    item.TypeOfWorkName += "  ";
+                                    item.TypeOfWork += "  ";
                                 }
                             }
                             #endregion
                             sb.AppendFormat("{0}   {1}   {2}     {3}\r\n", item.PepoleNumber, item.PepoleName,
-                                item.TypeOfWorkName, item.StationAddress);
+                                item.TypeOfWork, item.StationAddress);
                         }
                         n.linkContent = sb.ToString();
                     }
                 }
                 else  //plc采集的系统
                 {
+                    MatchCollection Matches = Regex.Matches(n.linkContent, @"(?<=\{\{)[^}]*(?=\}\})", RegexOptions.Multiline);
+                    SystemDataParam param = new SystemDataParam();
                     foreach (Match NextMatch in Matches)
                     {
+                        var dict = NextMatch.ToString();
+
+                        if (dict.Contains("Value"))  //光纤
+                        {
+                            var dicts = dict.Split("-");
+                            var value = GetFiberValue(dicts[0].ToString(), dicts[1].ToString());
+                            n.linkContent = n.linkContent.Replace("{{" + NextMatch.Value + "}}", value.Result != null ? value.Result : "--");
+                        }
+                        else if (dict.Contains("-yc") || dict.Contains("-yx")) //供配电遥测数据  遥测 遥信
+                        {
+                            var dicts = dict.Split("-");
+                            var value = GetRealTimeData(dicts[1].ToString());
+                            n.linkContent = n.linkContent.Replace("{{" + NextMatch.Value + "}}", value.Result!=null ? value.Result : "--");
+                        }
                         //针对PLC采集点表数据
-                        if (!NextMatch.ToString().Contains("R"))
+                        else if (NextMatch.ToString().Contains("-DB"))
                         {
                             var TabName = deviceService.GetSysDataTableName(NextMatch.Value);
                             if (TabName.Result != null)
@@ -135,13 +166,9 @@ namespace Caist.Framework.Business.AutoJob
                                 }
                             }
                         }
-                        else //针对同步数据
-                        {
-                            //TODO:人员信息、光纤、供配电
-                        }
                     }
                 }
-              
+
                 PublishList.Add(n);
 
             });
@@ -191,13 +218,50 @@ namespace Caist.Framework.Business.AutoJob
 
             return value;
         }
+        /// <summary>
+        /// 根据区域和点位获取对应值
+        /// </summary>
+        /// <param name="AreaName"></param>
+        /// <param name="dict"></param>
+        /// <returns></returns>
+        private  async  Task<string> GetFiberValue(string AreaName,string dict)
+        {
 
+            var Entity =  await fiberService.GetFiberAreaData(AreaName);
+            string value = "0";
+            switch (dict)
+            {
+                case "AverageValue":
+                    value = Entity.AverageValue;
+                    break;
+                case "MaxValue":
+                    value = Entity.MaxValue;
+                    break;
+                case "MinValue":
+                    value = Entity.MinValue;
+                    break;
+                default:
+                    break;
+            }
+            return value;
+        }
+        /// <summary>
+        /// 获取电力指定点位最新数据
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <returns></returns>
+        private async Task<string> GetRealTimeData(string dict)
+        {
+            var value = await subStationService.GetRealTimeData(dict);
+            return value != null ? value.DictValue : "--";
+        }
+        
 
         //输出信息发布数据txt文件到指定得ftp服务器
         private bool WriteDirAndUplpadFtp(string path, string filename, string content)
         {
             bool status = false;
-           
+
             try    //如果有ftp服务器需要上传到ftp服务器，如果没有，抛出异常，并且只保存到指定磁盘目录
             {
 

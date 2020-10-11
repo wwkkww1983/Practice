@@ -87,9 +87,9 @@ namespace Caist.Framework.Service.ApplicationManage
                 {
                     expression = expression.And(t => t.Name == param.Name);
                 }
-                if (param.Area.HasValue())
+                if (param.SystemId.HasValue())
                 {
-                    expression = expression.And(t => t.Area == param.Area);
+                    expression = expression.And(t => t.Area == param.SystemId);
                 }
                 if (param.Number.HasValue())
                 {

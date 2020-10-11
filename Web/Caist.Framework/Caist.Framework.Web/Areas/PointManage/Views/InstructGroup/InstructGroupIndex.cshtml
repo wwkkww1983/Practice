@@ -9,6 +9,10 @@
                     <li>
                         名称：<input id="name" col="Name" type="text" />
                     </li>
+                    <li class="select-select2">
+                        <label>PLC模块：</label>
+                        <div id="deviceId" col="DeviceId" class="select"></div>
+                    </li>
                     <li>
                         <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                     </li>
@@ -29,6 +33,13 @@
 <script type="text/javascript">
     $(function () {
         initGrid();
+
+        $("#deviceId").ysComboBox({
+           url: '@Url.Content("~/PointManage/Device/GetListJson")',
+           key: "Id",
+           value: "DeviceName",
+           class: "form-control",
+           });
     });
 
     function initGrid() {

@@ -180,7 +180,7 @@ namespace Caist.Framework.Service
                             //采区编码  +地址类型编码	+安装设备地点编码 =地址编码
                             var SensorCode = mqtOption.MqCollieryCode + setting.AddressAreCode + setting.AddressTypeCode + setting.AddressDeviceCode + setting.SystemCode +
                             setting.DeviceCode + setting.SensorTypeCode;
-                            var pointValue = pointValueList.Result.FindLast(n => n.DictId == setting.CodePointSetting);
+                            var pointValue = pointValueList.FindLast(n => n.DictId == setting.CodePointSetting);
                             #region  根据数据类型处理上传业务逻辑
                             if (setting.CodeType == 2) //报警数据
                             {
@@ -188,7 +188,7 @@ namespace Caist.Framework.Service
                                 var AlarmPointS = setting.AlarmPoint.Split(',');
                                 foreach (var alarm in AlarmPointS) //报警为多个数据中有任意一个状态为true则上传
                                 {
-                                    pointValue = pointValueList.Result.FindLast(n => n.DictId == alarm);
+                                    pointValue = pointValueList.FindLast(n => n.DictId == alarm);
                                     if (pointValue != null)
                                     {
                                         AlarmStatus = (pointValue != null && pointValue.DictValue.ParseToInt() == 0);
@@ -204,7 +204,7 @@ namespace Caist.Framework.Service
                                 var ctrs = setting.AlarmPoint.Split(',');
                                 foreach (var ctr in ctrs)
                                 {
-                                    pointValue = pointValueList.Result.FindLast(n => n.DictId == ctr);
+                                    pointValue = pointValueList.FindLast(n => n.DictId == ctr);
                                     ctrStatus = (pointValue != null && pointValue.DictValue.ParseToInt() == 0);
                                     if (ctrStatus)
                                         break;

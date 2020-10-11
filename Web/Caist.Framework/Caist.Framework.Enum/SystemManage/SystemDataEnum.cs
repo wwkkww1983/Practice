@@ -32,6 +32,8 @@ namespace Caist.Framework.Enum.SystemManage
         Cotrl = 2,
         [Description("运行总控")]
         Status = 3,
+        [Description("视频数据")]
+        Video = 4,
 
     }
 }

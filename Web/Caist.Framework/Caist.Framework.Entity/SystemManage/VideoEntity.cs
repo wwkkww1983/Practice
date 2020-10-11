@@ -3,7 +3,7 @@
 namespace Caist.Framework.Entity.SystemManage
 {
     [Table("mk_eb_video")]
-    public class VideoEntity: BaseExtensionEntity
+    public class VideoEntity : BaseExtensionEntity
     {
         /// <summary>
         /// 视频区域名称
@@ -48,6 +48,13 @@ namespace Caist.Framework.Entity.SystemManage
         /// 所属区域
         /// </summary>
         public string Area
+        {
+            get; set;
+        }
+        /// <summary>
+        /// 视频拉流通道编号
+        /// </summary>
+        public string ChannelNumber
         {
             get; set;
         }

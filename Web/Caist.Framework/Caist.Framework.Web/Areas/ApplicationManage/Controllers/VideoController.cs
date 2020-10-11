@@ -43,8 +43,7 @@ namespace Caist.Framework.Web.Areas.ApplicationManage.Controllers
         [AuthorizeFilter("application:video:search")]
         public async Task<IActionResult> GetPageListJson(VideoListParam param, Pagination pagination)
         {
-            //Area参数和路由冲突导致每次都带有ApplicationManage  路由值进来，这里用不到Area参数屏蔽掉
-            param.Area = string.Empty;
+
             TData<List<VideoEntity>> obj = await videoBLL.GetPageList(param, pagination);
             return Json(obj);
         }

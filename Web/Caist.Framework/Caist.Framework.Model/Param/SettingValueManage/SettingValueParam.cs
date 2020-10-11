@@ -7,5 +7,10 @@
         public string ParameterIp { get; set; }
 
         public string ParameterSettingType { get; set; }
+
+
+        public string ParameterModels { get; set; }
+
+        public string ParameterControls { get; set; }
     }
 }

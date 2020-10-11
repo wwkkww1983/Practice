@@ -16,5 +16,7 @@
         public string Output { get; set; }
         [DBColumn(ColName = "Desc")]
         public string Desc { get; set; }
+        [DBColumn(ColName = "instruct_Type")]
+        public int InstructType { get; set; }
     }
 }

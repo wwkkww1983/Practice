@@ -60,7 +60,9 @@ namespace Caist.Framework.Entity.Enum
         [Description("获取单个开关状态值")]
         GetCommandValue = 6,
         [Description("设置单个开关状态")]
-        SetCommandValue = 7
+        SetCommandValue = 7,
+        [Description("获取开关状态集合")]
+        GetCommandsStatus = 8
     }
 
     public enum InstructViewEnum

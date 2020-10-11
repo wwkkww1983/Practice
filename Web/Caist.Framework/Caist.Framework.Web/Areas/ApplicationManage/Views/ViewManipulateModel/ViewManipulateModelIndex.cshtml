@@ -15,6 +15,10 @@
                         <label>系统模块：</label>
                         <div id="systemId" col="SystemId" class="select"></div>
                     </li>
+                    <li class="select-select2">
+                        <label>视图模块：</label>
+                        <div id="viewFunctionId" col="ViewFunctionId" class="select"></div>
+                    </li>
                     <li>
                         <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                     </li>
@@ -40,8 +44,21 @@
             key: "Id",
             value: "SystemName",
             class: "form-control",
+            onChange:showViewFunction,
         });
+        showViewFunction();
     });
+        //模块选择
+    function showViewFunction() {
+        var selectSystem = $("#systemId_select").find("option:selected").val();
+           $("#viewFunctionId").ysComboBox({
+               url: '@Url.Content("~/ApplicationManage/ViewFunction/GetListJson")' + '?SystemSettingId=' + selectSystem,
+                    key: "Id",
+                    value: "ViewName",
+                    class: "form-control",
+           });
+    }
+
     function initGrid() {
         var queryUrl = '@Url.Content("~/ApplicationManage/ViewManipulateModel/GetPageListJson")';
         $('#gridTable').ysTable({
@@ -117,9 +134,11 @@
                 id = selectedRow[0].Id;
             }
         }
+        var viewFunctionId = $("#viewFunctionId").find("option:selected").val();
+        var systemId = $("#systemId").find("option:selected").val();
         ys.openDialog({
             title: id > 0 ? "编辑控制模块" : "添加控制模块",
-            content: '@Url.Content("~/ApplicationManage/ViewManipulateModel/ViewManipulateModelForm")' + '?id=' + id,
+            content: '@Url.Content("~/ApplicationManage/ViewManipulateModel/ViewManipulateModelForm")' + '?id=' + id + "&viewFunctionId=" + viewFunctionId + "&systemId=" + systemId,
             width: "768px",
             height: "450px",
             callback: function (index, layero) {

@@ -14,12 +14,13 @@ namespace Caist.Framework.ThreadPool
         {
 
             var s = n.ToString();
-            if (s.EndsWith(".0"))
-                writer.WriteRawValue(s.Substring(0, s.Length - 2));
-            else if (s.Contains("."))
-                writer.WriteRawValue(s.TrimEnd('0').TrimEnd('.'));
-            else
-                writer.WriteRawValue(s);
+            //if (s.EndsWith(".0"))
+            //    writer.WriteRawValue(s.Substring(0, s.Length - 2));
+            //else if (s.Contains("."))
+            //    writer.WriteRawValue(s.TrimEnd('0').TrimEnd('.'));
+            //else
+            //    writer.WriteRawValue(s);
+            writer.WriteRawValue(s); //避免数字类型在转换json的时候会改变小数位数。直接返回原有的字符串格式即可
         }
 
         public override void WriteJson(JsonWriter writer, object value,

@@ -9,11 +9,10 @@ namespace Caist.Framework.Entity.SubStation
     {
         public int Id { get; set; }
         public int SysId { get; set; }
-        public string DianWei { get; set; }
-        public string F { get; set; }
-        public string IA { get; set; }
-        public string P { get; set; }
-        public string Q { get; set; }
-        public string COS { get; set; }
+        public string DictId { get; set; }
+
+        public string DictValue { get; set; }
+        public int InstructType { get; set; }
+        public DateTime? CreateTime { get; set; }
     }
 }

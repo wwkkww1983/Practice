@@ -20,7 +20,8 @@ namespace Caist.Framework.Model.Result.SystemManage
         public string PointName { get; set; }
         public List<FiberAverage> value { get; set; }
     }
-    public class FiberAverage{
+    public class FiberAverage
+    {
         public string AverageValue { get; set; }
         public DateTime? CreateTime { get; set; }
     }
@@ -42,5 +43,51 @@ namespace Caist.Framework.Model.Result.SystemManage
     {
         public int Count { get; set; }
         public string AlarmTime { get; set; }
+    }
+
+    public class CableInfo
+    {
+
+        /// <summary>
+        /// 区域名称
+        /// </summary>
+        public string AreaName
+        {
+            get; set;
+        }
+
+        /// <summary>
+        /// 最大值
+        /// </summary>
+        public string MaxValue
+        {
+            get; set;
+        }
+
+
+        /// <summary>
+        /// 最小值
+        /// </summary>
+        public string MinValue
+        {
+            get; set;
+        }
+
+        /// <summary>
+        /// 平均值
+        /// </summary>
+        public string AverageValue
+        {
+            get; set;
+        }
+    }
+
+    public class SubStationInfo
+    {
+        public string DictId { get; set; }
+
+        public string DictValue { get; set; }
+        public int InstructType { get; set; }
+        public DateTime? CreateTime { get; set; }
     }
 }

@@ -65,7 +65,7 @@ namespace SyncFiles
                 }
                 catch (Exception ex)
                 {
-                    Common.ShowErrorLog("OpcLogPath".GetConfigrationStr(), ex);
+                    Common.LogError(ex);
                 }
             });
 

@@ -25,21 +25,32 @@ on mk_mqtt_code_setting.system_id = mk_device.system_id
                             ");
             using (var conn = Connect.GetConn("SQLServer"))
             {
-                DataTable dataTable =await conn.GetDataTableAsync(builder.ToString());
+                DataTable dataTable = conn.GetDataTable(builder.ToString());
                 return DataConvert.DataTableToList<MqtSettingEntity>(dataTable).ToList();
             }
         }
 
-        public static async Task<List<MqtPlcDataEntity>> GetUpLoadDataList(string TableName,DateTime lasTime)
+        public static List<MqtPlcDataEntity> GetUpLoadDataList(string TableName,DateTime lasTime)
         {
             StringBuilder builder = new StringBuilder();
-            builder.Append(@"select " + TableName + ".* from " + TableName+ " right join (SELECT dict_Id,MAX (id) id FROM " + TableName+" "+
-                "where datediff(n, create_time ,'" + lasTime.ToString("yyy-MM-dd HH:mm:ss") + "') <=1 and datediff(n, create_time , '" + lasTime.ToString("yyy-MM-dd HH:mm:ss") + "')>=0" +
-                "GROUP by dict_Id) a on a.id =" + TableName + ".id ");
-            builder.Append(@" "); //一分钟内的数据
+            builder.Append(@"select " + TableName + ".* from " + TableName+ " right join (SELECT dict_Id,MAX (id) id FROM " + TableName+
+                " where create_time = '" + lasTime.ToString("yyy-MM-dd HH:mm") + "'" + //存储的是每分钟一组数据，所以只取分钟
+                " and dict_Value<>'' " +
+                " GROUP by dict_Id) a on a.id =" + TableName + ".id ");
             using (var conn = Connect.GetConn("SQLServer"))
             {
-                DataTable dataTable = await conn.GetDataTableAsync(builder.ToString());
+                DataTable dataTable = conn.GetDataTable(builder.ToString());
+                return DataConvert.DataTableToList<MqtPlcDataEntity>(dataTable).ToList();
+            }
+        }
+
+        public static List<MqtPlcDataEntity> GetVideoList()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(@"select id as dict_id,channel_number as dict_Value from mk_eb_video");
+            using (var conn = Connect.GetConn("SQLServer"))
+            {
+                DataTable dataTable = conn.GetDataTable(builder.ToString());
                 return DataConvert.DataTableToList<MqtPlcDataEntity>(dataTable).ToList();
             }
         }

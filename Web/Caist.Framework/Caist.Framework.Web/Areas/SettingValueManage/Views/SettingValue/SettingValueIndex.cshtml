@@ -12,6 +12,14 @@
                     <li>
                         Ip地址：<input id="parameterIp" col="ParameterIp" type="text" />
                     </li>
+                    <li class="select-select2">
+                        <label>系统：</label>
+                        <div id="parameterModels" col="ParameterModels" class="select"></div>
+                    </li>
+                    <li class="select-select2">
+                        <label>模块：</label>
+                        <div id="parameterControls" col="ParameterControls" class="select"></div>
+                    </li>
                     <li>
                         <a id="btnSearch" class="btn btn-primary btn-sm" onclick="searchGrid()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                     </li>
@@ -32,7 +40,26 @@
 <script type="text/javascript">
     $(function () {
         initGrid();
+
+         $("#parameterModels").ysComboBox({
+                url: '@Url.Content("~/ApplicationManage/SystemSetting/GetListJson")',
+                key: "Id",
+                value: "SystemName",
+                class: "form-control",
+                onChange: parameterControls
+         });
+        parameterControls();
     });
+
+    function parameterControls() {
+        var selectValue = $("#parameterModels_select").find("option:selected").val();
+        $("#parameterControls").ysComboBox({
+            url: '@Url.Content("~/ApplicationManage/ViewControlModel/GetListJson")' + "?SystemId=" + selectValue,
+                key: "Id",
+                value: "ControlName",
+                class: "form-control",
+            });
+    }
 
     function initGrid() {
         var queryUrl = '@Url.Content("~/SettingValueManage/SettingValue/GetPageListJson")';
@@ -43,6 +70,7 @@
             columns: [
                 { checkbox: true, visible: true },
                 { field: 'Id', title: 'Id', visible: false },
+                { field: 'SystemNickName', title: '所属系统' },
                 { field: 'ParameterName', title: '参数名称' },
                 { field: 'ParameterIp', title: 'IP地址' },
                 { field: 'ParameterPort', title: '端口' },

@@ -62,9 +62,9 @@ namespace Caist.Framework.Business
                                 b.manipulate_model_name as DictName,
                                 d.system_name as SystemName
                         from {0} a
-                        left join mk_view_manipulate_model b on a.dict_id  = b.manipulate_model_mark
+                        inner join mk_view_manipulate_model b on a.dict_id  = b.manipulate_model_mark
                         left join mk_view_function c on b.view_function_id = c.id
-                        left join mk_system_setting d on c.system_setting_id = d.id where Instruct_type = -1 ", param.TabName));
+                        left join mk_system_setting d on c.system_setting_id = d.id where a.Instruct_type = 0 ", param.TabName));
             var parameter = new List<DbParameter>();
             if (param!=null)
             {
@@ -105,21 +105,21 @@ namespace Caist.Framework.Business
             var sql = new StringBuilder();
             sql.Append(string.Format(@"
 					select sum(value) value from(
-						select exp(sum(log(value))) value from ( select   avg(CAST(dict_Value AS decimal)) value from mk_plc_jushan_values  where 
-						dict_id='192.168.20.11-DB16.DBD0' or dict_Id='192.168.20.11-DB16.DBD8'
-						or dict_id='192.168.20.1-DB16.DBD0' or dict_Id='192.168.20.1-DB16.DBD8'
+						select exp(sum(log(value))) value from ( select   avg(CAST(dict_Value AS decimal)) value from mk_plc_jushan_values  where dict_Value<>'' and
+						(dict_id='192.168.20.11-DB16.DBD0' or dict_Id='192.168.20.11-DB16.DBD8'
+						or dict_id='192.168.20.1-DB16.DBD0' or dict_Id='192.168.20.1-DB16.DBD8')
 						union all
-						select  avg(CAST(dict_Value AS decimal)) as value  from mk_plc_jushan_values  where 
-						dict_id='192.168.20.11-DB16.DBD4' or dict_Id='192.168.20.11-DB16.DBD12'
-						or dict_id='192.168.20.1-DB16.DBD4' or dict_Id='192.168.20.1-DB16.DBD12') as data
+						select  avg(CAST(dict_Value AS decimal)) as value  from mk_plc_jushan_values  where dict_Value<>'' and
+						(dict_id='192.168.20.11-DB16.DBD4' or dict_Id='192.168.20.11-DB16.DBD12'
+						or dict_id='192.168.20.1-DB16.DBD4' or dict_Id='192.168.20.1-DB16.DBD12') ) as data
 					union all
-						select exp(sum(log(value))) value from ( select   avg(CAST(dict_Value AS decimal)) value from mk_plc_tongfeng_values  where 
-						dict_id='192.168.20.16-DB30.DBD20' or dict_Id='192.168.20.16-DB31.DBD20'
-						or dict_id='192.168.20.18-DB30.DBD20' or dict_Id='192.168.20.18-DB31.DBD20'
+						select exp(sum(log(value))) value from ( select   avg(CAST(dict_Value AS decimal)) value from mk_plc_tongfeng_values  where  dict_Value<>'' and
+						(dict_id='192.168.20.16-DB30.DBD20' or dict_Id='192.168.20.16-DB31.DBD20'
+						or dict_id='192.168.20.18-DB30.DBD20' or dict_Id='192.168.20.18-DB31.DBD20')
 						union all
-						select  avg(CAST(dict_Value AS decimal)) as value  from mk_plc_jushan_values  where 
-						dict_id='192.168.20.16-DB30.DBD28' or dict_Id='192.168.20.16-DB31.DBD28'
-						or 	dict_id='192.168.20.18-DB30.DBD28' or dict_Id='192.168.20.18-DB31.DBD28') as data) tb"));
+						select  avg(CAST(dict_Value AS decimal)) as value  from mk_plc_jushan_values  where  dict_Value<>'' and
+						(dict_id='192.168.20.16-DB30.DBD28' or dict_Id='192.168.20.16-DB31.DBD28'
+						or 	dict_id='192.168.20.18-DB30.DBD28' or dict_Id='192.168.20.18-DB31.DBD28')) as data) tb"));
 
            var  data =  await this.BaseRepository().FindObject<Energy>(sql.ToString());
 

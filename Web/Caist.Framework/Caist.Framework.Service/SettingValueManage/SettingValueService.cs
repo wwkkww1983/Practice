@@ -69,6 +69,16 @@ namespace Caist.Framework.Service.SettingValueManage
             }
         }
 
+        /// <summary>
+        /// 跟新数据
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task UpdateEntity(SettingValueEntity entity)
+        {
+                await entity.Modify();
+                await this.BaseRepository().Update<SettingValueEntity>(entity);
+        }
         public async Task DeleteForm(string ids)
         {
             long[] idArr = TextHelper.SplitToArray<long>(ids, ',');
@@ -95,12 +105,13 @@ namespace Caist.Framework.Service.SettingValueManage
                             ,a.parameter_setting_type as ParameterSettingType
                             ,a.parameter_sort as ParameterSort
                             ,a.parameter_type as ParameterType
+                            ,b.system_nick_name as SystemNickName
 							,a.parameter_controls as ParameterControls ");
             if (bSystemSettingContent)
             {
                 strSql.Append("");
             }
-            strSql.Append(@" FROM mk_setting_value a WHERE a.base_is_delete = 0 ");
+            strSql.Append(@" FROM mk_setting_value a left join mk_system_setting b on a.parameter_models = b.id WHERE a.base_is_delete = 0 ");
             var parameter = new List<DbParameter>();
             if (param != null)
             {
@@ -118,6 +129,16 @@ namespace Caist.Framework.Service.SettingValueManage
                 {
                     strSql.Append(" AND a.parameter_setting_type = @ParameterSettingType");
                     parameter.Add(DbParameterExtension.CreateDbParameter("@ParameterSettingType", param.ParameterSettingType));
+                }
+                if (!string.IsNullOrEmpty(param.ParameterModels))
+                {
+                    strSql.Append(" AND a.parameter_models = @ParameterModels");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ParameterModels", param.ParameterModels));
+                }
+                if (!string.IsNullOrEmpty(param.ParameterControls))
+                {
+                    strSql.Append(" AND a.parameter_controls = @ParameterControls");
+                    parameter.Add(DbParameterExtension.CreateDbParameter("@ParameterControls", param.ParameterControls));
                 }
             }
             return parameter;

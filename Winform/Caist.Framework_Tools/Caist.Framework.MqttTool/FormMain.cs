@@ -1,4 +1,5 @@
 ﻿using Caist.Framework.M2MQTT;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -35,10 +36,16 @@ namespace Caist.Framework.Mqtt
 
         private void FrmMian_Load(object sender, EventArgs e)
         {
+            //加入/验证开机启动项
+#if !DEBUG
+            SetAutoRun("MQTT上传", Application.StartupPath + "\\MQTT上传.exe");
+#endif
+
             try
             {
                 //初始化mqtt配置信息
-                LoadMqtt();
+                LoadMqtt(sender, e);
+
             }
             catch (Exception ex)
             {
@@ -60,6 +67,36 @@ namespace Caist.Framework.Mqtt
             this.MqttStart.Enabled = true;
             this.MqttStop.Enabled = false;
             StopMqtt(e);
+
         }
+
+
+        public bool SetAutoRun(string keyName, string filePath)
+        {
+            try
+            {
+                RegistryKey Local = Registry.LocalMachine;
+                RegistryKey runKey = Local.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run\");
+                if (runKey.GetValue(keyName) == null)
+                {
+
+                    runKey.SetValue(keyName, filePath);
+                    Message("添加程序开启自启动成功！");
+                }
+                else
+                {
+                    //runKey.DeleteValue(keyName);
+                    Message("本程序已加入开机自启动项！");
+                }
+                Local.Close();
+
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
 }

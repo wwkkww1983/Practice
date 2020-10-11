@@ -88,6 +88,7 @@ namespace Caist.Framework.Service.ApplicationManage
                                     a.system_model as SystemModel,
                                     a.system_sort as SystemSort,
                                     a.Menu_Show as MenuShow,
+                                    a.device_instruction as DeviceInstruction,
                                     a.system_url as SystemUrl");
             if (bSystemSettingContent)
             {

@@ -80,7 +80,7 @@
         $(function () {
             $("#parameterPlcType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(SettingPlcTypeEnum).EnumToDictionaryString())) });
             $("#parameterDataType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(InstructEnum).EnumToDictionaryString())) });
-            $("#paramenterType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(SettingParamenterType).EnumToDictionaryString())) });
+            $("#parameterType").ysRadioBox({ data: ys.getJson(@Html.Raw(typeof(SettingParamenterType).EnumToDictionaryString())) });
             getForm();
 
             $('input[name=paramenterType_radiobox]').on('ifChecked', function (event) {

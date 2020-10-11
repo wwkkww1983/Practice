@@ -93,8 +93,9 @@ namespace Caist.Framework.Entity.Entity
         public string Ip { get; set; }
         public string Port { get; set; }
         public string SystemId { get; set; }
-        public InstructViewEnum InstructType { get; set; }
-        public RequestType RequestType { get; set; }
+        public string DataType { get; set; }
+        public InstructViewEnum? InstructType { get; set; }
+        public RequestType? RequestType { get; set; }
     }
 
     public class InstructInfo
@@ -126,6 +127,7 @@ namespace Caist.Framework.Entity.Entity
         public string ParamenterInstructEnd_V { get; set; }
         public string ParamenterInstruct { get; set; }
         public string ParamenterInstruct_V { get; set; }
+        public string ParamenterInstructStatus { get; set; }
         public string ParamenterName { get; set; }
         public string Id { get; set; }
     }

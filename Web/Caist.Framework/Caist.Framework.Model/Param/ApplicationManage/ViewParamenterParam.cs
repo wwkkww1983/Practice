@@ -25,5 +25,9 @@ namespace Caist.Framework.Model.Param.ApplicationManage
         /// 控制类型
         /// </summary>
         public string ControlModels { get; set; }
+        /// <summary>
+        /// 所属控制模块
+        /// </summary>
+        public long? ViewControlModelId { get; set; }
     }
 }

@@ -43,6 +43,11 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// </summary>
         public string AddressTypeCode { get; set; }
         /// <summary>
+        /// 地址类型名称
+        /// </summary>
+        [NotMapped]
+        public string AddressTypeName { get; set; }
+        /// <summary>
         /// 地址编码-设备安装点
         /// </summary>
         public string AddressDeviceCode { get; set; }
@@ -74,6 +79,8 @@ namespace Caist.Framework.Entity.ApplicationManage
         /// 报警类型关联点位，以逗号分隔
         /// </summary>
         public string AlarmPoint { get; set; }
+
+
 
     }
 

@@ -15,5 +15,9 @@ namespace Caist.Framework.Entity
         public int Address { get; set; }
         [DBColumn(ColName = "Data_Type")]
         public string DataType { get; set; }
+        [DBColumn(ColName = "IP")]
+        public string IP { get; set; }
+        [DBColumn(ColName = "Port")]
+        public string Port { get; set; }
     }
 }

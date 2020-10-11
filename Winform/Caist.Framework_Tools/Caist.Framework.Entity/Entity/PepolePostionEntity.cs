@@ -16,8 +16,8 @@ namespace Caist.Framework.Entity
         /// <summary>
         /// 工种
         /// </summary>
-        [DBColumn(ColName = "TypeOfWorkName")]
-        public string TypeOfWorkName { get; set; }
+        [DBColumn(ColName = "TypeOfWork")]
+        public string TypeOfWork { get; set; }
         /// <summary>
         /// 职务
         /// </summary>

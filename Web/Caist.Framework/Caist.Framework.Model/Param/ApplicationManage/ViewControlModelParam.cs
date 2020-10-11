@@ -15,5 +15,10 @@ namespace Caist.Framework.Model.Param.ApplicationManage
         /// 状态
         /// </summary>
         public int? ControlStutas { get; set; }
+
+        /// <summary>
+        /// 系统ID
+        /// </summary>
+        public string SystemId { get; set; }
     }
 }

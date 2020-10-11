@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -25,7 +26,9 @@ namespace OpcUaHelper.Demo
             m_OpcUaClient = new OpcUaClient( );
             try
             {
-                await m_OpcUaClient.ConnectServer( "opc.tcp://127.0.0.1:62541/SharpNodeSettings/OpcUaServer" );
+                var str = ConfigurationManager.AppSettings["OpcServer"];
+                await m_OpcUaClient.ConnectServer("opc.tcp://118.24.36.220:62547/DataAccessServer");
+                //await m_OpcUaClient.ConnectServer( "opc.tcp://127.0.0.1:62541/SharpNodeSettings/OpcUaServer" );
             }
             catch(Exception ex)
             {
